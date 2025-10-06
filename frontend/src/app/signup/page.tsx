@@ -17,7 +17,7 @@ const SignUp = () =>{
   const router = useRouter()
 
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const newErrors: Errors = { email: '', password: '', confirmPassword: '' }
 
@@ -30,11 +30,30 @@ const SignUp = () =>{
     // if (!confirmPassword) newErrors.confirmPassword = 'Password is required'
      if (confirmPassword !== password) newErrors.confirmPassword = 'Passwords do not match'
     setErrors(newErrors)
-
+    
     if (!newErrors.email && !newErrors.password && !newErrors.confirmPassword) {
-      console.log({ email, password }) 
-      router.push(`/verify-email?email=${encodeURIComponent(email)}`)  
+    try {
+      const res = await fetch('http://localhost:5000/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      })
+
+      const data = await res.json()
+
+      if (res.ok) {
+        router.push(`/verify-email?email=${encodeURIComponent(email)}`)
+      } else {
+      if (data.message === 'Email already exists') {
+        setErrors(prev => ({ ...prev, email: 'Email is already used' }));
+      } else {
+        alert(data.message || 'Sign up failed');
+      }
     }
+  } catch (error) {
+    alert('Server error');
+  }
+  }
   }
 
   return (

@@ -1,5 +1,5 @@
-import jwt from 'jsonwebtoken';
-import {jwtSecret} from '../config/app.config'
+const jwt = require('jsonwebtoken');
+const { jwtSecret } = require('../config/app.config');
 
 export const authenticate = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
@@ -13,3 +13,5 @@ export const authenticate = (req, res, next) => {
     res.status(401).json({ message: 'Invalid or expired token' });
   }
 };
+
+module.exports = authenticate;
