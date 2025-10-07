@@ -33,7 +33,7 @@ const SignUp = () =>{
     
     if (!newErrors.email && !newErrors.password && !newErrors.confirmPassword) {
     try {
-      const res = await fetch('http://localhost:5000/api/auth/signup', {
+      const res = await fetch('http://localhost:5000/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -154,7 +154,8 @@ const SignUp = () =>{
            <div className="flex-grow border-t border-gray-300 border-dashed"></div>
          </div>
          <div className="relative w-full max-w-md sm:max-w-lg mx-auto">
-        <button className="w-full px-4 py-2 rounded bg-white border border-gray-300 flex items-center justify-center space-x-2 text-gray-700 hover:bg-gradient-to-r hover:from-purple-500 hover:to-blue-500 group transition-colors duration-200">
+        <button  onClick={() => window.location.href = "http://localhost:5000/auth/google"}
+        className="w-full px-4 py-2 rounded bg-white border border-gray-300 flex items-center justify-center space-x-2 text-gray-700 hover:bg-gradient-to-r hover:from-purple-500 hover:to-blue-500 group transition-colors duration-200">
            
           <span className="text-purple-500 font-bold group-hover:text-white">G</span>
           <span className="text-gray-700 group-hover:text-white">Sign Up with Google</span>

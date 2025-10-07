@@ -1,8 +1,6 @@
 'use client'
-
 import Link from 'next/link'
-import Image from 'next/image'
-import { FC } from 'react'
+// import Image from 'next/image'
 
 const HeroSection = () => {
   return (
@@ -23,14 +21,14 @@ const HeroSection = () => {
 
       <div className="md:w-1/2 relative flex justify-center">
         <div className="relative rounded-2xl overflow-hidden shadow-2xl w-full max-w-lg">
-          <Image
+          {/* <Image
             src="/hero-image-placeholder.jpg"
             alt="AI Assessment in progress"
             width={600}
             height={400}
             className="object-cover w-full h-auto"
             priority
-          />
+          /> */}
           <div className="absolute top-4 left-4 bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
             ● AI Assessment
           </div>

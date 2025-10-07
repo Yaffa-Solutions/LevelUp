@@ -4,3 +4,5 @@
 
 /src/generated/prisma
 /Dockerfile
+/backend/prisma/seed.js
+/wait-for-it.sh

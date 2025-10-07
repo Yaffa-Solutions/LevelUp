@@ -118,7 +118,8 @@ const SignIn = () =>{
            <div className="flex-grow border-t border-gray-300 border-dashed"></div>
          </div>
          <div className="relative [500px] mx-[60px]">
-        <button className="w-full px-4 py-2 rounded bg-white border border-gray-300 flex items-center justify-center space-x-2 text-gray-700 hover:bg-gradient-to-r hover:from-purple-500 hover:to-blue-500 group transition-colors duration-200">
+        <button onClick={() => window.location.href = "http://localhost:5000/auth/google"}
+        className="w-full px-4 py-2 rounded bg-white border border-gray-300 flex items-center justify-center space-x-2 text-gray-700 hover:bg-gradient-to-r hover:from-purple-500 hover:to-blue-500 group transition-colors duration-200">
            
           <span className="text-purple-500 font-bold group-hover:text-white">G</span>
           <span className="text-gray-700 group-hover:text-white">Sign In with Google</span>

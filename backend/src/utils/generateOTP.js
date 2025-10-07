@@ -3,4 +3,3 @@ const generateOTP = () =>{
 }
 
 module.exports = generateOTP
-// export default generateOTP;

@@ -1,17 +1,18 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 
-interface EmailVerificationProps {
-  email: string
-  userId: string
-}
-
-const EmailVerification = ({ email, userId }: EmailVerificationProps) => {
+const EmailVerification = () => {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const email = searchParams.get('email') || '' 
   const [otp, setOtp] = useState<string[]>(['', '', '', '', ''])
   const [timeLeft, setTimeLeft] = useState<number>(60)
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([])
-  const router = useRouter()
+  const inputRefs = useRef<Array<HTMLInputElement | null>>([])
+
+  useEffect(() => {
+    inputRefs.current[0]?.focus()
+  }, [])
 
   useEffect(() => {
     if (timeLeft <= 0) return
@@ -30,7 +31,7 @@ const EmailVerification = ({ email, userId }: EmailVerificationProps) => {
       inputRefs.current[index + 1]?.focus()
     }
 
-    if (newOtp.every(digit => digit !== '')) {
+    if (newOtp.every(d => d !== '')) {
       handleVerify(newOtp.join(''))
     }
   }
@@ -46,15 +47,15 @@ const EmailVerification = ({ email, userId }: EmailVerificationProps) => {
 
   const handleVerify = async (code: string) => {
     try {
-      const res = await fetch('http://localhost:5000/api/auth/verify-otp', {
+      const res = await fetch('http://localhost:5000/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, otp: code })
+        body: JSON.stringify({ email, otp: code })
       })
       const data = await res.json()
 
       if (res.ok) {
-        router.push('/next-page') 
+        router.push('/next-page')
       } else {
         alert(data.message)
         setOtp(['', '', '', '', ''])
@@ -66,8 +67,8 @@ const EmailVerification = ({ email, userId }: EmailVerificationProps) => {
     }
   }
 
-  const handleResend = () => {
-    fetch('http://localhost:5000/api/auth/resend-otp', {
+  const handleResend = async () => {
+    await fetch('http://localhost:5000/auth/resend-otp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email })
@@ -106,7 +107,6 @@ const EmailVerification = ({ email, userId }: EmailVerificationProps) => {
                   onChange={e => handleChange(e.target.value, index)}
                   onKeyDown={e => handleKeyDown(e, index)}
                   className="w-10 h-14 text-3xl font-bold text-center border-b-2 border-gray-300 focus:border-b-4 focus:border-purple-500 rounded-none focus:outline-none transition duration-150"
-                  style={{ borderRadius: 0 }}
                 />
               ))}
             </div>
