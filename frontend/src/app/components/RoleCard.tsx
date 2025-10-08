@@ -1,6 +1,6 @@
 import { RoleData } from '../../types'; 
 
-const RoleCard: React.FC<RoleData> = ({ title, subtitle, description, iconKey, iconColor }) => {
+const RoleCard: React.FC<RoleData> = ({ title, subtitle, description, iconColor }) => {
 
     return (
         <div className="flex items-start p-6 border border-gray-200 rounded-xl shadow-lg w-full">

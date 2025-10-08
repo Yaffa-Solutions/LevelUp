@@ -42,7 +42,10 @@ const SignUp = () =>{
       const data = await res.json()
 
       if (res.ok) {
-        router.push(`/verify-email?email=${encodeURIComponent(email)}`)
+      //   router.push(`/verify-email?email=${encodeURIComponent(email)}`)
+         localStorage.setItem("token", data.token)
+         console.log(localStorage.getItem("token"))
+         router.push("/verify-email?email=" + encodeURIComponent(email))
       } else {
       if (data.message === 'Email already exists') {
         setErrors(prev => ({ ...prev, email: 'Email is already used' }));

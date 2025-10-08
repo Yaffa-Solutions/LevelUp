@@ -1,5 +1,6 @@
 'use client'
 import { useState, FormEvent } from 'react'
+import { useRouter } from 'next/navigation'
 
 interface Errors {
   email: string
@@ -12,23 +13,46 @@ const SignIn = () =>{
   const [password, setPassword] = useState<string>('')
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const [errors, setErrors] = useState<Errors>({ email: '', password: '', confirmPassword: '' })
+  const router = useRouter()
+  
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  e.preventDefault()
+  const newErrors: Errors = { email: '', password: '', confirmPassword: '' }
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const newErrors: Errors = { email: '', password: '', confirmPassword: '' }
+  if (!email) newErrors.email = 'Email is required'
+  else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Email is invalid'
 
-    if (!email) newErrors.email = 'Email is required'
-    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Email is invalid'
+  if (!password) newErrors.password = 'Password is required'
+  else if (password.length < 6) newErrors.password = 'Password must be at least 6 characters'
 
-    if (!password) newErrors.password = 'Password is required'
-    else if (password.length < 6) newErrors.password = 'Password must be at least 6 characters'
+  setErrors(newErrors)
 
-    setErrors(newErrors)
+  if (!newErrors.email && !newErrors.password) {
+    try {
+      const res = await fetch('http://localhost:5000/auth/signin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      })
 
-    if (!newErrors.email && !newErrors.password) {
-      console.log({ email, password })
+      const data = await res.json()
+
+      if (res.ok) {
+        localStorage.setItem("token", data.token)
+        console.log(localStorage.getItem("token"))
+        router.push("/home")
+      } else {
+        if (data.message === 'Invalid credentials') {
+          setErrors(prev => ({ ...prev, password: 'Wrong email or password' }));
+        } else {
+          alert(data.message || 'Sign in failed');
+        }
+      }
+    } catch (error) {
+      alert('Server error')
     }
   }
+}
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 px-4">

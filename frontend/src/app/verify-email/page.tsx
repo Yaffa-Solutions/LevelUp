@@ -55,7 +55,7 @@ const EmailVerification = () => {
       const data = await res.json()
 
       if (res.ok) {
-        router.push('/next-page')
+        router.push('/create-profile')
       } else {
         alert(data.message)
         setOtp(['', '', '', '', ''])

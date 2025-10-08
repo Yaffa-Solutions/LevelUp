@@ -6,6 +6,9 @@ const passport = require('./config/passport');
 const sessionConfig = require('./config/session');
 
 const authRoutes = require('./routes/authRoute');
+const userRoutes = require('./routes/userRoute');
+const postsRoutes = require('./routes/postsRoute');
+const postReactionRoutes = require('./routes/postReactionRoute');
 
 const app = express();
 
@@ -17,5 +20,8 @@ app.use(passport.session());
 
 app.use('/auth', authRoutes);
 app.use('/auth', oauthRoutes);
+app.use('/user',userRoutes);
+app.use('/posts', postsRoutes);
+app.use('/post-reaction', postReactionRoutes);
 
 module.exports = app

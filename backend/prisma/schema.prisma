@@ -132,9 +132,11 @@ model PostReaction {
   id      String @id @default(uuid())
   post_id String
   user_id String
+  created_at DateTime @default(now())
 
   post Post @relation(fields: [post_id], references: [id])
   user User @relation(fields: [user_id], references: [id])
+   @@unique([user_id, post_id])
 }
 
 model Skill {
