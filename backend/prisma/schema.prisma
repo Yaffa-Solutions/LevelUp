@@ -47,8 +47,8 @@ model UserLevels {
 
 model User {
   id                 String       @id @default(uuid())
-  email              String       @unique
-  password           String
+  email              String      @unique
+  password           String?
   google_id          String?       @unique
   cv_url             String?
   first_name         String
@@ -132,9 +132,11 @@ model PostReaction {
   id      String @id @default(uuid())
   post_id String
   user_id String
+  created_at DateTime @default(now())
 
   post Post @relation(fields: [post_id], references: [id])
   user User @relation(fields: [user_id], references: [id])
+   @@unique([user_id, post_id])
 }
 
 model Skill {

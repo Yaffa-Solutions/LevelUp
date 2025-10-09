@@ -1,0 +1,65 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: levelup-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: levelup
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+
+  # prisma:
+  #   image: node:20
+  #   container_name: levelup-prisma
+  #   working_dir: /app
+  #   volumes:
+  #     - ./backend:/app
+  #   depends_on:
+  #     - postgres
+  #   command: tail -f /dev/null    
+
+
+  # backend:
+  #     build: ./backend
+  #     container_name: levelup-backend
+  #     working_dir: /app
+  #     volumes:
+  #       - ./backend:/app
+  #     depends_on:
+  #       - postgres
+  #     command: tail -f /dev/null
+
+  backend:
+    build: ./backend
+    container_name: levelup-backend
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres@levelup-db:5432/levelup?schema=public"
+    depends_on:
+      - postgres
+    ports:
+      - "5000:5000"
+
+
+  # frontend:
+  #   build: ./frontend
+  #   container_name: levelup-frontend
+  #   working_dir: /app
+  #   volumes:
+  #     - ./frontend:/app
+  #   depends_on:
+  #     - backend
+  #   ports:
+  #     - "3000:3000"
+  #   command: npm run dev
+       
+
+volumes:
+  postgres_data:    

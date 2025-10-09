@@ -3,3 +3,8 @@
 .env
 
 /src/generated/prisma
+/Dockerfile
+/prisma/seed.js
+/prisma/seedPosts.js
+/wait-for-it.sh
+/test.js
