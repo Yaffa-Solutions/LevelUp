@@ -1,4 +1,5 @@
 const postService = require('../services/postService')
+const { getPostsLikedByUser } = require('../services/postReactionService');
 
 const create = async (req, res) =>{
   try {
@@ -45,11 +46,33 @@ const remove = async (req, res) =>{
   }
 }
 
+const getPostsController = async (req, res) => {
+  const userId = req.user.userId;
+
+  try {
+    const posts = await postService.getAllPosts(); 
+    const likedPosts = await getPostsLikedByUser(userId);
+    const likedPostIds = likedPosts.map(p => p.post_id);
+
+    const mappedPosts = posts.map(p => ({
+      ...p,
+      likes: p.postReactions.length,
+      userLiked: likedPostIds.includes(p.id),
+    }));
+
+    res.json(mappedPosts);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 module.exports = {
   create,
   getAll,
   getOne,
   update,
   remove,
+  getPostsController
 };
 
