@@ -1,6 +1,7 @@
 'use client'
 import Image from "next/image"
 import { useState, useEffect } from "react"
+import UserCard from "../components/userCard"
 
 interface PostReaction {
   user_id: string
@@ -41,7 +42,7 @@ interface RawPost {
   PostReactions?: { user_id: string }[]
 }
 
-export default function Home() {
+const Home = () =>{
   const [user, setUser] = useState<User | null>(null)
   const [posts, setPosts] = useState<Post[]>([])
   const [newPost, setNewPost] = useState("")
@@ -167,16 +168,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-8">
       <div className="flex gap-[40px] mt-7 mb-7">
-        <div className="bg-white rounded-lg shadow flex flex-col items-center p-4" style={{ width: "294px", height: "208px", marginLeft: "100px" }}>
-          {user?.profil_picture ? (
-            <Image src={user.profil_picture} alt={`${user.first_name} ${user.last_name}`} width={80} height={80} className="rounded-full" />
-          ) : (
-            <div className="w-20 h-20 flex items-center justify-center bg-gray-200 rounded-full">
-              <span className="text-gray-500 text-2xl">👤</span>
-            </div>
-          )}
-          <h2 className="mt-4 font-semibold">{user ? `${user.first_name} ${user.last_name}` : "Your Name"}</h2>
-        </div>
+         <UserCard />
 
         <div className="flex-1 flex flex-col gap-6 mr-24">
           <div className="bg-white p-4 rounded-lg shadow">
@@ -198,7 +190,9 @@ export default function Home() {
                   {post.user?.profil_picture ? (
                     <Image src={post.user.profil_picture} alt="user" width={50} height={50} className="rounded-full" />
                   ) : (
-                    <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-gray-500">👤</div>
+                    // <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-gray-500">👤</div>
+                     <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-gray-500">
+                      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Zm80-80h480v-32q0-11-5.5-20T700-306q-54-27-109-40.5T480-360q-56 0-111 13.5T260-306q-9 5-14.5 14t-5.5 20v32Zm240-320q33 0 56.5-23.5T560-640q0-33-23.5-56.5T480-720q-33 0-56.5 23.5T400-640q0 33 23.5 56.5T480-560Zm0-80Zm0 400Z"/></svg>                     </div>
                   )}
                   <div>
                     <h3 className="font-semibold text-sm">{`${post.user.first_name} ${post.user.last_name}`}</h3>
@@ -246,3 +240,5 @@ export default function Home() {
     </div>
   )
 }
+
+export default Home;

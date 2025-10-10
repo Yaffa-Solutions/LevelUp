@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import Navbar from "./Navbar";
 
-export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
+const LayoutWrapper = ({ children }: { children: React.ReactNode }) =>{
   const pathname = usePathname();
   const hideNavbarRoutes = ["/","/signin", "/signup", "/forgot-password", "/verify-email", "create-profile"];
   const shouldHideNavbar = hideNavbarRoutes.includes(pathname);
@@ -15,3 +15,5 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     </>
   );
 }
+
+export default LayoutWrapper;
