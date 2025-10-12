@@ -8,10 +8,11 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [isLogged, setIsLogged] = useState(false);
 
-  useEffect(()=>{
+  useEffect(() => {
     const hasToken = document.cookie.includes("token");
-    if(hasToken) setIsLogged(true)
-  },[])
+    if (hasToken) setIsLogged(true);
+  }, []);
+
 
   const navLinks = [
     {
@@ -33,10 +34,10 @@ export default function Navbar() {
       mr: "mr-8",
     },
     {
-      name: "AIBot",
+      name: "Chats",
       href: "/chat",
-      d: "M8 2a.75.75 0 0 0-.75.75V5H5.5a2.99 2.99 0 0 0-2.957 2.5H2.5C1.68 7.5 1 8.18 1 9v1c0 .82.68 1.5 1.5 1.5h.043A2.99 2.99 0 0 0 5.5 14h5a2.99 2.99 0 0 0 2.957-2.5h.043c.82 0 1.5-.68 1.5-1.5V9c0-.82-.68-1.5-1.5-1.5h-.043A2.99 2.99 0 0 0 10.5 5H8.75V2.75A.75.75 0 0 0 8 2M6 6.75c.686 0 1.25.564 1.25 1.25S6.686 9.25 6 9.25S4.75 8.686 4.75 8S5.314 6.75 6 6.75m4 0c.686 0 1.25.564 1.25 1.25S10.686 9.25 10 9.25S8.75 8.686 8.75 8S9.314 6.75 10 6.75m-4.5 4h5a.75.75 0 0 1 .75.75a.75.75 0 0 1-.75.75h-5a.75.75 0 0 1-.75-.75a.75.75 0 0 1 .75-.75",
-      viewBox: "0 0 16 16",
+      d:"M267.7 576.9C267.7 576.9 267.7 576.9 267.7 576.9L229.9 603.6C222.6 608.8 213 609.4 205 605.3C197 601.2 192 593 192 584L192 512L160 512C107 512 64 469 64 416L64 192C64 139 107 96 160 96L480 96C533 96 576 139 576 192L576 416C576 469 533 512 480 512L359.6 512L267.7 576.9zM332 472.8C340.1 467.1 349.8 464 359.7 464L480 464C506.5 464 528 442.5 528 416L528 192C528 165.5 506.5 144 480 144L160 144C133.5 144 112 165.5 112 192L112 416C112 442.5 133.5 464 160 464L216 464C226.4 464 235.3 470.6 238.6 479.9C239.5 482.4 240 485.1 240 488L240 537.7C272.7 514.6 303.3 493 331.9 472.8z", 
+      viewBox: "0 0 640 640",
       mr: "mr-5",
     },
     {
@@ -83,7 +84,7 @@ export default function Navbar() {
           <div
             className={`flex-col pb-1 md:pb-0 md:flex-row md:flex md:shadow-none md:items-center absolute md:static bg-white md:bg-transparent left-0 w-full md:w-auto transition-all duration-300 ease-in-out ${
               open
-                ? "top-16 opacity-100 shadow-lg"
+                ? "top-16 opacity-100 z-50 shadow-lg"
                 : "top-[-500px] opacity-0 md:opacity-100"
             }`}
           >
