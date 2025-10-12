@@ -24,6 +24,15 @@ const verifyOTP = async (req, res) => {
       return res.status(400).json({ message: 'Email and OTP required' });
 
     const token = await authService.verifyOTP(email, otp);
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      // domain: 'localhost', 
+      maxAge: 60 * 60 * 1000
+    });
+    
     res.status(200).json({
       message: 'OTP verified successfully',
       token
@@ -40,6 +49,15 @@ const signIn = async (req, res) => {
       return res.status(400).json({ message: 'Email and password required' });
 
     const token = await authService.signIn(email, password);
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      // secure: process.env.NODE_ENV === 'production', 
+      secure: false,  
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 1000 
+    });
+
     res.status(200).json({
       message: 'Login successful',
       token

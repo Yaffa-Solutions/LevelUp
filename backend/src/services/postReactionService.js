@@ -1,22 +1,17 @@
 const { PrismaClient } = require('../generated/prisma');
 const prisma = new PrismaClient();
 
-const createReaction = async (userId, postId) => {
-  try {
-    const existing = await prisma.postReaction.findUnique({
-      where: { user_id_post_id: { user_id: userId, post_id: postId } }
-    });
-    if (existing) return null;
+const createReaction = async(userId, postId) =>{
+  const existing = await prisma.postReaction.findUnique({
+    where: { user_id_post_id: { user_id: userId, post_id: postId } }
+  });
 
-    return await prisma.postReaction.create({
-      data: { user_id: userId, post_id: postId }
-    });
-  } catch (err) {
-    console.error("Error in createReaction:", err);
-    throw err;
-  }
-};
+  if (existing) return null;
 
+  return prisma.postReaction.create({
+    data: { user_id: userId, post_id: postId }
+  });
+}
 
 const removeReaction = async (userId, postId) =>{
   return prisma.postReaction.delete({

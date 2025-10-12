@@ -65,7 +65,7 @@ const LandingPage: React.FC = () => {
             Everything You Need to <span className="text-purple-600">Level Up</span>
           </h2>
           <p className="text-gray-600 mb-12 max-w-3xl mx-auto">
-            Whether you're a software engineer looking to grow or a talent hunter seeking the right candidates, we have the tools to connect skills with opportunities.
+            Whether you&apos;re a software engineer looking to grow or a talent hunter seeking the right candidates, we have the tools to connect skills with opportunities.
           </p>
 
           <div className="flex flex-wrap justify-center gap-6 max-w-7xl mx-auto">

@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 
 interface Errors {
   email: string
-  password: string
+  password?: string
   confirmPassword: string
 }
 
@@ -35,16 +35,18 @@ const SignUp = () =>{
     try {
       const res = await fetch('http://localhost:5000/auth/signup', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
+        
       })
 
       const data = await res.json()
 
       if (res.ok) {
       //   router.push(`/verify-email?email=${encodeURIComponent(email)}`)
-         localStorage.setItem("token", data.token)
-         console.log(localStorage.getItem("token"))
+        //  localStorage.setItem("token", data.token)
+        //  console.log(localStorage.getItem("token"))
          router.push("/verify-email?email=" + encodeURIComponent(email))
       } else {
       if (data.message === 'Email already exists') {
@@ -54,8 +56,12 @@ const SignUp = () =>{
       }
     }
   } catch (error) {
-    alert('Server error');
-  }
+  console.error(error)
+}
+
+  // catch (error) {
+  //   alert('Server error');
+  // }
   }
   }
 

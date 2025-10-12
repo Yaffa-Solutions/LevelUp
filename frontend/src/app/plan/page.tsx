@@ -2,6 +2,12 @@
 import { useState, useEffect } from 'react'
 import UserCard from "../components/userCard"
 
+interface Resource {
+  title: string
+  link: string
+  type: string
+}
+
 interface Plan {
   id: string
   plan_name: string
@@ -9,7 +15,8 @@ interface Plan {
   started_time: string
   end_time: string
   active: boolean
-  recommended_resource: any[]
+  recommended_resource: Resource[]
+
 }
 
 const PlanPage = () =>{
@@ -21,20 +28,23 @@ const PlanPage = () =>{
     const fetchPlans = async () => {
       try {
         const res = await fetch("http://localhost:5000/plans/me", {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          // headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          credentials: 'include'
+          
         })
         const data = await res.json()
 
-        const mappedPlans = data.map((p: any) => ({
+        // const mappedPlans = data.map((p ) => ({
+        const mappedPlans = (data as Plan[]).map((p) => ({
           ...p,
           recommended_resource: typeof p.recommended_resource === "string"
             ? JSON.parse(p.recommended_resource)
             : p.recommended_resource || [],
         }))
 
-        const activePlan = mappedPlans.find((p: any) => p.active)
-        const otherPlans = mappedPlans.filter((p: any) => !p.active)
-        otherPlans.sort((a: any, b: any) => new Date(b.started_time).getTime() - new Date(a.started_time).getTime())
+        const activePlan = mappedPlans.find((p: Plan) => p.active)
+        const otherPlans = mappedPlans.filter((p: Plan) => !p.active)
+        otherPlans.sort((a: Plan, b: Plan) => new Date(b.started_time).getTime() - new Date(a.started_time).getTime())
         const sortedPlans = activePlan ? [activePlan, ...otherPlans] : otherPlans
 
         setPlans(sortedPlans)

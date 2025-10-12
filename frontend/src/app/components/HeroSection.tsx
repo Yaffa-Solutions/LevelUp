@@ -12,7 +12,7 @@ const HeroSection = () => {
           Level Up Your Team.
         </h1>
         <p className="text-base md:text-lg text-gray-600 mb-8 max-w-lg">
-          Whether you're a software engineer seeking growth or a talent hunter searching for expertise، <strong>LevelUp</strong> is your AI-powered platform for <strong>evaluation, connection, and opportunity.</strong>
+          Whether you&apos;re a software engineer seeking growth or a talent hunter searching for expertise، <strong>LevelUp</strong> is your AI-powered platform for <strong>evaluation, connection, and opportunity.</strong>
         </p>
         <Link href="/get-started" className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-8 rounded-xl text-lg transition duration-300 shadow-lg hover:shadow-xl">
           Get Started
