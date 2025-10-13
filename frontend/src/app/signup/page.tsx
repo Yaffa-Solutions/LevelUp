@@ -1,6 +1,8 @@
 'use client'
-import { useState, FormEvent } from 'react'
+import { useState, FormEvent, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation';
+import toast, { Toaster } from 'react-hot-toast';
 
 interface Errors {
   email: string
@@ -15,6 +17,15 @@ const SignUp = () =>{
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const [errors, setErrors] = useState<Errors>({ email: '', password: '', confirmPassword: '' })
   const router = useRouter()
+
+  const searchParams = useSearchParams();
+  const toastMessage = searchParams.get('toastMessage');
+
+  useEffect(() => {
+    if (toastMessage) {
+      toast.error(`User with email ${toastMessage} not found. Please sign up first.`);
+    }
+  }, [toastMessage]);
 
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -44,29 +55,28 @@ const SignUp = () =>{
       const data = await res.json()
 
       if (res.ok) {
-      //   router.push(`/verify-email?email=${encodeURIComponent(email)}`)
-        //  localStorage.setItem("token", data.token)
-        //  console.log(localStorage.getItem("token"))
          router.push("/verify-email?email=" + encodeURIComponent(email))
       } else {
       if (data.message === 'Email already exists') {
         setErrors(prev => ({ ...prev, email: 'Email is already used' }));
-      } else {
+      } else if (data.message === 'User not found') {
+            localStorage.setItem('toastMessage', `User with email ${email} not found. Please sign up first.`)
+            router.push('/signup')
+          }
+       else {
         alert(data.message || 'Sign up failed');
       }
     }
   } catch (error) {
   console.error(error)
 }
-
-  // catch (error) {
-  //   alert('Server error');
-  // }
   }
   }
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 px-4">
+     <Toaster position="top-right" />
+     
       <div className="bg-white p-6 sm:p-8 rounded-lg shadow-md w-full max-w-2xl">
         <div className="text-center mb-6">
           <div className="flex items-center justify-center mb-2 space-x-2">
@@ -163,7 +173,7 @@ const SignUp = () =>{
            <div className="flex-grow border-t border-gray-300 border-dashed"></div>
          </div>
          <div className="relative w-full max-w-md sm:max-w-lg mx-auto">
-        <button  onClick={() => window.location.href = "http://localhost:5000/auth/google"}
+        <button  onClick={() => window.location.href = "http://localhost:5000/auth/google/signup"}
         className="w-full px-4 py-2 rounded bg-white border border-gray-300 flex items-center justify-center space-x-2 text-gray-700 hover:bg-gradient-to-r hover:from-purple-500 hover:to-blue-500 group transition-colors duration-200">
            
           <span className="text-purple-500 font-bold group-hover:text-white">G</span>
