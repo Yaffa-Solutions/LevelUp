@@ -19,19 +19,6 @@ export const getTalentById = (req, res, next) => {
     .catch(next);
 };
 
-export const updateTalentInfo = (req, res, next) => {
-  const { id } = req.params;
-  const { first_name, last_name, job_title, levels } = req.body;
-
-  prisma.user
-    .update({
-      where: { id },
-      data: { first_name, last_name, job_title, levels },
-    })
-    .then((user) => res.status(200).json(user))
-    .catch(next);
-};
-
 export const updateProfilePicture = (req, res, next) => {
   const { id } = req.params;
   const { profil_picture } = req.body;
@@ -57,6 +44,20 @@ export const updateCoverImage = (req, res, next) => {
     .then((user) => res.status(200).json(user))
     .catch(next);
 };
+export const updateTalentInfo = (req, res, next) => {
+  const { id } = req.params;
+  const { first_name, last_name, job_title, level_id } = req.body;
+
+  prisma.user
+    .update({
+      where: { id },
+      data: { first_name, last_name, job_title, level_id },
+      include: { levels: true },
+    })
+    .then((user) => res.status(200).json(user))
+    .catch(next);
+};
+
 export const updateAbout = (req, res, next) => {
   const { id } = req.params;
   const { about } = req.body;
