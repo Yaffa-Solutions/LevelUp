@@ -19,13 +19,22 @@ export const addTalentSkill = (req, res, next) => {
     return res.status(400).json({ error: 'user_id and skill_name required' });
   }
 
+const rawName = skill_name.trim();
+const normalizedSkillName = rawName.toUpperCase();
+
   prisma.skill
-    .findFirst({ where: { skill_name } })
+    .findFirst({
+      where: {
+        skill_name: { equals: normalizedSkillName, mode: 'insensitive' },
+      },
+    })
     .then((skill) => {
       if (skill) {
         return skill;
       } else {
-        return prisma.skill.create({ data: { skill_name } });
+        return prisma.skill.create({
+          data: { skill_name: normalizedSkillName },
+        });
       }
     })
     .then((skill) => {
@@ -35,7 +44,10 @@ export const addTalentSkill = (req, res, next) => {
         })
         .then((exists) => {
           if (exists) {
-            throw { status: 409, message: 'Skill already added' };
+              return Promise.reject({
+                status: 409,
+                message: 'You already have this skill.',
+              });
           }
           return prisma.skillTalent.create({
             data: { user_id, skill_id: skill.id },
@@ -63,6 +75,6 @@ export const deleteTalentSkill = (req, res, next) => {
 
   prisma.skillTalent
     .delete({ where: { id } })
-    .then(() => res.status(204).send())
+    .then(() => res.status(200).send())
     .catch((err) => next(err));
 };
