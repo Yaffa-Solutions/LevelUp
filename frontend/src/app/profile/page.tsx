@@ -8,14 +8,13 @@ import AboutSection from './components/AboutSetion';
 import ExperienceSection from './components/ExperienceSection';
 import SkillsSection from './components/SkillsSection';
 import { User } from '@/app/types/userTypes';
-import { Toaster } from 'react-hot-toast';
 
 const ProfilePage = () => {
   const [user, setUser] = useState<User | null>(null);
   const userId = '1';
 
   useEffect(() => {
-    fetch(`http://localhost:4000/api/talent/${userId}`)
+    fetch(`http://localhost:4000/api/talent/1`)
       .then((res) => res.json())
       .then((data) => setUser(data))
       .catch((err) => console.error('Error fetching user:', err));
@@ -26,17 +25,6 @@ const ProfilePage = () => {
 
   return (
     <div className="mt-5">
-      <Toaster
-        position="top-center"
-        toastOptions={{
-          duration: 2000,
-          style: {
-            fontSize: '10px',
-            borderRadius: '50px',
-          },
-        }}
-      />
-
       <section className="max-w-4xl mx-auto  bg-white rounded-xl shadow-sm">
         <ProfileCover />
         <ProfileAvatar />
@@ -65,7 +53,7 @@ const ProfilePage = () => {
       <section className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm">
         <ExperienceSection
           experiences={user.experiences || []}
-       
+          
         />
       </section>
 
