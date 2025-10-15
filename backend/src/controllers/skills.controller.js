@@ -1,80 +1,80 @@
 import prisma from '../prismaClient.js';
 
-export const getTalentSkills = (req, res, next) => {
-  const { userId } = req.params;
+export const getTalentSkills = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
 
-  prisma.skillTalent
-    .findMany({
+    if (!userId) {
+      return res.status(400).json({ error: 'userId is required' });
+    }
+
+    const skills = await prisma.skillTalent.findMany({
       where: { user_id: userId },
       include: { skill: true },
-    })
-    .then((skills) => res.status(200).json(skills))
-    .catch((err) => next(err));
+    });
+
+    res.status(200).json(skills);
+  } catch (err) {
+    next(err);
+  }
 };
 
-export const addTalentSkill = (req, res, next) => {
-  const { user_id, skill_name } = req.body;
+export const addTalentSkill = async (req, res, next) => {
+  try {
+    const { user_id, skill_name } = req.body;
 
-  if (!user_id || !skill_name) {
-    return res.status(400).json({ error: 'user_id and skill_name required' });
-  }
+    if (!user_id || !skill_name) {
+      return res.status(400).json({ error: 'user_id and skill_name required' });
+    }
 
-const rawName = skill_name.trim();
-const normalizedSkillName = rawName.toUpperCase();
+    const normalizedSkillName = skill_name.trim().toUpperCase();
 
-  prisma.skill
-    .findFirst({
+    let skill = await prisma.skill.findFirst({
       where: {
         skill_name: { equals: normalizedSkillName, mode: 'insensitive' },
       },
-    })
-    .then((skill) => {
-      if (skill) {
-        return skill;
-      } else {
-        return prisma.skill.create({
-          data: { skill_name: normalizedSkillName },
-        });
-      }
-    })
-    .then((skill) => {
-      return prisma.skillTalent
-        .findFirst({
-          where: { user_id, skill_id: skill.id },
-        })
-        .then((exists) => {
-          if (exists) {
-              return Promise.reject({
-                status: 409,
-                message: 'You already have this skill.',
-              });
-          }
-          return prisma.skillTalent.create({
-            data: { user_id, skill_id: skill.id },
-          });
-        })
-        .then((st) => {
-          return prisma.skillTalent.findUnique({
-            where: { id: st.id },
-            include: { skill: true },
-          });
-        });
-    })
-    .then((result) => res.status(201).json(result))
-    .catch((err) => {
-      if (err.status) {
-        res.status(err.status).json({ error: err.message });
-      } else {
-        next(err);
-      }
     });
+
+    if (!skill) {
+      skill = await prisma.skill.create({
+        data: { skill_name: normalizedSkillName },
+      });
+    }
+    const existing = await prisma.skillTalent.findFirst({
+      where: { user_id, skill_id: skill.id },
+    });
+
+    if (existing) {
+      return res.status(409).json({ error: 'You already have this skill.' });
+    }
+    const newRelation = await prisma.skillTalent.create({
+      data: { user_id, skill_id: skill.id },
+    });
+    const result = await prisma.skillTalent.findUnique({
+      where: { id: newRelation.id },
+      include: { skill: true },
+    });
+
+    res.status(201).json(result);
+  } catch (err) {
+    next(err);
+  }
 };
 
-export const deleteTalentSkill = (req, res, next) => {
-  const { id } = req.params;
+export const deleteTalentSkill = async (req, res, next) => {
+  try {
+    const { id } = req.params;
 
-  prisma.skillTalent
-    .delete({ where: { id } })
-    .then(() => res.status(200).send())
-    .catch((err) => next(err));
+    if (!id) {
+      return res.status(400).json({ error: 'id is required' });
+    }
+
+    await prisma.skillTalent.delete({ where: { id } });
+    res.status(200).send();
+  } catch (err) {
+    if (err.code === 'P2025') {
+      return res.status(404).json({ error: 'Skill not found' });
+    }
+    next(err);
+  }
 };

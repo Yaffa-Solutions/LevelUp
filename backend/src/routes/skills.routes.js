@@ -7,7 +7,7 @@ import {
 
 const router = express.Router();
 
-router.get('/talent/:id', getTalentSkills);
+router.get('/talent/:userId', getTalentSkills);
 
 router.post('/',addTalentSkill);
 
