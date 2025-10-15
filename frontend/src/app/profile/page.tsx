@@ -8,6 +8,7 @@ import AboutSection from './components/AboutSetion';
 import ExperienceSection from './components/ExperienceSection';
 import SkillsSection from './components/SkillsSection';
 import { User } from '@/app/types/userTypes';
+import Spinner from './components/Spinner';
 
 const ProfilePage = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -21,8 +22,7 @@ const ProfilePage = () => {
   }, []);
 
   if (!user)
-    return <div className="text-center p-10 text-blue-700">Loading...</div>;
-
+    return <Spinner/>;
   return (
     <div className="mt-5">
       <section className="max-w-4xl mx-auto  bg-white rounded-xl shadow-sm">
@@ -52,8 +52,15 @@ const ProfilePage = () => {
 
       <section className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm">
         <ExperienceSection
+          userId={userId}
           experiences={user.experiences || []}
-          
+          onUpdate={(newExp) =>
+            setUser((prev) =>
+              prev
+                ? { ...prev, experiences: [newExp, ...prev.experiences] }
+                : prev
+            )
+          }
         />
       </section>
 

@@ -50,12 +50,27 @@ export const addNewExperience = (req, res, next) => {
 
 export const updateExperience = (req, res, next) => {
   const { id } = req.params;
-  const payload = req.body;
+  const {
+    company_name,
+    position,
+    start_date,
+    end_date,
+    description,
+    employment_type,
+  } = req.body;
+   console.log('Updating experience:', req.params.id, req.body);
 
   prisma.experience
     .update({
       where: { id },
-      data: payload,
+      data: {
+        company_name,
+        position,
+        start_date: start_date ? new Date(start_date) : null,
+        end_date: end_date ? new Date(end_date) : null,
+        description,
+        employment_type,
+      },
     })
     .then((updated) => res.json(updated))
     .catch((err) => next(err));

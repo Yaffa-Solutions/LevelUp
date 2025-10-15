@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import CancelButton from './CancelButton';
 import CloseButton from './CloseButton';
 import SaveButton from './SaveButton';
 
@@ -100,11 +99,9 @@ const EditInfoModal = ({
             />
           </label>
         </div>
-        <div className="flex justify-end gap-3 mt-4">
-          {/* <CancelButton onClick={onClose} /> */}
 
-          <SaveButton onClick={handleSave} disabled={loading} />
-        </div>{' '}
+        <SaveButton onClick={handleSave} disabled={loading} />
+        
       </div>
     </div>
   );

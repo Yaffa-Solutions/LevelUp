@@ -8,7 +8,7 @@ const ExperienceCard = ({
   description,
   employment_type,
 }: Experience) => (
-  <div className="border rounded-xl p-4 mb-3 shadow-sm bg-gray-50">
+  <div>
     <h3 className="text-lg font-semibold text-gray-800">{position}</h3>
     <p className="text-gray-600">{company_name}</p>
     <p className="text-sm text-gray-500">

@@ -1,45 +1,70 @@
 'use client';
 
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, TruckElectric } from 'lucide-react';
 import EditButton from './EditButton';
 import AddButton from './AddButton';
 import ExperienceCard from './ExperienceCard';
 import { Experience } from '@/app/types/userTypes';
+import { useState } from 'react';
+import AddExperienceModal from './AddExperienceModal';
+import Link from 'next/link';
 
 type ExperiencesProps = {
+  userId: string;
   experiences: Experience[];
+  onUpdate: (newExperience: Experience) => void;
 };
 
-const ExperienceSection = ({ experiences }: ExperiencesProps) => {
-    if (!experiences || experiences.length === 0) {
-      return (
-        <div className="relative p-6 mt-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">Experiences</h2>
-            <AddButton
-              onClick={() => alert('Add new Experience')}
-              className="right-[10px]"
-            />
-          </div>
-          <p className="text-gray-500">No experiences added yet.</p>
+const ExperienceSection = ({
+  experiences,
+  userId,
+  onUpdate,
+}: ExperiencesProps) => {
+  const [isAdding, setIsAdding] = useState(false);
+
+  const handleAddExperience = (newExp: Experience) => {
+    onUpdate(newExp);
+  };
+  if (!experiences || experiences.length === 0) {
+    return (
+      <div className="relative p-6 mt-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-gray-900">Experiences</h2>
+          <AddButton
+            onClick={() => setIsAdding(true)}
+            className="right-[10px]"
+          />
         </div>
-      );
-    }
+        <p className="text-gray-500">No experiences added yet.</p>
+        {isAdding && (
+          <AddExperienceModal
+            userId="1"
+            onSave={handleAddExperience}
+            onClose={() => setIsAdding(false)}
+          />
+        )}
+      </div>
+    );
+  }
   return (
     <div className="relative p-6  mt-5">
       <div className="flex items-center justify-between mb-5">
         <h2 className="text-xl font-semibold text-gray-900">Experiences</h2>
         <div className="flex items-center gap-2">
-          <AddButton onClick={() => alert('Add new experience')} />
-          <EditButton onClick={() => alert('Edit experience section')} />
+          <AddButton onClick={() => setIsAdding(true)} />
+          <EditButton
+            onClick={() => (window.location.href = '/profile/experiences')}
+          />
         </div>
       </div>
 
       {experiences &&
         experiences.length > 0 &&
-        experiences
-          .slice(0, 2)
-          .map((exp, index) => (
+        experiences.slice(0, 2).map((exp, index) => (
+          <div
+            key={exp.id}
+            className="flex justify-between px-4 py-4  mt-2 rounded-xl shadow-sm text-gray-800 bg-gray-50 text-sm font-medium"
+          >
             <ExperienceCard
               key={index}
               id={exp.id}
@@ -50,17 +75,26 @@ const ExperienceSection = ({ experiences }: ExperiencesProps) => {
               description={exp.description}
               employment_type={exp.employment_type}
             />
-          ))}
+          </div>
+        ))}
 
       {experiences.length > 2 && (
-        <div className="flex justify-center ">
-          <button
-            className="mt-6 inline-flex items-center text-sm hover:underline bg-gradient-to-r from-[#9333EA] to-[#2563EB] bg-clip-text text-transparent "
-            onClick={() => alert('Navigate to all experiences page')}
+        <div className=" text-indigo-600 ">
+          <Link
+            href="/profile/experiences"
+            className="mt-6 flex justify-center items-center text-sm hover:underline"
           >
-            Show all experiences <ChevronRight className="w-4 h-4 " />
-          </button>
+            Show all experiences
+            <ChevronRight className="w-4 h-4 " />
+          </Link>
         </div>
+      )}
+      {isAdding && (
+        <AddExperienceModal
+          userId={userId}
+          onSave={handleAddExperience}
+          onClose={() => setIsAdding(false)}
+        />
       )}
     </div>
   );
