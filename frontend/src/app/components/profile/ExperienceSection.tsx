@@ -60,7 +60,7 @@ const ExperienceSection = ({
           <div className="flex items-center gap-2">
             <AddButton onClick={() => setIsAdding(true)} />
             <EditButton
-              onClick={() => router.push('components/profile/experiences')}
+              onClick={() => router.push('/profile/experiences')}
             />
           </div>
         )}

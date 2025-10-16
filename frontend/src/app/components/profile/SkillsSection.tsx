@@ -56,7 +56,7 @@ const SkillsSection = ({ skillTalents, isEditMode }: { skillTalents: SkillTalent
           <div className="flex gap-2">
             <AddButton onClick={() => setShowAddModal(true)} />
             <EditButton
-              onClick={() => router.push('components/profile/skills')}
+              onClick={() => router.push('/profile/skills')}
             />
           </div>
         )}
