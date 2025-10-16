@@ -9,7 +9,8 @@ type ProfileInfoProps = {
   lastName: string;
   jobTitle?: string;
   levelName?: string;
-  onUpdate: (updateData: any) => void;
+  onUpdate?: (updateData: any) => void;
+  isEditMode?: boolean;
 };
 
 const ProfileInfo = ({
@@ -19,6 +20,7 @@ const ProfileInfo = ({
   levelName,
   userId,
   onUpdate,
+  isEditMode = false,
 }: ProfileInfoProps) => {
   const [isEditing, setIsEditing] = useState(false);
 
@@ -37,7 +39,7 @@ const ProfileInfo = ({
         return res.json();
       })
       .then((updateData) => {
-        onUpdate(updateData);
+        onUpdate?.(updateData);
         setIsEditing(false);
         toast.success('Profile information saved Looking good!');
       })
@@ -54,9 +56,11 @@ const ProfileInfo = ({
       <p className="text-gray-900">{jobTitle || 'No job title yet'}</p>
       <p className="text-gray-900">{levelName || 'No have level yet'}</p>
 
-      <EditButton onClick={() => setIsEditing(true)} className="" />
+      {isEditMode && (
+        <EditButton onClick={() => setIsEditing(true)} className="" />
+      )}
 
-      {isEditing && (
+      {isEditing && isEditMode && (
         <EditInfoModal
           firstName={firstName}
           lastName={lastName}

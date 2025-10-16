@@ -7,10 +7,12 @@ import { SkillTalent } from '@/app/types/userTypes';
 import AddSkillModal from './AddSkillModal';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+import {useRouter} from 'next/navigation';
 
-const SkillsSection = ({ skillTalents }: { skillTalents: SkillTalent[] }) => {
+const SkillsSection = ({ skillTalents, isEditMode }: { skillTalents: SkillTalent[]; isEditMode?: boolean }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [skills, setSkills] = useState(skillTalents || []);
+  const router = useRouter();
 
   const handleAddSkill = async (skillName: string): Promise<void> => {
   if (!skillName.trim()) {
@@ -50,12 +52,14 @@ const SkillsSection = ({ skillTalents }: { skillTalents: SkillTalent[] }) => {
     <div className="relative p-6 mt-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold text-gray-900">Skills</h2>
-        <div className="flex gap-2">
-          <AddButton onClick={() => setShowAddModal(true)} />
-          <EditButton
-            onClick={() => (window.location.href = '/profile/skills')}
-          />
-        </div>
+        {isEditMode && (
+          <div className="flex gap-2">
+            <AddButton onClick={() => setShowAddModal(true)} />
+            <EditButton
+              onClick={() => router.push('components/profile/skills')}
+            />
+          </div>
+        )}
       </div>
 
       {skills.length === 0 ? (
@@ -85,7 +89,7 @@ const SkillsSection = ({ skillTalents }: { skillTalents: SkillTalent[] }) => {
         </div>
       )}
 
-      {showAddModal && (
+      {showAddModal && isEditMode && (
         <AddSkillModal
           onClose={() => setShowAddModal(false)}
           onSave={handleAddSkill}

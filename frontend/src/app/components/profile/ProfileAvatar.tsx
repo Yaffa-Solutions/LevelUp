@@ -2,7 +2,13 @@
 
 import EditButton from './EditButton';
 
-const ProfileAvatar = ({avatarUrl}:any) => {
+const ProfileAvatar = ({
+  avatarUrl,
+  isEditMode,
+}: {
+  avatarUrl: string;
+  isEditMode: boolean;
+}) => {
   const defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/847/847969.png';
 
   return (
@@ -13,10 +19,15 @@ const ProfileAvatar = ({avatarUrl}:any) => {
           alt="Profile"
           className="w-32 h-32 rounded-full border-4 border-white shadow-md object-cover"
         />
-        <EditButton onClick={() => alert('You clicked the edit button')} className='top-22' />
+        {isEditMode && (
+          <EditButton
+            onClick={() => alert('You clicked the edit button')}
+            className="top-22"
+          />
+        )}
       </div>
     </div>
   );
-}
+};
 
 export default ProfileAvatar;

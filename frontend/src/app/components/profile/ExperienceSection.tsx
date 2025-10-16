@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronRight, TruckElectric } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import EditButton from './EditButton';
 import AddButton from './AddButton';
 import ExperienceCard from './ExperienceCard';
@@ -8,19 +8,23 @@ import { Experience } from '@/app/types/userTypes';
 import { useState } from 'react';
 import AddExperienceModal from './AddExperienceModal';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 type ExperiencesProps = {
   userId: string;
   experiences: Experience[];
   onUpdate: (newExperience: Experience) => void;
+  isEditMode: boolean;
 };
 
 const ExperienceSection = ({
   experiences,
   userId,
   onUpdate,
+  isEditMode = false,
 }: ExperiencesProps) => {
   const [isAdding, setIsAdding] = useState(false);
+  const router = useRouter();
 
   const handleAddExperience = (newExp: Experience) => {
     onUpdate(newExp);
@@ -30,13 +34,15 @@ const ExperienceSection = ({
       <div className="relative p-6 mt-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold text-gray-900">Experiences</h2>
-          <AddButton
-            onClick={() => setIsAdding(true)}
-            className="right-[10px]"
-          />
+          {isEditMode && (
+            <AddButton
+              onClick={() => setIsAdding(true)}
+              className="right-[10px]"
+            />
+          )}
         </div>
         <p className="text-gray-500">No experiences added yet.</p>
-        {isAdding && (
+        {isAdding && isEditMode && (
           <AddExperienceModal
             userId="1"
             onSave={handleAddExperience}
@@ -50,12 +56,14 @@ const ExperienceSection = ({
     <div className="relative p-6  mt-5">
       <div className="flex items-center justify-between mb-5">
         <h2 className="text-xl font-semibold text-gray-900">Experiences</h2>
-        <div className="flex items-center gap-2">
-          <AddButton onClick={() => setIsAdding(true)} />
-          <EditButton
-            onClick={() => (window.location.href = '/profile/experiences')}
-          />
-        </div>
+        {isEditMode && (
+          <div className="flex items-center gap-2">
+            <AddButton onClick={() => setIsAdding(true)} />
+            <EditButton
+              onClick={() => router.push('components/profile/experiences')}
+            />
+          </div>
+        )}
       </div>
 
       {experiences &&
@@ -89,7 +97,7 @@ const ExperienceSection = ({
           </Link>
         </div>
       )}
-      {isAdding && (
+      {isAdding && isEditMode && (
         <AddExperienceModal
           userId={userId}
           onSave={handleAddExperience}

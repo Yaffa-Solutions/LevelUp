@@ -5,12 +5,14 @@ import { Trash2, ChevronLeft, Pencil } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { Experience } from '@/app/types/userTypes';
-import ExperienceCard from '../components/ExperienceCard';
-import EditExperienceModal from '../components/EditExperienceModal';
+import ExperienceCard from '../../components/profile/ExperienceCard';
+import EditExperienceModal from '../../components/profile/EditExperienceModal';
 
-const AllExperiencesPage=() =>{
+const AllExperiencesPage = () => {
   const [experiences, setExperiences] = useState<Experience[]>([]);
-  const [editingExperience, setEditingExperience] = useState<Experience | null>(null);
+  const [editingExperience, setEditingExperience] = useState<Experience | null>(
+    null
+  );
 
   const userId = '1';
 
@@ -99,5 +101,5 @@ const AllExperiencesPage=() =>{
       )}
     </div>
   );
-}
+};
 export default AllExperiencesPage;
