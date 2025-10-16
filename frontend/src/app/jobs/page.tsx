@@ -1,8 +1,10 @@
+// 1
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import RoleSwitcher from '../components/jobs/RoleSwitcher';
 import UserCard from "../components/userCard";
+import Image from "next/image";
 import { toast } from 'react-hot-toast';
 
 type UserRole = 'TALENT' | 'HUNTER' | 'BOTH';
@@ -19,19 +21,28 @@ interface User {
 }
 
 interface Job {
-  id: string;
+  id: string
   meta_data: {
-    title?: string;
-    job_title?: string;
-    requirements?: string;
-    nice_to_have?: string;
-    level?: string;
-    description?: string;
-    employment_type?: string;
-    company?: string;
-  };
-  applicantsCount?: number;
+    job_title?: string
+    requirement?: {
+      levels?: string
+      nice_to_have?: string[]
+      description?: string
+    }
+    employment_type?: string
+  }
+  applicantsCount?: number
 }
+
+interface Applicant {
+  talent: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    profil_picture?: string | null;
+  }
+}
+
 
 export default function JobsPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -40,7 +51,7 @@ export default function JobsPage() {
   const [talentJobs, setTalentJobs] = useState<{ recommended: Job[]; available: Job[] }>({ recommended: [], available: [] });
   const [hunterJobs, setHunterJobs] = useState<Job[]>([]);
 
-  const [selectedApplicants, setSelectedApplicants] = useState<any[]>([]);
+  const [selectedApplicants, setSelectedApplicants] = useState<Applicant[]>([]);
   const [isApplicantsModalOpen, setIsApplicantsModalOpen] = useState(false);
 
   const [isAddJobModalOpen, setIsAddJobModalOpen] = useState(false);
@@ -53,10 +64,14 @@ export default function JobsPage() {
     employment_type: ''
   });
 
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false)
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null)
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const res = await fetch('http://localhost:5000/user/me', { credentials: 'include' });
+        const res = await fetch('http://localhost:5000/user/me', 
+          { credentials: 'include' });
         const userData: User = await res.json();
         setUser(userData);
 
@@ -71,17 +86,18 @@ export default function JobsPage() {
     fetchUserData();
   }, []);
 
-  // جلب الوظائف
   useEffect(() => {
     if (!user) return;
 
     if (activeView === 'TALENT') {
       const fetchTalentJobs = async () => {
         try {
-          const recRes = await fetch(`http://localhost:5000/jobs/recommended`, { credentials: 'include' });
+          const recRes = await fetch(`http://localhost:5000/jobs/recommended`,
+             { credentials: 'include' });
           const recommended = await recRes.json();
 
-          const availRes = await fetch('http://localhost:5000/jobs/available', { credentials: 'include' });
+          const availRes = await fetch('http://localhost:5000/jobs/available',
+             { credentials: 'include' });
           const available = await availRes.json();
 
           setTalentJobs({ recommended, available });
@@ -95,7 +111,8 @@ export default function JobsPage() {
     if (activeView === 'HUNTER') {
       const fetchHunterJobs = async () => {
         try {
-          const res = await fetch('http://localhost:5000/jobs/my', { credentials: 'include' });
+          const res = await fetch('http://localhost:5000/jobs/my', 
+            { credentials: 'include' });
           const data = await res.json();
           setHunterJobs(data);
         } catch (err) {
@@ -111,13 +128,6 @@ export default function JobsPage() {
   const isSwitchable = user.role === 'BOTH';
 
   const handleSwitchView = (view: ActiveView) => setActiveView(view);
-
-  // const handleApply = async (jobId: string) => {
-  //   await fetch(`http://localhost:5000/jobs/apply/${jobId}`, {
-  //      method: 'POST',
-  //       credentials: 'include' });
-  //   alert('Applied successfully!');
-  // };
 
   const handleApply = async (jobId: string) => {
   try {
@@ -144,23 +154,42 @@ export default function JobsPage() {
              : [],
          }));
 
-  } catch (err: any) {
-    console.error("Error applying:", err);
+  } catch (err: unknown) {
+    // console.error("Error applying:", err);
+    // toast.error("Error applying: " + err.message);
+
+    if (err instanceof Error) {
     toast.error("Error applying: " + err.message);
+  } else if (typeof err === "string") {
+    toast.error("Error applying: " + err);
+  } else {
+    toast.error("An unknown error occurred");
+  }
   }
 };
+
+const openDetails = (job: Job) => {
+    setSelectedJob(job)
+    setIsDetailsOpen(true)
+  }
+
+  const closeDetails = () => {
+    setIsDetailsOpen(false)
+    setSelectedJob(null)
+  }
 
 
   const handleSave = async (jobId: string) => {
     await fetch(`http://localhost:5000/jobs/save/${jobId}`, { method: 'POST', credentials: 'include' });
-    alert('Job saved!');
+    toast.success('Job saved!');
   };
 
   const handleAddJobClick = () => setIsAddJobModalOpen(true);
 
   const handleViewApplicants = async (jobId: string) => {
     try {
-      const res = await fetch(`http://localhost:5000/jobs/${jobId}/applicants`, { credentials: 'include' });
+      const res = await fetch(`http://localhost:5000/jobs/${jobId}/applicants`, 
+        { credentials: 'include' });
       const data = await res.json();
       setSelectedApplicants(data);
       setIsApplicantsModalOpen(true);
@@ -196,9 +225,15 @@ export default function JobsPage() {
     setIsAddJobModalOpen(false);
     setNewJobData({ title: '', requirements: '', nice_to_have: '', level: '', description: '', employment_type: '' });
     toast.success("Job added successfully!");
-  } catch (err: any) {
+  } catch (err: unknown) {
+    if (err instanceof Error) {
     console.error("Error adding job:", err);
     toast.error("Error adding job: " + err.message);
+  } else if (typeof err === "string") {
+    toast.error("Error adding job: " + err);
+  } else {
+    toast.error("An unknown error occurred");
+  }
   }
 };
 
@@ -218,12 +253,15 @@ export default function JobsPage() {
                  {Array.isArray(talentJobs?.recommended) ? (
                   talentJobs.recommended.map((job) => (
                     <JobCard
-                      key={job.id}
-                      job={job}
-                      onApply={handleApply}
-                      onSave={handleSave}
-                      isHunter={false}
-                    />
+                        key={job.id}
+                        job={job}
+                        onApply={handleApply}
+                        onSave={handleSave}
+                        onDetails={openDetails}
+                        onViewApplicants={handleViewApplicants}
+                        isHunter={false}
+                      />
+
                   ))
                 ) : (
                   <p>No recommended jobs found</p>
@@ -232,7 +270,23 @@ export default function JobsPage() {
               <section>
                 <h2 className="text-xl font-bold mb-4">Available Jobs</h2>
                 {talentJobs.available.map(job => (
-                  <JobCard key={job.id} job={job} onApply={handleApply} onSave={handleSave} isHunter={false} />
+                  // <JobCard 
+                  // key={job.id} 
+                  // job={job} 
+                  // onApply={handleApply} 
+                  // onSave={handleSave}
+                  // onDetails={openDetails} 
+                  // isHunter={false} />
+                  <JobCard
+                      key={job.id}
+                      job={job}
+                      onApply={handleApply}
+                      onSave={handleSave}
+                      onDetails={openDetails}
+                      onViewApplicants={handleViewApplicants}
+                      isHunter={false}
+                    />
+
                 ))}
               </section>
             </>
@@ -245,7 +299,17 @@ export default function JobsPage() {
                 <button onClick={handleAddJobClick} className="text-purple-600 hover:text-purple-800 text-xl font-bold">+</button>
               </div>
               {hunterJobs.map(job => (
-                <JobCard key={job.id} job={job} onApply={handleApply} onSave={handleSave} isHunter={true} onViewApplicants={handleViewApplicants} />
+                // <JobCard key={job.id} job={job} onApply={handleApply} onSave={handleSave} isHunter={true} onViewApplicants={handleViewApplicants} />
+                <JobCard
+                  key={job.id}
+                  job={job}
+                  onApply={handleApply}
+                  onSave={handleSave}
+                  onDetails={openDetails}
+                  onViewApplicants={handleViewApplicants}
+                  isHunter={true}
+                />
+
               ))}
             </>
           )}
@@ -260,7 +324,15 @@ export default function JobsPage() {
             <ul className="space-y-2 max-h-64 overflow-y-auto">
               {selectedApplicants.map(app => (
                 <li key={app.talent.id} className="flex items-center space-x-3">
-                  {app.talent.profil_picture && <img src={app.talent.profil_picture} className="w-8 h-8 rounded-full" />}
+                  {app.talent.profil_picture && (
+                    <Image 
+                        src={app.talent.profil_picture} 
+                        alt={`${app.talent.first_name} ${app.talent.last_name}`} 
+                        width={32} 
+                        height={32} 
+                        className="rounded-full"
+                      />
+                    )}
                   <span>{app.talent.first_name} {app.talent.last_name}</span>
                 </li>
               ))}
@@ -293,14 +365,47 @@ export default function JobsPage() {
           </div>
         </div>
       )}
+
+      {isDetailsOpen && selectedJob && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+        style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+          <div className="bg-white p-6 rounded-lg shadow-lg w-[90%] sm:w-[500px]">
+            <h3 className="text-xl font-bold mb-3">{selectedJob.meta_data.job_title}</h3>
+            <p className="mb-2"><strong>Level:</strong> {selectedJob.meta_data.requirement?.levels}</p>
+            <p className="mb-2"><strong>Employment Type:</strong> {selectedJob.meta_data.employment_type}</p>
+            <p className="mb-2"><strong>Description:</strong> {selectedJob.meta_data.requirement?.description}</p>
+            <p className="mb-2"><strong>Nice to have:</strong> {selectedJob.meta_data.requirement?.nice_to_have?.join(', ')}</p>
+
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={closeDetails}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-const JobCard: React.FC<{ job: Job; onApply: (id: string) => void; onSave: (id: string) => void; isHunter: boolean; onViewApplicants?: (id: string) => void }> = ({ job, onApply, onSave, isHunter, onViewApplicants }) => {
-  const title = job.meta_data.title || job.meta_data.job_title || 'Job Title';
-  const company = job.meta_data.company || '';
-  const level = job.meta_data.level || '';
+const JobCard: React.FC<{
+  job: Job;
+  onApply: (id: string) => void;
+  onSave: (id: string) => void;
+  onViewApplicants: (id: string) => void;
+  onDetails: (job: Job) => void;
+  isHunter: boolean;
+}> = ({ job, onApply, onSave, onViewApplicants, onDetails, isHunter }) => {
+  const meta = job.meta_data as { title?: string; job_title?: string };
+  // const title =
+  //   job.meta_data.job_title?.trim() ||
+  //   (job.meta_data as any).title?.trim() ||  // بعض الجوبز عندها title بدل job_title
+  //   'No Title';
+  const title = meta.job_title?.trim() || meta.title?.trim() || 'No Title';
+  const level = job.meta_data.requirement?.levels|| '';
   const applicantsCount = job.applicantsCount ?? 0;
 
   return (
@@ -311,16 +416,18 @@ const JobCard: React.FC<{ job: Job; onApply: (id: string) => void; onSave: (id: 
           <p className="text-sm text-gray-500">{applicantsCount} Applicants</p>
         ) : (
           <>
-            <p className="text-sm text-gray-500">{company}</p>
+            {/* <p className="text-sm text-gray-500">{company}</p> */}
             <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">{level}</span>
           </>
         )}
       </div>
       <div className="flex space-x-2">
-        {!isHunter && (
+        {!isHunter && onApply && (
           <>
             <button className="text-xs text-purple-500" onClick={() => onApply(job.id)}>Apply</button>
-            <button className="text-xs text-red-500" onClick={() => onSave(job.id)}>Save</button>
+            {/* <button className="text-xs text-red-500" onClick={() => onSave(job.id)}>Save</button> */}
+            <button onClick={() => onDetails(job)} className="px-3 py-1 text-xs bg-gradient-to-r from-[#9333EA] to-[#2563EB] text-white rounded hover:bg-blue-700">Details</button> 
+
           </>
         )}
         {isHunter && onViewApplicants && (

@@ -28,13 +28,11 @@ const PlanPage = () =>{
     const fetchPlans = async () => {
       try {
         const res = await fetch("http://localhost:5000/plans/me", {
-          // headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
           credentials: 'include'
           
         })
         const data = await res.json()
 
-        // const mappedPlans = data.map((p ) => ({
         const mappedPlans = (data as Plan[]).map((p) => ({
           ...p,
           recommended_resource: typeof p.recommended_resource === "string"
