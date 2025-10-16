@@ -9,5 +9,6 @@
 /prisma/seedPlans.js
 /prisma/seedPlans2.js
 /prisma/seedPlans3.js
+/prisma/seedJobs.js
 /wait-for-it.sh
 /test.js

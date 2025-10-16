@@ -7,7 +7,7 @@ const generateOTP = require('../utils/generateOTP');
 
 const otpStore = new Map(); 
 const generateToken = (userId) => {
-  return jwt.sign({ userId }, jwtSecret, { expiresIn: '1h' });
+  return jwt.sign({ userId }, jwtSecret, { expiresIn: '7d' });
 }
 
 const signUp = async (email, password) => {
@@ -56,7 +56,7 @@ const verifyOTP = async (email, otp) => {
 
   return generateToken(user.id);
 }
-
+// signin + set cookie
 const signIn = async (email, password) => {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) throw new Error('User not found');
@@ -65,6 +65,15 @@ const signIn = async (email, password) => {
   if (!isMatch) throw new Error('Invalid credentials');
 
   return generateToken(user.id);
+  // const token = generateToken(user.id);
+
+  // res.cookie('token', token, {
+  //   httpOnly: true,
+  //   secure: process.env.NODE_ENV === 'production',
+  //   maxAge: 7 * 24 * 60 * 60 * 1000
+  // });
+
+  // return user;
 }
 
 const getAllUsers = async () => {

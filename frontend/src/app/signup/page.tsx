@@ -21,11 +21,11 @@ const SignUp = () =>{
   const searchParams = useSearchParams();
   const toastMessage = searchParams.get('toastMessage');
 
-  useEffect(() => {
-    if (toastMessage) {
-      toast.error(`User with email ${toastMessage} not found. Please sign up first.`);
-    }
-  }, [toastMessage]);
+  // useEffect(() => {
+  //   if (toastMessage) {
+  //     toast.error(`User with email ${toastMessage} not found. Please sign up first.`);
+  //   }
+  // }, [toastMessage]);
 
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -60,7 +60,8 @@ const SignUp = () =>{
       if (data.message === 'Email already exists') {
         setErrors(prev => ({ ...prev, email: 'Email is already used' }));
       } else if (data.message === 'User not found') {
-            localStorage.setItem('toastMessage', `User with email ${email} not found. Please sign up first.`)
+            // localStorage.setItem('toastMessage', `User with email ${email} not found. Please sign up first.`)
+            toast.error(`User with email ${toastMessage} not found. Please sign up first.`)
             router.push('/signup')
           }
        else {
@@ -75,7 +76,7 @@ const SignUp = () =>{
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 px-4">
-     <Toaster position="top-right" />
+     {/* <Toaster position="top-center" /> */}
      
       <div className="bg-white p-6 sm:p-8 rounded-lg shadow-md w-full max-w-2xl">
         <div className="text-center mb-6">

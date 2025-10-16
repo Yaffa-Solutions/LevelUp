@@ -105,6 +105,7 @@ model Job {
 
   hunter   User  @relation(fields: [hunter_id], references: [id], onDelete: Cascade)
   jobApplications JobApplication[]
+  jobSaves        JobSave[]
 }
 
 model JobApplication {
