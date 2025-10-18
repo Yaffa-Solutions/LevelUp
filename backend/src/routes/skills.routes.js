@@ -1,9 +1,9 @@
-import express from 'express';
-import {
+const express = require ('express');
+const {
   getTalentSkills,
   addTalentSkill,
   deleteTalentSkill,
-} from '../controllers/skills.controller.js';
+} = require ('../controllers/skills.controller.js');
 
 const router = express.Router();
 
@@ -13,4 +13,4 @@ router.post('/',addTalentSkill);
 
 router.delete('/:id',deleteTalentSkill);
 
-export default router;
+module.exports = router;

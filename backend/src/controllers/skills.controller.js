@@ -1,6 +1,6 @@
-import prisma from '../prismaClient.js';
+const prisma = require('../prismaClient.js');
 
-export const getTalentSkills = async (req, res, next) => {
+const getTalentSkills = async (req, res, next) => {
   try {
     const { userId } = req.params;
 
@@ -19,7 +19,7 @@ export const getTalentSkills = async (req, res, next) => {
   }
 };
 
-export const addTalentSkill = async (req, res, next) => {
+const addTalentSkill = async (req, res, next) => {
   try {
     const { user_id, skill_name } = req.body;
 
@@ -61,7 +61,7 @@ export const addTalentSkill = async (req, res, next) => {
   }
 };
 
-export const deleteTalentSkill = async (req, res, next) => {
+const deleteTalentSkill = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -77,4 +77,10 @@ export const deleteTalentSkill = async (req, res, next) => {
     }
     next(err);
   }
+};
+
+module.exports = {
+  getTalentSkills,
+  addTalentSkill,
+  deleteTalentSkill,
 };

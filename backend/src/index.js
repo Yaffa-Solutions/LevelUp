@@ -1,8 +1,9 @@
-import env from "env2";
-env("../.env");
-import app from "./app.js";
+const env = require('env2');
+env('../.env');
+const app =  require ('./app.js');
 
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 5000;
+
 app.listen(port, () => {
   console.log(`Backend listening on http://localhost:${port}`);
 });

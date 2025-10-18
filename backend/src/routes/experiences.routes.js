@@ -1,14 +1,20 @@
-import express from 'express';
-import { getTalentExperiences, addNewExperience, updateExperience, deleteExperience } from '../controllers/experiences.controller.js';
+const express = require('express');
+const {
+  getTalentExperiences,
+  addNewExperience,
+  updateExperience,
+  deleteExperience,
+} = require('../controllers/experiences.controller.js');
 
 const router = express.Router();
 
 router.get('/talent/:id', getTalentExperiences);
 
-router.post('/',addNewExperience );
+router.post('/', addNewExperience);
 
 router.patch('/:id', updateExperience);
 
-router.delete('/:id',deleteExperience);
+router.delete('/:id', deleteExperience);
 
-export default router;
+module.exports = router;
+

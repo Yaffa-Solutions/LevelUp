@@ -1,11 +1,12 @@
-import express from 'express';
-import {
+const express = require('express');
+const {
   getTalentById,
   updateTalentInfo,
   updateProfilePicture,
   updateCoverImage,
   updateAbout,
-} from '../controllers/talent.controller.js';
+} = require('../controllers/talent.controller.js');
+
 const router = express.Router();
 
 router.get('/:id', getTalentById);
@@ -18,4 +19,4 @@ router.patch('/:id/cover-image', updateCoverImage);
 
 router.patch('/:id/about', updateAbout);
 
-export default router;
+module.exports = router;

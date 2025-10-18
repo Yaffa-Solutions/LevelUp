@@ -1,6 +1,6 @@
-import prisma from '../prismaClient.js';
+const prisma = require('../prismaClient.js');
 
-export const getTalentExperiences = (req, res, next) => {
+const getTalentExperiences = (req, res, next) => {
   const { userId } = req.params;
 
   prisma.experience
@@ -9,13 +9,16 @@ export const getTalentExperiences = (req, res, next) => {
       orderBy: { start_date: 'desc' },
     })
     .then((exp) => {
-      if (!exp) return res.status(404).json({ error: 'User doesnt have any experiences yet!'});
+      if (!exp)
+        return res
+          .status(404)
+          .json({ error: 'User doesnt have any experiences yet!' });
       res.status(200).json(exp);
     })
     .catch(next);
 };
 
-export const addNewExperience = (req, res, next) => {
+const addNewExperience = (req, res, next) => {
   const {
     user_id,
     company_name,
@@ -48,7 +51,7 @@ export const addNewExperience = (req, res, next) => {
     .catch((err) => next(err));
 };
 
-export const updateExperience = (req, res, next) => {
+const updateExperience = (req, res, next) => {
   const { id } = req.params;
   const {
     company_name,
@@ -58,7 +61,7 @@ export const updateExperience = (req, res, next) => {
     description,
     employment_type,
   } = req.body;
-   console.log('Updating experience:', req.params.id, req.body);
+  console.log('Updating experience:', req.params.id, req.body);
 
   prisma.experience
     .update({
@@ -76,11 +79,18 @@ export const updateExperience = (req, res, next) => {
     .catch((err) => next(err));
 };
 
-export const deleteExperience = (req, res, next) => {
+const deleteExperience = (req, res, next) => {
   const { id } = req.params;
 
   prisma.experience
     .delete({ where: { id } })
     .then(() => res.status(204).send())
     .catch((err) => next(err));
+};
+
+module.exports = {
+  getTalentExperiences,
+  addNewExperience,
+  updateExperience,
+  deleteExperience,
 };
