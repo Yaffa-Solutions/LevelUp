@@ -5,19 +5,18 @@ import { useRouter } from 'next/navigation'
 interface Errors {
   email: string
   password: string
-  confirmPassword: string
 }
 
 const SignIn = () =>{
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
   const [showPassword, setShowPassword] = useState<boolean>(false)
-  const [errors, setErrors] = useState<Errors>({ email: '', password: '', confirmPassword: '' })
+  const [errors, setErrors] = useState<Errors>({ email: '', password: ''})
   const router = useRouter()
   
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
   e.preventDefault()
-  const newErrors: Errors = { email: '', password: '', confirmPassword: '' }
+  const newErrors: Errors = { email: '', password: '' }
 
   if (!email) newErrors.email = 'Email is required'
   else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Email is invalid'
@@ -31,15 +30,18 @@ const SignIn = () =>{
     try {
       const res = await fetch('http://localhost:5000/auth/signin', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
+        
       })
 
       const data = await res.json()
 
       if (res.ok) {
-        localStorage.setItem("token", data.token)
-        console.log(localStorage.getItem("token"))
+        // localStorage.setItem("token", data.token)
+        // console.log(localStorage.getItem("token"))
+        document.cookie = `token=${data.token}; path=/; max-age=${60*60*24}`;
         router.push("/home")
       } else {
         if (data.message === 'Invalid credentials') {
@@ -49,8 +51,11 @@ const SignIn = () =>{
         }
       }
     } catch (error) {
-      alert('Server error')
-    }
+  console.error(error)
+}
+    // catch (error) {
+    //   alert('Server error')
+    // }
   }
 }
 
@@ -133,7 +138,7 @@ const SignIn = () =>{
         </form>
 
         <div className="text-center text-sm text-gray-500 mt-4">
-          Don't have an account? <a href="/signup" className="text-blue-500">Sign Up</a>
+          Don&apos;t have an account? <a href="/signup" className="text-blue-500">Sign Up</a>
         </div>
 
         <div className="flex items-center my-4 mx-[60px]">
