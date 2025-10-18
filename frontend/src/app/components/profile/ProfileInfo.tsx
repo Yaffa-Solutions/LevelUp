@@ -2,6 +2,7 @@ import EditButton from './EditButton';
 import { useState } from 'react';
 import EditInfoModal from './EditInfoModal';
 import toast from 'react-hot-toast';
+import { User } from '@/app/types/userTypes';
 
 type ProfileInfoProps = {
   userId: string;
@@ -9,7 +10,7 @@ type ProfileInfoProps = {
   lastName: string;
   jobTitle?: string;
   levelName?: string;
-  onUpdate?: (updateData: any) => void;
+  onUpdate?: (updateData: Partial<User>) => void;
   isEditMode?: boolean;
 };
 
@@ -29,7 +30,7 @@ const ProfileInfo = ({
     last_name: string;
     job_title?: string;
   }): Promise<void> => {
-    return fetch(`http://localhost:4000/api/talent/${userId}/basic`, {
+    return fetch(`http://localhost:5000/api/talent/${userId}/basic`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),

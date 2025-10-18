@@ -2,11 +2,12 @@
 import { useState } from 'react';
 import CloseButton from './CloseButton';
 import SaveButton from './SaveButton';
+import { Experience } from '@/app/types/userTypes';
 import { toast } from 'react-hot-toast';
 
 type AddExperienceModalProps = {
   userId: string;
-  onSave: (newExp: any) => void;
+  onSave: (newExp: Experience) => void;
   onClose: () => void;
 };
 
@@ -58,7 +59,7 @@ const AddExperienceModal = ({
     }
 
     setLoading(true);
-    fetch('http://localhost:4000/api/experiences', {
+    fetch('http://localhost:5000/api/experiences', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...form, user_id: userId }),
@@ -239,13 +240,13 @@ const AddExperienceModal = ({
             </div>
           </div>
         </form>
-          <SaveButton
-            onClick={handleSave}
-            disabled={loading}
-            loading={loading}
-            text="Add"
-            loadingText="Adding..."
-          />
+        <SaveButton
+          onClick={handleSave}
+          disabled={loading}
+          loading={loading}
+          text="Add"
+          loadingText="Adding..."
+        />
       </div>
     </div>
   );

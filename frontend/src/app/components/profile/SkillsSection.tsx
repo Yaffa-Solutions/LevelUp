@@ -7,44 +7,51 @@ import { SkillTalent } from '@/app/types/userTypes';
 import AddSkillModal from './AddSkillModal';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import {useRouter} from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
-const SkillsSection = ({ skillTalents, isEditMode }: { skillTalents: SkillTalent[]; isEditMode?: boolean }) => {
+const SkillsSection = ({
+  skillTalents,
+  isEditMode,
+}: {
+  skillTalents: SkillTalent[];
+  isEditMode?: boolean;
+}) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [skills, setSkills] = useState(skillTalents || []);
   const router = useRouter();
 
   const handleAddSkill = async (skillName: string): Promise<void> => {
-  if (!skillName.trim()) {
-    toast.error('Please enter a skill name');
-    return;
-  }
-
-  try {
-    const res = await fetch('http://localhost:4000/api/skills/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        user_id: '1',
-        skill_name: skillName,
-      }),
-    });
-
-    if (!res.ok) {
-      const err = await res.json();
-      const error: any = new Error(err.error || 'Failed to add skill');
-      error.status = res.status;
-      throw error;
+    if (!skillName.trim()) {
+      toast.error('Please enter a skill name');
+      return;
     }
 
-    const newSkill = await res.json();
-    setSkills((prev) => [...prev, newSkill]);
-    toast.success('Skill added successfully!');
-  } catch (error: any) {
-    throw error;
-  }
-};
+    try {
+      const res = await fetch('http://localhost:5000/api/skills/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: '1',
+          skill_name: skillName,
+        }),
+      });
 
+      if (!res.ok) {
+        const err = await res.json();
+        const error = new Error(err.error || 'Failed to add skill') as Error & {
+          status?: number;
+        };
+        error.status = res.status;
+        throw error;
+      }
+
+      const newSkill = await res.json();
+      setSkills((prev) => [...prev, newSkill]);
+      toast.success('Skill added successfully!');
+    } catch (error: unknown) {
+      throw error;
+    }
+  };
 
   const visibleSkills = skills.slice(0, 4);
 
@@ -55,9 +62,7 @@ const SkillsSection = ({ skillTalents, isEditMode }: { skillTalents: SkillTalent
         {isEditMode && (
           <div className="flex gap-2">
             <AddButton onClick={() => setShowAddModal(true)} />
-            <EditButton
-              onClick={() => router.push('/profile/skills')}
-            />
+            <EditButton onClick={() => router.push('/profile/skills')} />
           </div>
         )}
       </div>

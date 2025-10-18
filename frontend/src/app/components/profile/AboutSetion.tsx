@@ -21,7 +21,7 @@ const AboutSection = ({
   const [isEditing, setIsEditing] = useState(false);
 
   const handleSave = (newAbout: string): Promise<void> => {
-    return fetch(`http://localhost:4000/api/talent/${userId}/about`, {
+    return fetch(`http://localhost:5000/api/talent/${userId}/about`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ about: newAbout }),
