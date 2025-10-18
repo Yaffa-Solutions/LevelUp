@@ -15,6 +15,23 @@ passport.use(new GoogleStrategy({
   callbackURL: "http://localhost:5000/auth/google/callback"
 }, async (_, __, profile, done) => {
   try {
+    const user = await prisma.user.findUnique({ where: { google_id: profile.id } });
+    if (!user) {
+    // return done(null, false, { message: 'User not found' });
+      return done(null, false, { email: profile.emails[0].value });
+    }
+    done(null, user);
+  } catch (err) {
+    done(err, null);
+  }
+}));
+
+passport.use('google-signup', new GoogleStrategy({
+  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  callbackURL: "http://localhost:5000/auth/google/signup/callback"
+}, async (_, __, profile, done) => {
+  try {
     let user = await prisma.user.findUnique({ where: { google_id: profile.id } });
     if (!user) {
       user = await prisma.user.create({
@@ -26,8 +43,8 @@ passport.use(new GoogleStrategy({
           role: 'TALENT',
           is_verified: true,
           levels: {
-      connect: { id: 'e5c819d7-eb51-4595-aba2-e3475ce5a0eb' }  
-    }
+              connect: { id: 'e5c819d7-eb51-4595-aba2-e3475ce5a0eb' }  
+          }
         }
       });
     }
@@ -36,5 +53,6 @@ passport.use(new GoogleStrategy({
     done(err, null);
   }
 }));
+
 
 module.exports = passport;

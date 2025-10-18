@@ -6,4 +6,19 @@ const generateToken = (user) =>{
   return jwt.sign({ userId: user.id }, jwtSecret, { expiresIn: '1h' });
 }
 
-module.exports = { generateToken };
+const destroySession = (req, res) => {
+  return new Promise((resolve) => {
+    req.logout(() => {
+      req.session.destroy(() => {
+        res.clearCookie('connect.sid'); 
+        res.clearCookie('token');       
+        resolve();
+      });
+    });
+  });
+}
+
+module.exports = { 
+  generateToken,
+  destroySession,
+ };
