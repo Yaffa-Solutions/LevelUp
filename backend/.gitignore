@@ -1,0 +1,10 @@
+/node_modules
+# Keep environment variables out of version control
+.env
+
+/src/generated/prisma
+/Dockerfile
+/prisma/seed.js
+/prisma/seedPosts.js
+/wait-for-it.sh
+/test.js
