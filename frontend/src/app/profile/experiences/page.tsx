@@ -17,14 +17,14 @@ const AllExperiencesPage = () => {
   const userId = '1';
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/experiences/talent/${userId}`)
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/experiences/talent/${userId}`)
       .then((res) => res.json())
       .then((data) => setExperiences(data))
       .catch(() => toast.error('Failed to fetch experiences'));
   });
 
   const handleDeleteExperience = (experienceId: string) => {
-    fetch(`http://localhost:5000/api/experiences/${experienceId}`, {
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/experiences/${experienceId}`, {
       method: 'DELETE',
     })
       .then((res) => {

@@ -59,7 +59,7 @@ const AddExperienceModal = ({
     }
 
     setLoading(true);
-    fetch('http://localhost:5000/api/experiences', {
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/experiences`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...form, user_id: userId }),

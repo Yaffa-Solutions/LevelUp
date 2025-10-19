@@ -14,7 +14,7 @@ useEffect(() => {
   const fetchSkills = async () => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/skills/talent/${userId}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/skills/talent/${userId}`
       );
       if (!res.ok) throw new Error('Failed to fetch skills');
       const data = await res.json();
@@ -31,9 +31,12 @@ useEffect(() => {
 const handleDeleteSkill = async (skillId: string) => {
   console.log('Deleting skill:', skillId);
   try {
-    const res = await fetch(`http://localhost:5000/api/skills/${skillId}`, {
-      method: 'DELETE',
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/skills/${skillId}`,
+      {
+        method: 'DELETE',
+      }
+    );
 
     console.log('Response status:', res.status);
 

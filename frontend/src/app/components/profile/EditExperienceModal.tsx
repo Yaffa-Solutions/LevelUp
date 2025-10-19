@@ -16,10 +16,13 @@ const EditExperienceModal = ({
   onSave,
   onClose,
 }: EditExperienceModalProps) => {
-  const [form, setForm] = useState({ ...experience ,  start_date: experience.start_date
-    ? experience.start_date.split('T')[0]
-    : '',
-  end_date: experience.end_date ? experience.end_date.split('T')[0] : '',});
+  const [form, setForm] = useState({
+    ...experience,
+    start_date: experience.start_date
+      ? experience.start_date.split('T')[0]
+      : '',
+    end_date: experience.end_date ? experience.end_date.split('T')[0] : '',
+  });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -55,11 +58,14 @@ const EditExperienceModal = ({
       return;
     }
     setLoading(true);
-    fetch(`http://localhost:5000/api/experiences/${experience.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    })
+    fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/experiences/${experience.id}`,
+      {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      }
+    )
       .then((res) => {
         if (!res.ok) throw new Error('Failed to update experience');
         return res.json();
@@ -234,11 +240,7 @@ const EditExperienceModal = ({
             </div>
           </div>
         </form>
-        <SaveButton
-          onClick={handleSave}
-          disabled={loading}
-          loading={loading}
-        />
+        <SaveButton onClick={handleSave} disabled={loading} loading={loading} />
       </div>
     </div>
   );

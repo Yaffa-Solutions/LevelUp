@@ -21,11 +21,14 @@ const AboutSection = ({
   const [isEditing, setIsEditing] = useState(false);
 
   const handleSave = (newAbout: string): Promise<void> => {
-    return fetch(`http://localhost:5000/api/talent/${userId}/about`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ about: newAbout }),
-    })
+    return fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/talent/${userId}/about`,
+      {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ about: newAbout }),
+      }
+    )
       .then((res) => {
         if (!res.ok) throw new Error('Failed to update about');
         return res.json();
