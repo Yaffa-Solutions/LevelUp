@@ -25,11 +25,11 @@ const AddSkillModal = ({ onClose, onSave }: AddSkillModalProps) => {
       await onSave(skillName);
       setSkillName('');
       onClose();
-    } catch (error: any) {
-      if (error.status === 409) {
-        toast.error('You already have this skill.');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message || 'You already have this skill.');
       } else {
-        toast.error(error.message || 'Error adding skill');
+        toast.error('Error adding skill');
       }
     } finally {
       setLoading(false);

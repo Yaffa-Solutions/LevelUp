@@ -108,7 +108,7 @@ const AddExperienceModal = ({
                   id="company_name"
                   type="text"
                   name="company_name"
-                  placeholder="Company Name"
+                  placeholder="e.g. Google, Amazon,"
                   value={form.company_name}
                   onChange={handleChange}
                   className="w-full pl-5 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 text-gray-900 placeholder-gray-400 transition duration-200"
@@ -131,7 +131,7 @@ const AddExperienceModal = ({
                   id="position"
                   type="text"
                   name="position"
-                  placeholder="Position"
+                  placeholder="e.g. Frontend Developer"
                   value={form.position}
                   onChange={handleChange}
                   className="w-full pl-5 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 text-gray-900 placeholder-gray-400 transition duration-200"
@@ -197,7 +197,7 @@ const AddExperienceModal = ({
               <textarea
                 id="description"
                 name="description"
-                placeholder="Description"
+                placeholder="e.g. Led a team of 4 engineers to develop a new product feature"
                 value={form.description}
                 onChange={handleChange}
                 className="w-full h-28 pl-5 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 text-gray-900 placeholder-gray-400 transition duration-200 resize-none"
@@ -225,7 +225,7 @@ const AddExperienceModal = ({
                 required
               >
                 <option value="" disabled>
-                  Select
+                  Select employment type
                 </option>
                 <option value="FULL_TIME">Full Time</option>
                 <option value="PART_TIME">Part Time</option>

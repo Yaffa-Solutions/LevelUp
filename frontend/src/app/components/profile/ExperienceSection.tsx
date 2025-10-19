@@ -44,7 +44,7 @@ const ExperienceSection = ({
         <p className="text-gray-500">No experiences added yet.</p>
         {isAdding && isEditMode && (
           <AddExperienceModal
-            userId="1"
+            userId={userId}
             onSave={handleAddExperience}
             onClose={() => setIsAdding(false)}
           />
