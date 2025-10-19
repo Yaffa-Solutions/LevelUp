@@ -24,6 +24,7 @@ const ProfilePage = ({
       <section className="max-w-4xl mx-auto  bg-white rounded-xl shadow-sm">
         <ProfileCover isEditMode={isEditMode} />
         <ProfileAvatar
+          userId={user.id}
           avatarUrl={user.profil_picture}
           isEditMode={isEditMode}
         />
