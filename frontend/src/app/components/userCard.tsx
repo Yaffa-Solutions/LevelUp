@@ -15,7 +15,7 @@ const UserCard = () =>{
   useEffect(() => {
   const fetchUser = async () => {
     try {
-      const res = await fetch("http://localhost:5000/user/me", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`, {
         credentials: "include"
       });
       if (!res.ok) throw new Error("Not authenticated");

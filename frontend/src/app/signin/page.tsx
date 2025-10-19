@@ -1,18 +1,28 @@
 'use client'
-import { useState, FormEvent } from 'react'
-import { useRouter } from 'next/navigation'
+import { Suspense, useState, FormEvent, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import toast, { Toaster } from 'react-hot-toast'
 
 interface Errors {
   email: string
   password: string
 }
 
-const SignIn = () =>{
+const SignInContent = () =>{
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const [errors, setErrors] = useState<Errors>({ email: '', password: ''})
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const toastMessage = searchParams.get('toastMessage')
+
+  
+  useEffect(() => {
+    if (toastMessage) {
+      toast.error(toastMessage)
+    }
+  }, [toastMessage])
   
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
   e.preventDefault()
@@ -27,13 +37,13 @@ const SignIn = () =>{
   setErrors(newErrors)
 
   if (!newErrors.email && !newErrors.password) {
+    console.log(process.env.BACKEND_URL);
     try {
-      const res = await fetch('http://localhost:5000/auth/signin', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/signin`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
-        
       })
 
       const data = await res.json()
@@ -58,9 +68,13 @@ const SignIn = () =>{
     // }
   }
 }
+const handleGoogleSignIn = () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/google`
+  }
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 px-4">
+      <Toaster position="top-center" />
       <div className="bg-white p-6 sm:p-8 rounded-lg shadow-md w-full max-w-2xl">
         <div className="text-center mb-6">
           <div className="flex items-center justify-center mb-2 space-x-2">
@@ -147,7 +161,7 @@ const SignIn = () =>{
            <div className="flex-grow border-t border-gray-300 border-dashed"></div>
          </div>
          <div className="relative [500px] mx-[60px]">
-        <button onClick={() => window.location.href = "http://localhost:5000/auth/google"}
+        <button onClick={handleGoogleSignIn}
         className="w-full px-4 py-2 rounded bg-white border border-gray-300 flex items-center justify-center space-x-2 text-gray-700 hover:bg-gradient-to-r hover:from-purple-500 hover:to-blue-500 group transition-colors duration-200">
            
           <span className="text-purple-500 font-bold group-hover:text-white">G</span>
@@ -159,4 +173,11 @@ const SignIn = () =>{
   )
 }
 
+const SignIn = () =>{
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignInContent />
+    </Suspense>
+  )
+}
 export default SignIn;

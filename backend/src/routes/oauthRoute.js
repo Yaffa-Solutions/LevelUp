@@ -8,14 +8,14 @@ const oauthController = require('../controllers/oauthController');
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], prompt: 'select_account' }));
 
 router.get('/google/callback',
-  passport.authenticate('google', { failureRedirect: 'http://localhost:3000/signin?toastMessage=Google%20login%20failed' }),
+  passport.authenticate('google', { failureRedirect: 'http://localhost:3000/signin?toastMessage=Google%20Signin%20failed' }),
   oauthController.googleCallback
 );
 
 
 router.get('/google/signup', passport.authenticate('google-signup', { scope: ['profile', 'email'], prompt: 'select_account' }));
 router.get('/google/signup/callback',
-  passport.authenticate('google-signup', { failureRedirect: 'http://localhost:3000/signin?toastMessage=Google%20login%20failed' }),
+  passport.authenticate('google-signup', { failureRedirect: 'http://localhost:3000/signin?toastMessage=Google%20Signup%20failed' }),
   oauthController.googleSignupCallback
 );
 

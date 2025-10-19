@@ -139,14 +139,14 @@ const Home = () =>{
 
     const fetchUserAndPosts = async () => {
       try {
-        const resUser = await fetch("http://localhost:5000/user/me", {
+        const resUser = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`, {
           credentials: "include"
         })
         if (!resUser.ok) throw new Error("User not authenticated")
         const userData: User = await resUser.json()
         setUser(userData)
 
-        const resPosts = await fetch("http://localhost:5000/posts/withlikes", {
+        const resPosts = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/withlikes`, {
           // headers: { Authorization: `Bearer ${token}` },
           credentials: "include"
         })
@@ -177,7 +177,7 @@ const Home = () =>{
     // if (!token) return alert("You must be logged in")
 
     try {
-      const res = await fetch("http://localhost:5000/posts/", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -219,7 +219,7 @@ const Home = () =>{
   const post = posts.find(p => p.id === postId);
   if (!post) return;
 
-  const url = `http://localhost:5000/post-reaction/${post.userLiked ? 'unlike' : 'like'}`;
+  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/post-reaction/${post.userLiked ? 'unlike' : 'like'}`;
 
   try {
     const res = await fetch(url, {

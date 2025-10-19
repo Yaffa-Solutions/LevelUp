@@ -1,5 +1,5 @@
 'use client'
-import { useState, FormEvent, useEffect } from 'react'
+import {  Suspense, useState, FormEvent, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSearchParams } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
@@ -10,7 +10,7 @@ interface Errors {
   confirmPassword: string
 }
 
-const SignUp = () =>{
+const SignUpContent = () =>{
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
   const [confirmPassword, setConfirmPassword] = useState<string>('')
@@ -44,7 +44,7 @@ const SignUp = () =>{
     
     if (!newErrors.email && !newErrors.password && !newErrors.confirmPassword) {
     try {
-      const res = await fetch('http://localhost:5000/auth/signup', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/signup`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -73,6 +73,9 @@ const SignUp = () =>{
   }
   }
 
+const handleGoogleSignUp = () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/google/signup`
+  }
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 px-4">
      <Toaster position="top-right" />
@@ -173,7 +176,7 @@ const SignUp = () =>{
            <div className="flex-grow border-t border-gray-300 border-dashed"></div>
          </div>
          <div className="relative w-full max-w-md sm:max-w-lg mx-auto">
-        <button  onClick={() => window.location.href = "http://localhost:5000/auth/google/signup"}
+        <button  onClick={handleGoogleSignUp}
         className="w-full px-4 py-2 rounded bg-white border border-gray-300 flex items-center justify-center space-x-2 text-gray-700 hover:bg-gradient-to-r hover:from-purple-500 hover:to-blue-500 group transition-colors duration-200">
            
           <span className="text-purple-500 font-bold group-hover:text-white">G</span>
@@ -182,6 +185,14 @@ const SignUp = () =>{
         </div>
       </div>
     </div>
+  )
+}
+
+const SignUp = () =>{
+  return (
+    <Suspense fallback={<div className="text-center mt-10">Loading...</div>}>
+      <SignUpContent />
+    </Suspense>
   )
 }
 

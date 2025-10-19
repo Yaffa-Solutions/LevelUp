@@ -27,7 +27,7 @@ const PlanPage = () =>{
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const res = await fetch("http://localhost:5000/plans/me", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/plans/me`, {
           // headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
           credentials: 'include'
           
