@@ -103,7 +103,7 @@ model PostReaction {
 
 model Skill {
   id           String        @id @default(uuid())
-  skill_name   String
+  skill_name   String        @unique
   skillTalents SkillTalent[]
 }
 

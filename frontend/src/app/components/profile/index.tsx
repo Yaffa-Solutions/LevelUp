@@ -22,7 +22,7 @@ const ProfilePage = ({
   return (
     <div className="mt-5">
       <section className="max-w-4xl mx-auto  bg-white rounded-xl shadow-sm">
-        <ProfileCover isEditMode={isEditMode} />
+        <ProfileCover/>
         <ProfileAvatar
           userId={user.id}
           avatarUrl={user.profil_picture}
