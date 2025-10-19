@@ -12,7 +12,7 @@ passport.deserializeUser(async (id, done) => {
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: "http://localhost:5000/auth/google/callback"
+  callbackURL: `${process.env.BACKEND_URL}/auth/google/callback`
 }, async (_, __, profile, done) => {
   try {
     const user = await prisma.user.findUnique({ where: { google_id: profile.id } });
@@ -29,7 +29,7 @@ passport.use(new GoogleStrategy({
 passport.use('google-signup', new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: "http://localhost:5000/auth/google/signup/callback"
+  callbackURL: `${process.env.BACKEND_URL}/auth/google/signup/callback`
 }, async (_, __, profile, done) => {
   try {
     let user = await prisma.user.findUnique({ where: { google_id: profile.id } });
