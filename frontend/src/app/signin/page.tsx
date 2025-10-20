@@ -57,11 +57,11 @@ const SignInContent = () =>{
         if (data.message === 'Invalid credentials') {
           setErrors(prev => ({ ...prev, password: 'Wrong email or password' }));
         } else {
-          alert(data.message || 'Sign in failed');
+          toast.error(data.message || 'Sign in failed');
         }
       }
     } catch (error) {
-  console.error(error)
+     console.error(error)
 }
     // catch (error) {
     //   alert('Server error')
