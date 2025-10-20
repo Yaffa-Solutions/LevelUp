@@ -1,0 +1,34 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: levelup-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: levelup
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  prisma:
+    image: node:20
+    container_name: levelup-prisma
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - postgres
+    command: tail -f /dev/null    
+  # backend:
+  #     build: ./backend
+  #     container_name: levelup-backend
+  #     working_dir: /app
+  #     volumes:
+  #       - ./backend:/app
+  #     depends_on:
+  #       - postgres
+  #     command: tail -f /dev/null
+ 
+volumes:
+  postgres_data:
