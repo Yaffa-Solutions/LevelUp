@@ -14,15 +14,13 @@ type ProfileProps = {
   onUpdate?: (partial: Partial<User>) => void;
 };
 
-const ProfilePage = ({
-  user,
-  isEditMode = false,
-  onUpdate,
-}: ProfileProps) => {
+const ProfilePage = ({ user, isEditMode = false, onUpdate }: ProfileProps) => {
+  const isTalent = user.role === 'TALENT' || user.role === 'BOTH';
+  const isHunter = user.role === 'HUNTER' || user.role === 'BOTH';
   return (
     <div className="mt-5">
       <section className="max-w-4xl mx-auto  bg-white rounded-xl shadow-sm">
-        <ProfileCover/>
+        <ProfileCover />
         <ProfileAvatar
           userId={user.id}
           avatarUrl={user.profil_picture}
@@ -33,6 +31,8 @@ const ProfilePage = ({
           lastName={user.last_name}
           jobTitle={user.job_title}
           levelName={user.levels?.name}
+          companyName={user.company_name}
+          role={user.role}
           userId={user.id}
           isEditMode={isEditMode}
           onUpdate={onUpdate}
@@ -47,27 +47,30 @@ const ProfilePage = ({
           onUpdate={(newAbout) => onUpdate && onUpdate({ about: newAbout })}
         />
       </section>
+      {isTalent && (
+        <>
+          <section className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm">
+            <ExperienceSection
+              userId={user.id}
+              experiences={user.experiences || []}
+              onUpdate={(newExp) =>
+                onUpdate &&
+                onUpdate({
+                  experiences: [newExp, ...(user.experiences || [])],
+                })
+              }
+              isEditMode={isEditMode}
+            />
+          </section>
 
-      <section className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm">
-        <ExperienceSection
-          userId={user.id}
-          experiences={user.experiences || []}
-          onUpdate={(newExp) =>
-            onUpdate &&
-            onUpdate({
-              experiences: [newExp, ...(user.experiences || [])],
-            })
-          }
-          isEditMode={isEditMode}
-        />
-      </section>
-
-      <section className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm">
-        <SkillsSection
-          skillTalents={user.skillTalents || []}
-          isEditMode={isEditMode}
-        />
-      </section>
+          <section className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm">
+            <SkillsSection
+              skillTalents={user.skillTalents || []}
+              isEditMode={isEditMode}
+            />
+          </section>
+        </>
+      )}
     </div>
   );
 };

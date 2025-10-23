@@ -10,7 +10,7 @@ const ProfilePage = () => {
   const userId ='1';
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/talent/1`)
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/talent/${userId}`)
       .then((res) => res.json())
       .then((data) => setUser(data))
       .catch((err) => console.error('Error fetching user:', err));

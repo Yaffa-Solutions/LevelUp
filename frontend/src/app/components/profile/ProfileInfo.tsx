@@ -10,6 +10,8 @@ type ProfileInfoProps = {
   lastName: string;
   jobTitle?: string;
   levelName?: string;
+  companyName?: string;
+  role: 'TALENT' | 'HUNTER' | 'BOTH';
   onUpdate?: (updateData: Partial<User>) => void;
   isEditMode?: boolean;
 };
@@ -19,6 +21,8 @@ const ProfileInfo = ({
   lastName,
   jobTitle,
   levelName,
+  companyName,
+  role,
   userId,
   onUpdate,
   isEditMode = false,
@@ -52,33 +56,35 @@ const ProfileInfo = ({
         toast.error('Oops! Could not save your changes.');
       });
   };
-const formatFullName = (name?: string): string =>
-  name && name.trim() !== ''
-    ? name
-        .split(' ')
-        .map(
-          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-        )
-        .join(' ')
-    : 'No name';
 
-const formatJobTitle = (title?: string): string =>
-  title && title.trim() !== ''
-    ? title
+const formatText = (text?: string, fallback: string = ''): string =>
+  text && text.trim() !== ''
+    ? text
         .split(' ')
         .map(
           (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
         )
         .join(' ')
-    : 'No job title yet';
+    : fallback;
+
+
   
   return (
     <div className="relative flex flex-col items-start mt-1 ml-5 ">
       <h2 className="mt-3 text-2xl font-medium text-gray-950">
-        {formatFullName(firstName)} {formatFullName(lastName)}
+        {formatText(firstName)} {formatText(lastName)}
       </h2>
-      <p className="text-gray-900">{formatJobTitle(jobTitle)}</p>
-      <p className="text-gray-900">{levelName || 'No have level yet'}</p>
+      {(role === 'TALENT' || role === 'BOTH') && jobTitle && (
+        <p className="text-gray-900">{formatText(jobTitle,'No job title')}</p>
+      )}
+
+      {(role === 'TALENT' || role === 'BOTH') && levelName && (
+        <p className="text-gray-900">{formatText(levelName)}</p>
+      )}
+
+      {(role === 'HUNTER' || role === 'BOTH') && companyName && (
+        <p className="text-gray-900">{formatText(companyName)}</p>
+      )}
 
       {isEditMode && (
         <EditButton onClick={() => setIsEditing(true)} className="" />

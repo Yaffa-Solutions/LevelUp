@@ -25,4 +25,7 @@ export interface User {
   };
   experiences: Experience[];
   skillTalents: SkillTalent[];
+  role: 'TALENT' | 'HUNTER' | 'BOTH';
+  company_name?: string;
+  company_description?: string;
 }

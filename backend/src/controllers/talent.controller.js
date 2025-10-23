@@ -71,10 +71,22 @@ const updateAbout = (req, res, next) => {
     .catch(next);
 };
 
+const getTalentsByLevel = async (req, res, next) => {
+  const { levelId } = req.params;
+  const users = await prisma.user.findMany({
+    where: { level_id: levelId },
+    include: { levels: true },
+  });
+  res.json(users);
+};
+
+
+
 module.exports = {
   getTalentById,
   updateProfilePicture,
   updateCoverImage,
   updateTalentInfo,
   updateAbout,
+  getTalentsByLevel,
 };
