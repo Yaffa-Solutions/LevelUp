@@ -6,11 +6,14 @@ type EditInfoModalProps = {
   firstName: string;
   lastName: string;
   jobTitle?: string;
+  companyName?: string;
+  role?: 'TALENT' | 'HUNTER' | 'BOTH';
   onClose: () => void;
   onSave: (data: {
     first_name: string;
     last_name: string;
     job_title?: string;
+    company_name?: string;
   }) => Promise<void>;
 };
 
@@ -18,12 +21,15 @@ const EditInfoModal = ({
   firstName,
   lastName,
   jobTitle,
+  companyName,
+  role,
   onClose,
   onSave,
 }: EditInfoModalProps) => {
   const [newFirstName, setNewFirstName] = useState(firstName);
   const [newLastName, setNewLastName] = useState(lastName);
   const [newJobTitle, setNewJobTitle] = useState(jobTitle);
+  const [newCompanyName, setNewCompanyName] = useState(companyName);
   const [loading, setLoading] = useState(false);
 
   const handleSave = () => {
@@ -32,6 +38,7 @@ const EditInfoModal = ({
       first_name: newFirstName,
       last_name: newLastName,
       job_title: newJobTitle,
+      company_name: newCompanyName,
     })
       .then(() => {
         onClose();
@@ -98,10 +105,25 @@ const EditInfoModal = ({
               className="w-full pl-5 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none  focus:ring-1 focus:ring-indigo-500 text-gray-900 placeholder-gray-400 transition duration-200"
             />
           </label>
+
+          {(role === 'HUNTER' || role === 'BOTH') && (
+            <label
+              htmlFor="lastName"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Company Name
+              <input
+                type="text"
+                placeholder="Company Name"
+                value={newCompanyName || ''}
+                onChange={(e) => setNewCompanyName(e.target.value)}
+                className="w-full pl-5 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none  focus:ring-1 focus:ring-indigo-500 text-gray-900 placeholder-gray-400 transition duration-200"
+              />
+            </label>
+          )}
         </div>
 
         <SaveButton onClick={handleSave} disabled={loading} />
-        
       </div>
     </div>
   );

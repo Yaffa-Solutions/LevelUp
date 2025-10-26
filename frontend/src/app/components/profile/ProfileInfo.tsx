@@ -35,7 +35,7 @@ const ProfileInfo = ({
     job_title?: string;
   }): Promise<void> => {
     return fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/talent/${userId}/basic`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/${userId}/basic`,
       {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -57,26 +57,23 @@ const ProfileInfo = ({
       });
   };
 
-const formatText = (text?: string, fallback: string = ''): string =>
-  text && text.trim() !== ''
-    ? text
-        .split(' ')
-        .map(
-          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-        )
-        .join(' ')
-    : fallback;
+  const formatText = (text?: string, fallback: string = ''): string =>
+    text && text.trim() !== ''
+      ? text
+          .split(' ')
+          .map(
+            (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+          )
+          .join(' ')
+      : fallback;
 
-
-  
   return (
     <div className="relative flex flex-col items-start mt-1 ml-5 ">
       <h2 className="mt-3 text-2xl font-medium text-gray-950">
         {formatText(firstName)} {formatText(lastName)}
       </h2>
-      {(role === 'TALENT' || role === 'BOTH') && jobTitle && (
-        <p className="text-gray-900">{formatText(jobTitle,'No job title')}</p>
-      )}
+
+      <p className="text-gray-900">{formatText(jobTitle, 'No job title')}</p>
 
       {(role === 'TALENT' || role === 'BOTH') && levelName && (
         <p className="text-gray-900">{formatText(levelName)}</p>
@@ -95,6 +92,8 @@ const formatText = (text?: string, fallback: string = ''): string =>
           firstName={firstName}
           lastName={lastName}
           jobTitle={jobTitle}
+          companyName={companyName}
+          role={role}
           onSave={handleSave}
           onClose={() => setIsEditing(false)}
         />
