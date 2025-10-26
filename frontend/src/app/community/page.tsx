@@ -18,31 +18,40 @@ const CommunityPage = () => {
   const userId = '1';
 
   useEffect(() => {
+
     const fetchTalents = async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/talent/${userId}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/${userId}`
       );
       const userData = await res.json();
       setTalent(userData);
 
-      if (userData?.level_id) {
-        const res2 = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/talent/level/${userData.level_id}`
-        );
-        const usersData = await res2.json();
-        console.log(usersData);
+       const isTalent = userData.role === 'TALENT' || userData.role === 'BOTH';
+       const isHunter = userData.role === 'HUNTER' || userData.role === 'BOTH';
 
-        setSameLevelTalents(usersData.filter((u: User) => u.id !== userId));
-      }
+       if (isTalent && userData.level_id) {
+         const res2 = await fetch(
+           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/level/${userData.level_id}`
+         );
+         const talentsData = await res2.json();
+         setSameLevelTalents(talentsData.filter((u: User) => u.id !== userId));
+       } else if (isHunter) {
+         const res3 = await fetch(
+           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/talents`
+         );
+         const allTalents = await res3.json();
+         setSameLevelTalents(allTalents);
+       }
     };
 
     const fetchHunters = async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/hunters`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/hunters`
       );
       const huntersData = await res.json();
+      console.log(huntersData);
 
-      setHunters(huntersData);
+      setHunters(huntersData.filter((u: User) => u.id !== userId)); 
     };
     fetchTalents();
     fetchHunters();
@@ -62,7 +71,7 @@ const CommunityPage = () => {
       .includes(searchTerm.toLowerCase())
   );
 
-if (!talent || sameLevelTalents.length === 0 || hunters.length === 0) {
+if (!talent ||  hunters.length === 0) {
   return <Spinner />;
 }
 
