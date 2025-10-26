@@ -29,7 +29,7 @@ model User {
   updated_at          DateTime         @updatedAt
   role                Role
   about               String?
-  level_id            String
+  level_id            String?
   company_name        String?
   job_title           String?
   company_description String?
@@ -42,7 +42,7 @@ model User {
   posts               Post[]
   postReactions       PostReaction[]
   skillTalents        SkillTalent[]
-  levels              UserLevels       @relation(fields: [level_id], references: [id])
+  levels              UserLevels?       @relation(fields: [level_id], references: [id])
 }
 
 model Chat {
