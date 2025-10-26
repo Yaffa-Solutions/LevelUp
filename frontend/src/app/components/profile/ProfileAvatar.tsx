@@ -53,7 +53,7 @@ const ProfileAvatar = ({
           onClose={() => setIsEditing(false)}
           onSave={async (newImageUrl) => {
             const res = await fetch(
-              `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/talent/${userId}/profile-picture`,
+              `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/${userId}/profile-picture`,
               {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
@@ -69,7 +69,7 @@ const ProfileAvatar = ({
           onDelete={async () => {
             try {
                await fetch(
-                 `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/talent/${userId}/profile-picture`,
+                 `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/${userId}/profile-picture`,
                  {
                    method: 'PATCH',
                    headers: { 'Content-Type': 'application/json' },

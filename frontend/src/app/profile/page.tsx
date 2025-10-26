@@ -7,10 +7,10 @@ import Spinner from '../components/profile/Spinner';
 
 const ProfilePage = () => {
   const [user, setUser] = useState<User | null>(null);
-  const userId ='1';
+  const userId = '1';
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/talent/${userId}`)
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/${userId}`)
       .then((res) => res.json())
       .then((data) => setUser(data))
       .catch((err) => console.error('Error fetching user:', err));

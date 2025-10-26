@@ -10,7 +10,7 @@ const PublicProfilePage = () => {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/talent/${userId}`)
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/${userId}`)
       .then((res) => res.json())
       .then(setUser)
       .catch((err) => console.error('Error:', err));
