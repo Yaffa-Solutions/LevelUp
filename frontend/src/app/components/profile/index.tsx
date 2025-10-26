@@ -7,6 +7,7 @@ import AboutSection from './AboutSetion';
 import ExperienceSection from './ExperienceSection';
 import SkillsSection from './SkillsSection';
 import { User } from '@/app/types/userTypes';
+import CompanyDescriptionSection from './CompanyDescriptionSection';
 
 type ProfileProps = {
   user: User;
@@ -39,7 +40,7 @@ const ProfilePage = ({ user, isEditMode = false, onUpdate }: ProfileProps) => {
         />
       </section>
 
-      <section className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm">
+      <section className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm mb-3">
         <AboutSection
           about={user.about}
           userId={user.id}
@@ -47,9 +48,23 @@ const ProfilePage = ({ user, isEditMode = false, onUpdate }: ProfileProps) => {
           onUpdate={(newAbout) => onUpdate && onUpdate({ about: newAbout })}
         />
       </section>
+
+      {isHunter && (
+        <section className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm mb-3">
+          <CompanyDescriptionSection
+            companyDescription={user.company_description}
+            userId={user.id}
+            isEditMode={isEditMode}
+            onUpdate={(newDescription) =>
+              onUpdate && onUpdate({ company_description: newDescription })
+            }
+          />
+        </section>
+      )}
+
       {isTalent && (
         <>
-          <section className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm">
+          <section className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm mb-3">
             <ExperienceSection
               userId={user.id}
               experiences={user.experiences || []}
@@ -63,7 +78,7 @@ const ProfilePage = ({ user, isEditMode = false, onUpdate }: ProfileProps) => {
             />
           </section>
 
-          <section className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm">
+          <section className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm mb-3">
             <SkillsSection
               skillTalents={user.skillTalents || []}
               isEditMode={isEditMode}

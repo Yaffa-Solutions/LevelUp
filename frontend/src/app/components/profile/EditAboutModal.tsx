@@ -3,18 +3,26 @@ import CloseButton from './CloseButton';
 import SaveButton from './SaveButton';
 
 type EditAboutModalProps = {
-  about: string;
+  title: string;
+  description: string;
+  initialValue: string;
   onClose: () => void;
   onSave: (newAbout: string) => Promise<void>;
 };
 
-const EditAboutModal = ({ about, onClose, onSave }: EditAboutModalProps) => {
-  const [newAbout, setNewAbout] = useState(about);
+const EditAboutModal = ({
+  title,
+  description,
+  initialValue,
+  onClose,
+  onSave,
+}: EditAboutModalProps) => {
+  const [value, setValue] = useState(initialValue);
   const [loading, setLoading] = useState(false);
 
   const handleSave = () => {
     setLoading(true);
-    onSave(newAbout)
+    onSave(value)
       .then(() => {
         onClose();
         setLoading(false);
@@ -33,23 +41,20 @@ const EditAboutModal = ({ about, onClose, onSave }: EditAboutModalProps) => {
         <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-2xl">
           <div className="relative flex  ">
             <CloseButton onClick={onClose} />
-            <h3 className="text-lg font-semibold text-gray-900">Edit About</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
           </div>
           <hr />
 
-          <p className="text-gray-600 text-sm mb-3">
-            Write a brief summary about your professional background, years of
-            experience, the industry you work in, and your key skills.
-          </p>
+          <p className="text-gray-600 text-sm mb-3">{description}</p>
 
           <textarea
             className="w-full border border-gray-300 rounded-lg p-3 text-gray-700 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
             rows={5}
-            value={newAbout}
-            onChange={(e) => setNewAbout(e.target.value)}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
           />
 
-            <SaveButton onClick={handleSave} disabled={loading}  />
+          <SaveButton onClick={handleSave} disabled={loading} />
         </div>
       </div>
     </>

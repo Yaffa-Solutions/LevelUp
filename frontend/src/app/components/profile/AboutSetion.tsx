@@ -22,7 +22,7 @@ const AboutSection = ({
 
   const handleSave = (newAbout: string): Promise<void> => {
     return fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/talent/${userId}/about`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/${userId}/about`,
       {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -54,7 +54,10 @@ const AboutSection = ({
 
       {isEditing && isEditMode && (
         <EditAboutModal
-          about={about || ''}
+          title="Edit About"
+          description=" Write a brief summary about your professional background, years of
+            experience, the industry you work in, and your key skills."
+          initialValue={about || ''}
           onSave={handleSave}
           onClose={() => setIsEditing(false)}
         />
