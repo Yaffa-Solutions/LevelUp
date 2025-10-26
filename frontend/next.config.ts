@@ -1,9 +1,20 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   /* config options here */
   images: {
-    domains: ['cdn-icons-png.flaticon.com', 'another-domain.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'cdn-icons-png.flaticon.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'another-domain.com',
+        pathname: '/**',
+      },
+    ],
   },
 };
 
