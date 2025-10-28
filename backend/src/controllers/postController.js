@@ -29,8 +29,11 @@ const getOne = async (req, res) =>{
 }
 
 const update = async (req, res) =>{
+  const userId = req.user.userId;
+  const postId = req.params.id;
+
   try {
-    const post = await postService.updatePost(req.params.id, req.body);
+    const post = await postService.updatePost(postId, userId, req.body);
     res.json(post);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -38,8 +41,11 @@ const update = async (req, res) =>{
 }
 
 const remove = async (req, res) =>{
+  const userId = req.user.userId;
+  const postId = req.params.id;
+
   try {
-    await postService.deletePost(req.params.id);
+    await postService.deletePost(postId, userId);
     res.json({ message: 'Post deleted' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -106,7 +112,16 @@ const handleLike = async (req, res) => {
     res.status(400).json({ error: err.message })
   }
 }
-
+const getMyPosts = async (req, res) => {
+  const userId = req.user.userId;
+  try {
+    const posts = await postService.getMyPosts(userId);
+    res.json(posts);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 module.exports = {
   create,
   getAll,
@@ -116,6 +131,7 @@ module.exports = {
   getPostsController,
   getPosts, 
   addPost,
-  handleLike 
+  handleLike,
+  getMyPosts, 
 };
 

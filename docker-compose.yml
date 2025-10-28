@@ -12,53 +12,31 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-
-  # prisma:
-  #   image: node:20
-  #   container_name: levelup-prisma
-  #   working_dir: /app
-  #   volumes:
-  #     - ./backend:/app
-  #   depends_on:
-  #     - postgres
-  #   command: tail -f /dev/null    
-
-
-  # backend:
-  #     build: ./backend
-  #     container_name: levelup-backend
-  #     working_dir: /app
-  #     volumes:
-  #       - ./backend:/app
-  #     depends_on:
-  #       - postgres
-  #     command: tail -f /dev/null
-
   backend:
     build: ./backend
     container_name: levelup-backend
     working_dir: /app
     volumes:
       - ./backend:/app
+      - /app/node_modules
+
+    command: >
+       bash -c "./wait-for-it.sh levelup-db:5432 -- ./wait-for-it.sh redis:6379 -- nodemon --legacy-watch src/index.js"  
     environment:
       DATABASE_URL: "postgresql://postgres:postgres@levelup-db:5432/levelup?schema=public"
+      REDIS_URL: "redis://redis:6379"
     depends_on:
       - postgres
+      - redis
     ports:
       - "5000:5000"
 
+  redis:
+    image: redis:latest
+    container_name: levelup-redis
+    ports:
+      - "6379:6379"
 
-  # frontend:
-  #   build: ./frontend
-  #   container_name: levelup-frontend
-  #   working_dir: /app
-  #   volumes:
-  #     - ./frontend:/app
-  #   depends_on:
-  #     - backend
-  #   ports:
-  #     - "3000:3000"
-  #   command: npm run dev
        
 
 volumes:

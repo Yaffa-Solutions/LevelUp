@@ -12,5 +12,6 @@ router.delete('/:id', postController.remove);
 
 router.post('/', authenticate, postController.addPost);
 router.post('/like', authenticate, postController.handleLike)
+router.get('/my-posts', authenticate, postController.getMyPosts);
 
 module.exports = router

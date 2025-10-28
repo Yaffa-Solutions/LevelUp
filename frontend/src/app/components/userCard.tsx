@@ -28,7 +28,6 @@ const UserCard = () =>{
   fetchUser();
 }, []);
 
-  // if (!user) return <p>Loading...</p>
     if (!user) return <p className="p-4 w-full sm:w-[294px] mx-auto text-center bg-white rounded-lg shadow">Loading user profile...</p>
 
 

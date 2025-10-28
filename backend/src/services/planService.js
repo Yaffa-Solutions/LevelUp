@@ -1,9 +1,12 @@
 const { PrismaClient } = require('../generated/prisma');
 const prisma = new PrismaClient();
-
+const { safeRedisGet, safeRedisSetEx } = require('./redisSafe');
 
 const getAllPlans = async () =>{
-  return await prisma.plan.findMany({
+  const cached = await safeRedisGet('all_plans');
+  if(cached) return JSON.parse(cached);
+
+  const plans = await prisma.plan.findMany({
     include: {
       user: {
         select: {
@@ -20,13 +23,22 @@ const getAllPlans = async () =>{
     },
     orderBy: { started_time: 'desc' },
   })
+
+  await safeRedisSetEx('all_plans', 300, JSON.stringify(plans)); // 5 دقائق
+  return plans;
 }
 
 const getPlansByUserId = async (userId) =>{
-  return prisma.plan.findMany({
+  const cached = await safeRedisGet(`plans_user_${userId}`);
+  if(cached) return JSON.parse(cached);
+
+  const plans = prisma.plan.findMany({
     where: { user_id: userId },
     include: { user: true, target_level: true }
   })
+
+  await safeRedisSetEx(`plans_user_${userId}`, 60, JSON.stringify(plans));
+  return plans;
 }
 module.exports = {
   getAllPlans,

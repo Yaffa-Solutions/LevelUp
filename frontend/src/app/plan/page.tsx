@@ -61,7 +61,7 @@ const PlanPage = () =>{
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 sm:px-6 py-10">
-      <div className="flex flex-col sm:flex-row gap-6 sm:gap-[40px] mt-7 mb-7">
+      <div className="flex flex-col sm:flex-row gap-6 sm:gap-[40px] mt-20 mb-7">
         <UserCard />
 
         <section className="flex-1 flex flex-col gap-4 mr-0 sm:mr-27">

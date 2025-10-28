@@ -9,7 +9,9 @@ const authRoutes = require('./routes/authRoute');
 const userRoutes = require('./routes/userRoute');
 const postsRoutes = require('./routes/postsRoute');
 const postReactionRoutes = require('./routes/postReactionRoute');
-const planRoutes = require('./routes/planRoute')
+const planRoutes = require('./routes/planRoute');
+const jobRoutes = require('./routes/jobRoute');
+const levelRoutes = require('./routes/levelRoute');
 const cookieParser = require('cookie-parser');
 
 const app = express();
@@ -30,5 +32,7 @@ app.use('/user',userRoutes);
 app.use('/posts', postsRoutes);
 app.use('/post-reaction', postReactionRoutes);
 app.use('/plans', planRoutes)
+app.use('/jobs', jobRoutes);
+app.use('/levels', levelRoutes);
 
 module.exports = app
