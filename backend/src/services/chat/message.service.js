@@ -18,18 +18,18 @@ const addMessageService = async (messageData) => {
     throw new CustomError("No chat has this id", 400);
   }
 
-  const user = await prisma.chat.findFirst({
-    where: {
-      OR: [
-        { user1_id: messageData.sender_id },
-        { user2_id: messageData.sender_id },
-      ],
-    },
-  });
+  // const user = await prisma.chat.findFirst({
+  //   where: {
+  //     OR: [
+  //       { user1_id: messageData.sender_id },
+  //       { user2_id: messageData.sender_id },
+  //     ],
+  //   },
+  // });
 
-  if (!user) {
-    throw new CustomError("No User has this id", 400);
-  }
+  // if (!user) {
+  //   throw new CustomError("No User has this id", 400);
+  // }
 
   const message = await prisma.message.create({
     data: {
