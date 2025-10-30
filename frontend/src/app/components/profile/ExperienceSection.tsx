@@ -54,13 +54,14 @@ const ExperienceSection = ({
   }
   return (
     <div className="relative p-6  mt-5">
-      <div className="flex items-center justify-between mb-5">
+      <div className="mb-5">
         <h2 className="text-xl font-semibold text-gray-900">Experiences</h2>
         {isEditMode && (
-          <div className="flex items-center gap-2">
-            <AddButton onClick={() => setIsAdding(true)} />
+          <div>
+            <AddButton onClick={() => setIsAdding(true)} className='right-14' />
             <EditButton
               onClick={() => router.push('/profile/experiences')}
+              className='right-4'
             />
           </div>
         )}
@@ -71,7 +72,7 @@ const ExperienceSection = ({
         experiences.slice(0, 2).map((exp, index) => (
           <div
             key={exp.id}
-            className="flex justify-between px-4 py-4  mt-2 rounded-xl shadow-sm text-gray-800 bg-gray-50 text-sm font-medium"
+            className="px-4 py-4 mt-2 rounded-xl shadow-sm bg-gray-50 text-sm font-medium"
           >
             <ExperienceCard
               key={index}

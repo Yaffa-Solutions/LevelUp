@@ -24,7 +24,7 @@ const UserCard = ({ user, onClick }: UserCardProps) => {
   return (
     <div
       onClick={onClick}
-      className="p-2   bg-gradient-to-r from-[#9333EA]/10 to-[#2563EB]/10 rounded-lg shadow flex flex-col items-center cursor-pointer hover:shadow-lg transition"
+      className="p-5 bg-gradient-to-r from-[#9333EA]/10 to-[#2563EB]/10 rounded-lg shadow flex flex-col items-center cursor-pointer hover:shadow-lg transition"
     >
       {user.profil_picture ? (
         <div className="relative w-20 h-20 ">

@@ -11,7 +11,7 @@ const UsersCard = ({ users }: UsersCardProps) => {
   const router = useRouter();
 
   return (
-    <div className="grid grid-cols-5 gap-6">
+    <div className="grid grid-cols-4 gap-6">
       {users.map((user) => (
         <UserCard
           key={user.id}

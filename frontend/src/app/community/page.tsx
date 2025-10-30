@@ -76,17 +76,17 @@ if (!talent ||  hunters.length === 0) {
 }
 
   return (
-    <div className="max-w-6xl mx-auto mt-10 flex items-start gap-8">
-      <div className="w-full max-w-40">
+    <div className="flex justify-center gap-20 mt-10 ">
+      <div>
         {talent && (
           <UserCard user={talent} onClick={() => router.push(`/profile/`)} />
         )}
       </div>
 
-      <div className="flex-1 p-6 bg-white rounded-2xl shadow-lg border border-gray-100">
-        <section className="mb-8 ">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div className="flex flex-col">
+      <div className="max-w-6xl p-7 bg-white rounded-2xl shadow-lg border border-gray-100">
+        <section className="mb-8">
+          <div className="flex items-center justify-between gap-5">
+            <div>
               <h2 className="text-xl font-semibold text-gray-900">Community</h2>
               <p className="text-base font-normal text-gray-700 mb-4">
                 Explore profiles across the LevelUp community
@@ -118,7 +118,6 @@ if (!talent ||  hunters.length === 0) {
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Hunters</h2>
           <UsersCard users={filterHunters} />
         </section>
-  
       </div>
     </div>
   );

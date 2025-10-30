@@ -57,12 +57,12 @@ const SkillsSection = ({
 
   return (
     <div className="relative p-6 mt-6">
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4">
         <h2 className="text-xl font-semibold text-gray-900">Skills</h2>
         {isEditMode && (
-          <div className="flex gap-2">
-            <AddButton onClick={() => setShowAddModal(true)} />
-            <EditButton onClick={() => router.push('/profile/skills')} />
+          <div>
+            <AddButton onClick={() => setShowAddModal(true)} className='right-14' />
+            <EditButton onClick={() => router.push('/profile/skills')} className='right-4' />
           </div>
         )}
       </div>
@@ -70,7 +70,7 @@ const SkillsSection = ({
       {skills.length === 0 ? (
         <p className="text-gray-500">No skills added yet.</p>
       ) : (
-        <div className="flex flex-wrap flex-col gap-3">
+        <div className="flex flex-col gap-3">
           {visibleSkills.map((st) => (
             <span
               key={st.id}

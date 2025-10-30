@@ -43,7 +43,7 @@ const ProfileAvatar = ({
           className="rounded-full border-4 border-white shadow-md object-cover"
         />
         {isEditMode && (
-          <EditButton onClick={() => setIsEditing(true)} className="top-22" />
+          <EditButton onClick={() => setIsEditing(true)} className="top-[90px]" />
         )}
       </div>
       {isEditing && (
