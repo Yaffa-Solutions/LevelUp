@@ -1,4 +1,5 @@
-const prisma = require('../prismaClient.js');
+const prisma = require('../config/prismaClient.js');
+const { safeRedisGet, safeRedisSetEx } = require('../config/redis.js');
 
 const getUserById = (req, res, next) => {
   const { userId } = req.params;
@@ -80,9 +81,19 @@ const getTalentsByLevel = async (req, res, next) => {
   res.json(users);
 };
 
-const getAllTalents = (req, res, next) => {
-  prisma.user
-    .findMany({
+const getAllTalents = async (req, res, next) => {
+  try {
+    let cachedData;
+    cachedData = await safeRedisGet('all_talents');
+
+    console.log('Read talents from Redis:', cachedData);
+
+    if (cachedData) {
+      console.log('Cache Hit, talents from redis cache');
+      return res.status(200).json(JSON.parse(cachedData));
+    }
+    console.log('Cache Miss, fetching talents from database');
+    const talents = await prisma.user.findMany({
       where: {
         role: { in: ['TALENT', 'BOTH'] },
       },
@@ -91,14 +102,29 @@ const getAllTalents = (req, res, next) => {
         experiences: { orderBy: { start_date: 'desc' } },
         skillTalents: { include: { skill: true } },
       },
-    })
-    .then((users) => {
-      res.status(200).json(users);
-    })
-    .catch(next);
+    });
+    await safeRedisSetEx('all_talents', 360, JSON.stringify(talents));
+    const test = await safeRedisGet('all_talents');
+    console.log('Read talents from Redis:', test);
+    console.log('Talents cached in redis');
+
+    res.status(200).json(talents);
+  } catch (error) {
+    next(error);
+  }
 };
 const getAllHunters = async (req, res, next) => {
   try {
+    let cachedData;
+    cachedData = await safeRedisGet('all_hunters');
+
+    console.log('Read hunters from Redis:', cachedData);
+
+    if (cachedData) {
+      console.log('Cache Hit, fetching hunters from redis cache');
+      return res.json(JSON.parse(cachedData));
+    }
+    console.log('Cache Miss ,fetching  hunters from database');
     const hunters = await prisma.user.findMany({
       where: {
         role: { in: ['HUNTER', 'BOTH'] },
@@ -107,6 +133,13 @@ const getAllHunters = async (req, res, next) => {
         levels: true,
       },
     });
+
+    await safeRedisSetEx('all_hunters', 360 , JSON.stringify(hunters));
+
+    const test = await safeRedisGet('all_hunters');
+
+    console.log('Read hunters from Redis:', test);
+    console.log('Hunters cached in redis');
 
     res.status(200).json(hunters);
   } catch (error) {

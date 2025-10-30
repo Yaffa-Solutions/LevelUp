@@ -1,4 +1,4 @@
-const prisma = require('../prismaClient.js');
+const prisma = require('../config/prismaClient.js');
 
 const getTalentExperiences = (req, res, next) => {
   const { userId } = req.params;

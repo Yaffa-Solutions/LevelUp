@@ -1,5 +1,5 @@
 const env = require('env2');
-env('../.env');
+env('.env');
 const app =  require ('./app.js');
 
 const port = process.env.PORT || 5000;

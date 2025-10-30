@@ -1,4 +1,4 @@
-const prisma = require('../prismaClient.js');
+const prisma = require('../config/prismaClient.js');
 
 const getTalentSkills = async (req, res, next) => {
   try {
