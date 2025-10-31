@@ -1,6 +1,8 @@
 'use client';
 
-import React, { useMemo, useState, useEffect, type ReactNode } from 'react';
+import React, { useMemo, useState} from 'react';
+import AddSkillPopup from '../components/create-profile/AddSkillPopup';
+import ExperiencePopup from '../components/create-profile/AddExperiencePopup';
 
 type Role = 'talent' | 'hunter' | 'both';
 type MonthYear = { month: number; year: number; label: string };
@@ -14,32 +16,17 @@ type ExperienceItem = {
   employmentType?: string;
 };
 
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const YEARS = Array.from({ length: 60 }, (_, i) => new Date().getFullYear() - i);
-const makeMonthYear = (m: number, y: number): MonthYear => ({ month: m, year: y, label: `${MONTHS[m - 1]} ${y}` });
-
 export default function CreateProfilePage() {
-  const [role, setRole] = useState<Role>('hunter'); 
+  const [role, setRole] = useState<Role>('talent'); 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName]   = useState('');
   const [about, setAbout]         = useState('');
   const [jobTitle, setJobTitle]   = useState('');
   const [company, setCompany]     = useState('');
   const [companyDesc, setCompanyDesc] = useState('');
-  const [skills, setSkills]       = useState<string[]>(['Css']);
-  const [experiences, setExperiences] = useState<ExperienceItem[]>([
-    {
-      company: 'Azzai',
-      position: 'Web Devlopment',
-      description:
-        'Get AI-powered assessments, personalized growth plans, and connect with opportunities that match your level.',
-      start: makeMonthYear(9, 2019),
-      end: makeMonthYear(6, 2024),
-      employmentType: 'Full Time',
-    },
-  ]);
+  const [skills, setSkills]       = useState<string[]>([]);
+  const [experiences, setExperiences] = useState<ExperienceItem[]>([]);
   const [cvFile, setCvFile] = useState<File | null>(null);
-
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const onPickAvatar = () => document.getElementById('avatar-input')?.click();
   const onAvatarChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -52,6 +39,7 @@ export default function CreateProfilePage() {
   const [openExp, setOpenExp] = useState(false);
   const [editIdx, setEditIdx] = useState<number | undefined>(undefined);
   const [openSkill, setOpenSkill] = useState(false);
+
 
   const roleTitle = useMemo(() => role[0].toUpperCase() + role.slice(1), [role]);
 
@@ -129,6 +117,7 @@ export default function CreateProfilePage() {
         </div>
 
         <div className="mt-7 grid gap-6">
+    {(role === 'talent' || role === 'both') && (
           <div className="space-y-2">
             <LabelRequired>Attach CV</LabelRequired>
             <div className="flex w-full items-center overflow-hidden rounded-full border border-gray-300">
@@ -150,6 +139,7 @@ export default function CreateProfilePage() {
               />
             </div>
           </div>
+)}
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <Input label="First Name" required placeholder="e.g. John" value={firstName} onChange={setFirstName}/>
@@ -323,235 +313,5 @@ function IconBtn({ children, title, onClick }: { children: React.ReactNode; titl
     >
       {children}
     </button>
-  );
-}
-
-function ExperiencePopup(props: {
-  open: boolean;
-  onClose: () => void;
-  onSave: (item: ExperienceItem) => void;
-  defaultValue?: ExperienceItem;
-}) {
-  const { open, onClose, onSave, defaultValue } = props;
-
-  const [company, setCompany] = useState(defaultValue?.company ?? '');
-  const [position, setPosition] = useState(defaultValue?.position ?? '');
-  const [description, setDescription] = useState(defaultValue?.description ?? '');
-  const [careerBreak, setCareerBreak] = useState(!!defaultValue?.careerBreak);
-  const [startMonth, setStartMonth] = useState<number>(defaultValue?.start?.month ?? 1);
-  const [startYear, setStartYear] = useState<number>(defaultValue?.start?.year ?? new Date().getFullYear());
-  const [endMonth, setEndMonth] = useState<number>(defaultValue?.end?.month ?? 1);
-  const [endYear, setEndYear] = useState<number>(defaultValue?.end?.year ?? new Date().getFullYear());
-  const [noEndDate, setNoEndDate] = useState<boolean>(defaultValue?.end == null);
-  const [employmentType, setEmploymentType] = useState(defaultValue?.employmentType ?? 'Full Time');
-
-  useEffect(() => {
-    if (!open) return;
-    setCompany(defaultValue?.company ?? '');
-    setPosition(defaultValue?.position ?? '');
-    setDescription(defaultValue?.description ?? '');
-    setCareerBreak(!!defaultValue?.careerBreak);
-    setStartMonth(defaultValue?.start?.month ?? 1);
-    setStartYear(defaultValue?.start?.year ?? new Date().getFullYear());
-    setEndMonth(defaultValue?.end?.month ?? 1);
-    setEndYear(defaultValue?.end?.year ?? new Date().getFullYear());
-    setNoEndDate(defaultValue?.end == null);
-    setEmploymentType(defaultValue?.employmentType ?? 'Full Time');
-  }, [open, defaultValue]);
-
-  const startObj = makeMonthYear(startMonth, startYear);
-  const endObj = noEndDate ? null : makeMonthYear(endMonth, endYear);
-
-  const handleSave = () =>
-    onSave({ company, position, description, careerBreak, start: startObj, end: endObj, employmentType });
-
-  if (!open) return null;
-
-  return (
-    <div className="fixed inset-0 z-[60] grid place-items-center">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative z-10 w-[min(760px,92vw)] max-w-[760px] rounded-[24px] bg-white p-7 shadow-xl">
-        <h2 className="mb-5 text-[20px] font-[800] text-[#1f1f1f]">Add Experiences</h2>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <Input label="Company Name" placeholder="e.g. Tech Corp" value={company} onChange={setCompany}/>
-          <Input label="Position" placeholder="e.g. Software Engineer" value={position} onChange={setPosition}/>
-        </div>
-
-        <div className="mt-3">
-          <TextArea label="Description" placeholder="e.g. I led a team to develop a new mobile app feature..." value={description} onChange={setDescription}/>
-        </div>
-
-        <div className="mt-5 space-y-4">
-          <label className="flex items-center gap-2 text-[14px] text-gray-800">
-            <input
-              type="checkbox"
-              className="h-5 w-5 accent-black"
-              checked={noEndDate}
-              onChange={(e) => setNoEndDate(e.target.checked)}
-            />
-            I am currently on this career break
-          </label>
-
-          <div className="grid gap-6">
-            <div>
-              <div className="mb-2 text-[13px] font-medium text-gray-700">Start Date</div>
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                <Select
-                  value={startMonth}
-                  onChange={(v) => setStartMonth(Number(v))}
-                  className="h-12 w-full rounded-xl border border-gray-300 bg-white px-4 text-[15px] shadow-sm focus:border-gray-900 focus:ring-4 focus:ring-gray-200"
-                >
-                  <option value="" disabled>Month</option>
-                  {MONTHS.map((m, i) => (
-                    <option key={m} value={i + 1}>{m}</option>
-                  ))}
-                </Select>
-
-                <Select
-                  value={startYear}
-                  onChange={(v) => setStartYear(Number(v))}
-                  className="h-12 w-full rounded-xl border border-gray-300 bg-white px-4 text-[15px] shadow-sm focus:border-gray-900 focus:ring-4 focus:ring-gray-200"
-                >
-                  <option value="" disabled>Year</option>
-                  {YEARS.map((y) => (
-                    <option key={y} value={y}>{y}</option>
-                  ))}
-                </Select>
-              </div>
-            </div>
-
-            {/* End Date */}
-            <div>
-              <div className="mb-2 text-[13px] font-medium text-gray-700">End Date</div>
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                <Select
-                  value={noEndDate ? '' : endMonth}
-                  onChange={(v) => setEndMonth(Number(v))}
-                  disabled={noEndDate}
-                  className="h-12 w-full rounded-xl border px-4 text-[15px] shadow-sm bg-white border-gray-300 focus:border-gray-900 focus:ring-4 focus:ring-gray-200 disabled:bg-gray-200 disabled:text-gray-500 disabled:border-gray-200 disabled:cursor-not-allowed"
-                >
-                  <option value="" disabled>Month</option>
-                  {MONTHS.map((m, i) => (
-                    <option key={m} value={i + 1}>{m}</option>
-                  ))}
-                </Select>
-
-                <Select
-                  value={noEndDate ? '' : endYear}
-                  onChange={(v) => setEndYear(Number(v))}
-                  disabled={noEndDate}
-                  className="h-12 w-full rounded-xl border px-4 text-[15px] shadow-sm bg-white border-gray-300 focus:border-gray-900 focus:ring-4 focus:ring-gray-200 disabled:bg-gray-200 disabled:text-gray-500 disabled:border-gray-200 disabled:cursor-not-allowed"
-                >
-                  <option value="" disabled>Year</option>
-                  {YEARS.map((y) => (
-                    <option key={y} value={y}>{y}</option>
-                  ))}
-                </Select>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-6">
-          <div className="mb-2 text-[13px] font-medium text-gray-700">Employment type</div>
-          <div className="relative">
-            <select
-              value={employmentType}
-              onChange={(e) => setEmploymentType(e.target.value)}
-              className="appearance-none h-12 w-full rounded-xl border border-[#e7e7e7] bg-white px-4 text-[15px] text-[#222] outline-none transition focus:border-[#c4b5fd] focus:ring-2 focus:ring-[#e9d5ff]"
-            >
-              <option value="" disabled hidden>Please Select</option>
-              <option value="Full Time">Full Time</option>
-              <option value="Part Time">Part Time</option>
-              <option value="Freelance">Freelance</option>
-              <option value="Self Employed">Self Employed</option>
-              <option value="Internship">Internship</option>
-            </select>
-            <svg
-              className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              aria-hidden="true"
-            >
-              <path d="M7 10l5 5 5-5z" />
-            </svg>
-          </div>
-        </div>
-
-        <div className="mt-7 flex items-center justify-end gap-3">
-          <button onClick={onClose} className="rounded-xl bg-gray-100 px-5 py-2 text-[13px] font-semibold text-gray-700 hover:bg-gray-200">Cancel</button>
-          <button onClick={handleSave} className="rounded-full bg-gradient-to-r from-[#9333EA] to-[#2563EB] px-6 py-2 text-[13px] font-[800] text-white shadow">
-            {defaultValue ? 'Update' : 'Add'}
-          </button>
-        </div>
-
-        <button onClick={onClose} className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200" title="Close">×</button>
-      </div>
-    </div>
-  );
-}
-
-function Select({
-  value,
-  onChange,
-  disabled,
-  children,
-  className = '',
-}:{
-  value: number | string;
-  onChange:(v:string)=>void;
-  disabled?: boolean;
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <select
-      className={`appearance-none ${className}`}
-      value={value}
-      onChange={(e)=>onChange(e.target.value)}
-      disabled={disabled}
-    >
-      {children}
-    </select>
-  );
-}
-
-function AddSkillPopup({
-  open, onClose, onAdd,
-}: { open: boolean; onClose: ()=>void; onAdd: (skill: string)=>void }) {
-  const [val, setVal] = useState('');
-
-  useEffect(()=>{ if(open) setVal(''); }, [open]);
-
-  if (!open) return null;
-
-  return (
-    <div className="fixed inset-0 z-[70] grid place-items-center">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose}/>
-      <div className="relative z-10 w-[min(480px,92vw)] rounded-[18px] bg-white p-5 shadow-xl">
-        <h3 className="mb-3 text-[16px] font-[800] text-[#1f1f1f]">Add New Skills</h3>
-
-        <div className="flex items-center gap-3">
-          <div className="w-full rounded-[14px] p-[1px] [background:linear-gradient(90deg,#7D4CFF,#0EA5E9)]">
-            <input
-              className="w-full rounded-[13px] border-0 bg-white px-4 py-2.5 text-[15px] text-[#222] outline-none"
-              placeholder=""
-              value={val}
-              onChange={(e)=>setVal(e.target.value)}
-              onKeyDown={(e)=>{ if(e.key==='Enter'){ e.preventDefault(); onAdd(val); } }}
-            />
-          </div>
-          <button
-            onClick={()=>onAdd(val)}
-            className="rounded-full bg-gradient-to-r from-[#7D4CFF] to-[#0EA5E9] px-5 py-2 text-[13px] font-[800] text-white shadow"
-          >
-            Add
-          </button>
-        </div>
-
-        <button onClick={onClose} className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200" title="Close">×</button>
-      </div>
-    </div>
   );
 }

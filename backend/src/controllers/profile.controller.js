@@ -1,13 +1,12 @@
-const asyncHandler = require('express-async-handler')
-const { PrismaClient } = require('@prisma/client')
-const prisma = new PrismaClient()
+// const { PrismaClient } = require('@prisma/client');
+// const prisma = new PrismaClient();
+const prisma = require('../config/prismaClient.js');
 
-exports.createProfile = asyncHandler(async (req, res) => {
-  const { email, first_name, last_name, role, level_id } = req.body
+exports.createProfile = async (req, res) => {
+  const { email, first_name, last_name, role, level_id } = req.body;
 
   const user = await prisma.user.create({
     data: {
-      
       first_name,
       last_name,
       about,
@@ -18,15 +17,15 @@ exports.createProfile = asyncHandler(async (req, res) => {
       job_title,
       cv_url,
       experiences,
-      skillTalents
+      skillTalents,
     },
-  })
+  });
 
-  res.status(201).json({ message: 'Profile created', user })
-})
+  res.status(201).json({ message: 'Profile created', user });
+};
 
-exports.getProfile = asyncHandler(async (req, res) => {
-  const { userId } = req.params
+exports.getProfile = async (req, res) => {
+  const { userId } = req.params;
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -37,17 +36,25 @@ exports.getProfile = asyncHandler(async (req, res) => {
       },
       jobs: true,
     },
-  })
+  });
 
   if (!user) {
-    return res.status(404).json({ message: 'User not found' })
+    return res.status(404).json({ message: 'User not found' });
   }
 
-  res.status(200).json(user)
-})
+  res.status(200).json(user);
+};
 
-exports.addExperience = asyncHandler(async (req, res) => {
-  const { user_id, company_name, position, start_date, end_date, description, employment_type } = req.body
+exports.addExperience = async (req, res) => {
+  const {
+    user_id,
+    company_name,
+    position,
+    start_date,
+    end_date,
+    description,
+    employment_type,
+  } = req.body;
 
   const exp = await prisma.experience.create({
     data: {
@@ -59,20 +66,20 @@ exports.addExperience = asyncHandler(async (req, res) => {
       description,
       employment_type,
     },
-  })
+  });
 
-  res.status(201).json({ message: 'Experience added', exp })
-})
+  res.status(201).json({ message: 'Experience added', exp });
+};
 
-exports.addSkill = asyncHandler(async (req, res) => {
-  const { user_id, skill_name } = req.body
+exports.addSkill = async (req, res) => {
+  const { user_id, skill_name } = req.body;
 
   let skill = await prisma.skill.findFirst({
     where: { skill_name: skill_name },
-  })
+  });
 
   if (!skill) {
-    skill = await prisma.skill.create({ data: { skill_name } })
+    skill = await prisma.skill.create({ data: { skill_name } });
   }
 
   const skillTalent = await prisma.skillTalent.create({
@@ -80,18 +87,18 @@ exports.addSkill = asyncHandler(async (req, res) => {
       user_id,
       skill_id: skill.id,
     },
-  })
+  });
 
-  res.status(201).json({ message: 'Skill added', skillTalent })
-})
+  res.status(201).json({ message: 'Skill added', skillTalent });
+};
 
-exports.updateProfile = asyncHandler(async (req, res) => {
-  const { id } = req.params
-  const { email, first_name, last_name, role, level_id } = req.body 
+exports.updateProfile = async (req, res) => {
+  const { id } = req.params;
+  const { email, first_name, last_name, role, level_id } = req.body;
   const user = await prisma.user.update({
     where: { id: parseInt(id) },
-    data: { 
-       first_name,
+    data: {
+      first_name,
       last_name,
       about,
       role,
@@ -101,16 +108,16 @@ exports.updateProfile = asyncHandler(async (req, res) => {
       job_title,
       cv_url,
       experiences,
-      skillTalents
+      skillTalents,
     },
-  })
-  res.status(200).json({ message: 'Profile updated', user })
-})
+  });
+  res.status(200).json({ message: 'Profile updated', user });
+};
 
-exports.deleteProfile = asyncHandler(async (req, res) => {
-  const { id } = req.params
+exports.deleteProfile = async (req, res) => {
+  const { id } = req.params;
   await prisma.user.delete({
     where: { id: parseInt(id) },
-  })
-  res.status(200).json({ message: 'Profile deleted' })
-})
+  });
+  res.status(200).json({ message: 'Profile deleted' });
+};

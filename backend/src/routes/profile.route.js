@@ -5,7 +5,7 @@ const {
   getProfile,
   addExperience,
   addSkill
-} = require('../controllers/profileController')
+} = require('../controllers/profile.controller.js')
 
 router.post('/', createProfile)
 router.get('/:userId', getProfile)
