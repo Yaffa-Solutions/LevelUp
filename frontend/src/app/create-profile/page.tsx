@@ -1,22 +1,35 @@
 'use client';
 
-import React, { useMemo, useState, useEffect, type ReactNode } from 'react';
+import React, { useState, useEffect, type ReactNode } from 'react';
+import { toast } from 'react-hot-toast';
+import Image from "next/image";
 
 type Role = 'talent' | 'hunter' | 'both';
-type MonthYear = { month: number; year: number; label: string };
-type ExperienceItem = {
+
+interface ParsedResumeData {
+  data:{
+    firstName?: string;
+    lastName?: string;
+    jobTitle?: string;
+    company?: string;
+    about?: string;
+    skills?: string[];
+    experiences?: ExperienceItem[];
+  }
+}
+
+interface ExperienceItem {
   company: string;
   position: string;
   description?: string;
-  careerBreak?: boolean;
-  start?: MonthYear;
-  end?: MonthYear | null;
+  startDate?: string;
+  endDate?: string;
   employmentType?: string;
-};
+  isCurrent?: boolean;
+}
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const YEARS = Array.from({ length: 60 }, (_, i) => new Date().getFullYear() - i);
-const makeMonthYear = (m: number, y: number): MonthYear => ({ month: m, year: y, label: `${MONTHS[m - 1]} ${y}` });
 
 export default function CreateProfilePage() {
   const [role, setRole] = useState<Role>('hunter'); 
@@ -26,25 +39,18 @@ export default function CreateProfilePage() {
   const [jobTitle, setJobTitle]   = useState('');
   const [company, setCompany]     = useState('');
   const [companyDesc, setCompanyDesc] = useState('');
-  const [skills, setSkills]       = useState<string[]>(['Css']);
+  const [skills, setSkills]       = useState<string[]>([]);
   const [experiences, setExperiences] = useState<ExperienceItem[]>([
-    {
-      company: 'Azzai',
-      position: 'Web Devlopment',
-      description:
-        'Get AI-powered assessments, personalized growth plans, and connect with opportunities that match your level.',
-      start: makeMonthYear(9, 2019),
-      end: makeMonthYear(6, 2024),
-      employmentType: 'Full Time',
-    },
   ]);
   const [cvFile, setCvFile] = useState<File | null>(null);
-
+  const [parsing, setParsing] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const onPickAvatar = () => document.getElementById('avatar-input')?.click();
   const onAvatarChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const f = e.target.files?.[0];
     if (!f) return;
+    setAvatarFile(f);
     const url = URL.createObjectURL(f);
     setAvatarUrl(url);
   };
@@ -52,8 +58,6 @@ export default function CreateProfilePage() {
   const [openExp, setOpenExp] = useState(false);
   const [editIdx, setEditIdx] = useState<number | undefined>(undefined);
   const [openSkill, setOpenSkill] = useState(false);
-
-  const roleTitle = useMemo(() => role[0].toUpperCase() + role.slice(1), [role]);
 
   const startEditExp = (idx: number) => {
     setEditIdx(idx);
@@ -69,18 +73,100 @@ export default function CreateProfilePage() {
 
   const removeSkill = (s: string) => setSkills(prev => prev.filter(x => x !== s));
 
-  const onSaveForm = () => {
+const onSaveForm = async () => {
+  try {
+    setParsing(true); 
+
+    let uploadedAvatarUrl = null;
+    let parsedData: ParsedResumeData['data'] | null = null;
+
+    if (avatarFile) {
+      const avatarData = new FormData();
+      avatarData.append("profilePicture", avatarFile);
+
+      const avatarRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/upload-picture`, {
+        method: "POST",
+        body: avatarData,
+      });
+
+      if (!avatarRes.ok) throw new Error("failed upload picture");
+      const avatarJson = await avatarRes.json();
+      uploadedAvatarUrl = avatarJson.imageUrl; 
+      toast.success("✅ upload picture done");
+    }
+
+
+    if (cvFile) {
+      const formData = new FormData();
+      formData.append("resume", cvFile);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/resume/upload-resume`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("falle resuming CV");
+      const responseJson: ParsedResumeData = await res.json();
+      parsedData = responseJson.data ;
+
+      setFirstName(parsedData.firstName ?? '');
+      setLastName(parsedData.lastName ?? '');
+      setJobTitle(parsedData.jobTitle ?? '');
+      setCompany(parsedData.company ?? '');
+      setAbout(parsedData.about ?? '');
+      setSkills(parsedData.skills ?? []);
+      setExperiences(
+       Array.isArray(parsedData.experiences)
+         ? parsedData.experiences.map((exp: ExperienceItem) => ({
+             company: exp.company || "",
+             position: exp.position || "",
+             description: exp.description || "",
+             startDate: exp.startDate || "",
+             endDate: exp.endDate || "",
+             employmentType: exp.employmentType || "",
+             isCurrent: exp.isCurrent ?? false,
+           }))
+         : []
+     );
+
+
+      // toast.success("📄 resuming cv successfully");
+    }
     const payload = {
-      role, firstName, lastName, about,
-      jobTitle, company, companyDesc,
-      skills, experiences, cvName: cvFile?.name ?? null
+      role,
+      firstName: parsedData?.firstName ?? firstName,
+      lastName: parsedData?.lastName ?? lastName,
+      about: parsedData?.about ?? about,
+      jobTitle: parsedData?.jobTitle ?? jobTitle,
+      company: parsedData?.company ?? company,
+      companyDesc,
+      skills: parsedData?.skills ?? skills,
+      experiences: parsedData?.experiences ?? experiences,
+      profilePicture: uploadedAvatarUrl,
     };
-    console.log('SUBMIT', payload);
-    alert('Saved! (افتح الـconsole)');
-  };
+
+
+    toast.success("✅ outofilling");
+    console.log("Saved profile:", payload);
+  } catch (err) {
+    console.error(err);
+    toast.error("❌");
+  } finally {
+    setParsing(false); 
+  }
+};
+
 
   return (
-    <div className="min-h-[100svh] bg-[#f6f7fb] py-10">
+    <div className="min-h-[100svh] bg-[#f6f7fb] py-10 relative">
+      {parsing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
+          <div className="flex flex-col items-center gap-2">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid"></div>
+            <span className="text-white font-semibold">Parsing resume...</span>
+          </div>
+        </div>
+      )}
       <div className="mx-auto w-full max-w-3xl rounded-[28px] bg-white px-7 py-10 shadow-[0_6px_30px_rgba(16,24,40,.06)] ring-1 ring-black/5">
         <h1 className="text-center text-[22px] font-[800] text-[#1f1f1f] tracking-tight">Create Profile</h1>
 
@@ -88,7 +174,7 @@ export default function CreateProfilePage() {
           <div className="relative">
             <div className="grid h-[84px] w-[84px] place-items-center rounded-full bg-gray-200">
               {avatarUrl ? (
-                <img src={avatarUrl} alt="avatar" className="h-[84px] w-[84px] rounded-full object-cover" />
+                <Image src={avatarUrl} alt="avatar" className="h-[84px] w-[84px] rounded-full object-cover" />
               ) : (
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" className="h-10 w-10 fill-gray-400">
                   <path d="M480-520q-83 0-141.5-58.5T280-720q0-83 58.5-141.5T480-920q83 0 141.5 58.5T680-720q0 83-58.5 141.5T480-520Zm0 80q118 0 219 54.5T858-280q-20 36-53.5 63T725-171q-93-39-245-39t-245 39q-46 19-79.5 46T102-280q40-90 141-145t237-55Z"/>
@@ -131,36 +217,46 @@ export default function CreateProfilePage() {
         <div className="mt-7 grid gap-6">
           <div className="space-y-2">
             <LabelRequired>Attach CV</LabelRequired>
-            <div className="flex w-full items-center overflow-hidden rounded-full border border-gray-300">
-              <label
-                htmlFor="cv-input"
-                className="cursor-pointer bg-gray-400 px-5 py-2.5 text-[13px] font-semibold text-white hover:bg-gray-500"
-              >
-                Choose File
-              </label>
-              <div className="flex-1 px-4 py-2.5 text-[13px] text-gray-500">
-                {cvFile ? cvFile.name : 'No file chosen'}
-              </div>
-              <input
-                id="cv-input"
-                type="file"
-                className="hidden"
-                accept=".pdf,.doc,.docx"
-                onChange={(e) => setCvFile(e.target.files?.[0] ?? null)}
-              />
-            </div>
+            <div className="space-y-2">
+             <div className="flex w-full items-center overflow-hidden rounded-full border border-gray-300">
+               <label
+                 htmlFor="cv-input"
+                 className="cursor-pointer bg-gray-400 px-5 py-2.5 text-[13px] font-semibold text-white hover:bg-gray-500"
+               >
+                 Choose File
+               </label>
+               <div className="flex-1 px-4 py-2.5 text-[13px] text-gray-500">
+                 {cvFile ? cvFile.name : 'No file chosen'}
+               </div>
+               <input
+                 id="cv-input"
+                 type="file"
+                 className="hidden"
+                 accept=".pdf,.doc,.docx"
+                 onChange={(e) => setCvFile(e.target.files?.[0] ?? null)}
+               />
+             </div>
+
+            <button
+              onClick={onSaveForm}
+              disabled={!cvFile || parsing}
+              className="rounded-full bg-blue-600 px-5 py-2 text-[13px] font-semibold text-white hover:bg-blue-700 disabled:bg-gray-400"
+            >
+              {parsing ? "Parsing CV..." : "Upload & Parse"}
+            </button>
+          </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <Input label="First Name" required placeholder="e.g. John" value={firstName} onChange={setFirstName}/>
-            <Input label="Last Name" required placeholder="e.g. John" value={lastName} onChange={setLastName}/>
+            <Input label="First Name" required placeholder="e.g. John" value={firstName} onChange={ (value: string) =>setFirstName(value)}/>
+            <Input label="Last Name" required placeholder="e.g. John" value={lastName} onChange={(value: string) => setLastName(value)}/>
           </div>
 
           {(role === 'hunter' || role === 'both') && (
-            <Input label="Job Title" required placeholder="e.g. Software Engineer" value={jobTitle} onChange={setJobTitle}/>
+            <Input label="Job Title" required placeholder="e.g. Software Engineer" value={jobTitle} onChange={(value: string) =>setJobTitle(value)}/>
           )}
 
-          <TextArea label="About" required placeholder="Tell us a bit about yourself ..." value={about} onChange={setAbout}/>
+          <TextArea label="About" required placeholder="Tell us a bit about yourself ..." value={about} onChange={(value: string) =>setAbout(value)}/>
 
           {(role === 'talent' || role === 'both') && (
             <div className="w-full">
@@ -186,7 +282,10 @@ export default function CreateProfilePage() {
                             <div className="text-[13px] font-[800] text-[#222]">{e.company}</div>
                             <div className="text-[12px] font-[600] text-[#6b7280]">{e.position}</div>
                             <div className="text-[11px] text-gray-400">
-                              {e.start?.label} {e.end?.label ? `- ${e.end?.label}` : ''}{' '}
+                              {/* {e.startDate?.label} {e.endDate?.label ? `- ${e.end?.label}` : ''}{' '} */}
+                              {e.startDate ? new Date(e.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : ''}
+                              {e.endDate ? new Date(e.endDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : ''}
+
                               {e.employmentType ? <span className="block">{e.employmentType}</span> : null}
                             </div>
                             {e.description && <div className="pt-1 text-[12px] leading-5 text-[#5b5b5b]">{e.description}</div>}
@@ -242,7 +341,7 @@ export default function CreateProfilePage() {
 
           <div className="mt-1 flex justify-center">
             <button
-              onClick={onSaveForm}
+              // onClick={}
               className="rounded-full bg-gradient-to-r from-[#7D4CFF] to-[#0EA5E9] px-8 py-2.5 text-[14px] font-[800] text-white shadow"
             >
               Save
@@ -332,38 +431,51 @@ function ExperiencePopup(props: {
   onSave: (item: ExperienceItem) => void;
   defaultValue?: ExperienceItem;
 }) {
-  const { open, onClose, onSave, defaultValue } = props;
+const { open, onClose, onSave, defaultValue } = props;
+const [company, setCompany] = useState(defaultValue?.company ?? '');
+const [position, setPosition] = useState(defaultValue?.position ?? '');
+const [description, setDescription] = useState(defaultValue?.description ?? '');
+const [isCurrent, setIsCurrent] = useState(!!defaultValue?.isCurrent);
 
-  const [company, setCompany] = useState(defaultValue?.company ?? '');
-  const [position, setPosition] = useState(defaultValue?.position ?? '');
-  const [description, setDescription] = useState(defaultValue?.description ?? '');
-  const [careerBreak, setCareerBreak] = useState(!!defaultValue?.careerBreak);
-  const [startMonth, setStartMonth] = useState<number>(defaultValue?.start?.month ?? 1);
-  const [startYear, setStartYear] = useState<number>(defaultValue?.start?.year ?? new Date().getFullYear());
-  const [endMonth, setEndMonth] = useState<number>(defaultValue?.end?.month ?? 1);
-  const [endYear, setEndYear] = useState<number>(defaultValue?.end?.year ?? new Date().getFullYear());
-  const [noEndDate, setNoEndDate] = useState<boolean>(defaultValue?.end == null);
-  const [employmentType, setEmploymentType] = useState(defaultValue?.employmentType ?? 'Full Time');
+const [startMonth, setStartMonth] = useState<number>(
+  defaultValue?.startDate ? new Date(defaultValue.startDate).getMonth() + 1 : 1
+);
+const [startYear, setStartYear] = useState<number>(
+  defaultValue?.startDate ? new Date(defaultValue.startDate).getFullYear() : new Date().getFullYear()
+);
 
-  useEffect(() => {
-    if (!open) return;
-    setCompany(defaultValue?.company ?? '');
-    setPosition(defaultValue?.position ?? '');
-    setDescription(defaultValue?.description ?? '');
-    setCareerBreak(!!defaultValue?.careerBreak);
-    setStartMonth(defaultValue?.start?.month ?? 1);
-    setStartYear(defaultValue?.start?.year ?? new Date().getFullYear());
-    setEndMonth(defaultValue?.end?.month ?? 1);
-    setEndYear(defaultValue?.end?.year ?? new Date().getFullYear());
-    setNoEndDate(defaultValue?.end == null);
-    setEmploymentType(defaultValue?.employmentType ?? 'Full Time');
-  }, [open, defaultValue]);
+const [endMonth, setEndMonth] = useState<number>(
+  defaultValue?.endDate ? new Date(defaultValue.endDate).getMonth() + 1 : 1
+);
+const [endYear, setEndYear] = useState<number>(
+  defaultValue?.endDate ? new Date(defaultValue.endDate).getFullYear() : new Date().getFullYear()
+);
 
-  const startObj = makeMonthYear(startMonth, startYear);
-  const endObj = noEndDate ? null : makeMonthYear(endMonth, endYear);
 
-  const handleSave = () =>
-    onSave({ company, position, description, careerBreak, start: startObj, end: endObj, employmentType });
+const [noEndDate, setNoEndDate] = useState<boolean>(!!defaultValue?.isCurrent);
+
+const [employmentType, setEmploymentType] = useState(defaultValue?.employmentType ?? 'Full Time');
+
+useEffect(() => {
+  if (!open) return;
+
+  setCompany(defaultValue?.company ?? '');
+  setPosition(defaultValue?.position ?? '');
+  setDescription(defaultValue?.description ?? '');
+  setIsCurrent(!!defaultValue?.isCurrent);
+  setStartMonth(defaultValue?.startDate ? new Date(defaultValue.startDate).getMonth() + 1 : 1);
+  setStartYear(defaultValue?.startDate ? new Date(defaultValue.startDate).getFullYear() : new Date().getFullYear());
+  setEndMonth(defaultValue?.endDate ? new Date(defaultValue.endDate).getMonth() + 1 : 1);
+  setEndYear(defaultValue?.endDate ? new Date(defaultValue.endDate).getFullYear() : new Date().getFullYear());
+  setNoEndDate(!!defaultValue?.isCurrent);
+  setEmploymentType(defaultValue?.employmentType ?? 'Full Time');
+}, [open, defaultValue]);
+
+const startDate = `${startYear}-${String(startMonth).padStart(2, '0')}-01`;
+const endDate = noEndDate ? undefined : `${endYear}-${String(endMonth).padStart(2, '0')}-01`;
+
+const handleSave = () =>
+  onSave({ company, position, description, isCurrent, startDate, endDate, employmentType });
 
   if (!open) return null;
 
@@ -421,7 +533,6 @@ function ExperiencePopup(props: {
               </div>
             </div>
 
-            {/* End Date */}
             <div>
               <div className="mb-2 text-[13px] font-medium text-gray-700">End Date</div>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
