@@ -1,8 +1,20 @@
 'use client';
-
-import React, { useState, useEffect, type ReactNode } from 'react';
+import React, { useState } from 'react';
+import Input from '../components/create-profile/inputs/Input';
+import TextArea from '../components/create-profile/inputs/TextArea';
+// import Select from '../components/create-profile/inputs/Select';
+import AddExperienceModal from '../components/create-profile/AddExperienceModal';
+import AddSkillPopup from '../components/create-profile/AddSkillPopup';
+// import AddSkillMoadl from '../components/create-profile/AddSkillMoadl';
+import IconBtn from '../components/create-profile/common/IconBtn';
+import LabelRequired from '../components/create-profile/common/LabelRequired';
+// import CloseButton from '../components/create-profile/CloseButton';
+// import SaveButton from '../components/create-profile/AddButton'
+// import AddButton from '../components/create-profile/AddButton';
 import { toast } from 'react-hot-toast';
+
 import Image from "next/image";
+// import AddSkillModal from '../components/create-profile/AddSkillMoadl';
 
 type Role = 'talent' | 'hunter' | 'both';
 
@@ -17,7 +29,6 @@ interface ParsedResumeData {
     experiences?: ExperienceItem[];
   }
 }
-
 interface ExperienceItem {
   company: string;
   position: string;
@@ -28,11 +39,9 @@ interface ExperienceItem {
   isCurrent?: boolean;
 }
 
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const YEARS = Array.from({ length: 60 }, (_, i) => new Date().getFullYear() - i);
-
 export default function CreateProfilePage() {
-  const [role, setRole] = useState<Role>('hunter'); 
+  // const [openExp, setOpenExp] = useState(false);
+   const [role, setRole] = useState<Role>('talent'); 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName]   = useState('');
   const [about, setAbout]         = useState('');
@@ -130,7 +139,6 @@ const onSaveForm = async () => {
      );
 
 
-      // toast.success("📄 resuming cv successfully");
     }
     const payload = {
       role,
@@ -155,9 +163,7 @@ const onSaveForm = async () => {
     setParsing(false); 
   }
 };
-
-
-  return (
+  return(
     <div className="min-h-[100svh] bg-[#f6f7fb] py-10 relative">
       {parsing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
@@ -181,7 +187,6 @@ const onSaveForm = async () => {
                 </svg>
               )}
             </div>
-
             <button
               onClick={onPickAvatar}
               className="absolute -bottom-1 -right-1 grid h-7 w-7 place-items-center rounded-full bg-gradient-to-r from-[#9333EA] to-[#2563EB] text-white shadow"
@@ -214,8 +219,10 @@ const onSaveForm = async () => {
           })}
         </div>
 
+       {(role === 'talent' || role === 'both') && ( 
         <div className="mt-7 grid gap-6">
           <div className="space-y-2">
+            
             <LabelRequired>Attach CV</LabelRequired>
             <div className="space-y-2">
              <div className="flex w-full items-center overflow-hidden rounded-full border border-gray-300">
@@ -246,17 +253,20 @@ const onSaveForm = async () => {
             </button>
           </div>
           </div>
+          </div>
+       )}
+          
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <Input label="First Name" required placeholder="e.g. John" value={firstName} onChange={ (value: string) =>setFirstName(value)}/>
-            <Input label="Last Name" required placeholder="e.g. John" value={lastName} onChange={(value: string) => setLastName(value)}/>
+            <Input label="First Name" required placeholder="e.g. John" value={firstName} onChangeAction={ (value: string) =>setFirstName(value)}/>
+            <Input label="Last Name" required placeholder="e.g. John" value={lastName} onChangeAction={(value: string) => setLastName(value)}/>
           </div>
 
           {(role === 'hunter' || role === 'both') && (
-            <Input label="Job Title" required placeholder="e.g. Software Engineer" value={jobTitle} onChange={(value: string) =>setJobTitle(value)}/>
+            <Input label="Job Title" required placeholder="e.g. Software Engineer" value={jobTitle} onChangeAction={(value: string) =>setJobTitle(value)}/>
           )}
 
-          <TextArea label="About" required placeholder="Tell us a bit about yourself ..." value={about} onChange={(value: string) =>setAbout(value)}/>
+          <TextArea label="About" required placeholder="Tell us a bit about yourself ..." value={about} onChangeAction={(value: string) =>setAbout(value)}/>
 
           {(role === 'talent' || role === 'both') && (
             <div className="w-full">
@@ -282,7 +292,6 @@ const onSaveForm = async () => {
                             <div className="text-[13px] font-[800] text-[#222]">{e.company}</div>
                             <div className="text-[12px] font-[600] text-[#6b7280]">{e.position}</div>
                             <div className="text-[11px] text-gray-400">
-                              {/* {e.startDate?.label} {e.endDate?.label ? `- ${e.end?.label}` : ''}{' '} */}
                               {e.startDate ? new Date(e.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : ''}
                               {e.endDate ? new Date(e.endDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : ''}
 
@@ -334,28 +343,25 @@ const onSaveForm = async () => {
 
           {(role === 'hunter' || role === 'both') && (
             <>
-              <Input label="Company" placeholder="Company" value={company} onChange={setCompany}/>
-              <TextArea label="Company Description" placeholder="Tell us a bit about yourself ..." value={companyDesc} onChange={setCompanyDesc}/>
+              <Input label="Company" placeholder="Company" value={company} onChangeAction={setCompany}/>
+              <TextArea label="Company Description" placeholder="Tell us a bit about yourself ..." value={companyDesc} onChangeAction={setCompanyDesc}/>
             </>
           )}
-
-          <div className="mt-1 flex justify-center">
+           <div className="mt-1 flex justify-end">
             <button
               // onClick={}
-              className="rounded-full bg-gradient-to-r from-[#7D4CFF] to-[#0EA5E9] px-8 py-2.5 text-[14px] font-[800] text-white shadow"
+              className="rounded-full bg-gradient-to-r from-[#9333EA] to-[#2563EB] px-8 py-2.5 text-[14px] font-[800] text-white shadow"
             >
               Save
             </button>
           </div>
-        </div>
-      </div>
+      <AddExperienceModal
+       isOpen={openExp}
+       onClose={() => setOpenExp(false)}
+       onSave={(item) => onSaveExp(item, editIdx)}
+      //  defaultValue={typeof editIdx === 'number' ? experiences[editIdx] : undefined}
+     />
 
-      <ExperiencePopup
-        open={openExp}
-        onClose={() => { setOpenExp(false); setEditIdx(undefined); }}
-        onSave={(item) => onSaveExp(item, editIdx)}
-        defaultValue={typeof editIdx === 'number' ? experiences[editIdx] : undefined}
-      />
 
       <AddSkillPopup
         open={openSkill}
@@ -365,304 +371,11 @@ const onSaveForm = async () => {
           if (v && !skills.includes(v)) setSkills(prev => [...prev, v]);
           setOpenSkill(false);
         }}
+        
       />
     </div>
-  );
-}
-
-function LabelRequired({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="text-[13px] font-semibold text-[#5b5b5b]">
-      {children}<span className="ml-0.5 text-[#7c3aed]">*</span>
     </div>
-  );
-}
+   
 
-function Input(props: { label: string; placeholder?: string; value: string; onChange: (v: string)=>void; required?: boolean }) {
-  const { label, placeholder, value, onChange, required } = props;
-  return (
-    <label className="block">
-      <div className="mb-1.5 text-[13px] font-semibold text-[#5b5b5b]">
-        {label}{required && <span className="ml-0.5 text-[#7c3aed]">*</span>}
-      </div>
-      <input
-        className="w-full h-12 rounded-xl border border-[#e7e7e7] px-4 text-[15px] text-[#222] outline-none transition focus:border-[#c4b5fd] focus:ring-2 focus:ring-[#e9d5ff]"
-        placeholder={placeholder}
-        value={value}
-        onChange={e => onChange(e.target.value)}
-      />
-    </label>
-  );
-}
-
-function TextArea(props: { label: string; placeholder?: string; value: string; onChange: (v: string)=>void; required?: boolean }) {
-  const { label, placeholder, value, onChange, required } = props;
-  return (
-    <label className="block">
-      <div className="mb-1.5 text-[13px] font-semibold text-[#5b5b5b]">
-        {label}{required && <span className="ml-0.5 text-[#7c3aed]">*</span>}
-      </div>
-      <textarea
-        className="w-full rounded-xl border border-[#e7e7e7] px-4 py-3 text-[15px] text-[#222] outline-none transition focus:border-[#c4b5fd] focus:ring-2 focus:ring-[#e9d5ff]"
-        placeholder={placeholder}
-        rows={4}
-        value={value}
-        onChange={e => onChange(e.target.value)}
-      />
-    </label>
-  );
-}
-
-function IconBtn({ children, title, onClick }: { children: React.ReactNode; title?: string; onClick?: () => void }) {
-  return (
-    <button
-      title={title}
-      onClick={onClick}
-      className="rounded-md p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700"
-    >
-      {children}
-    </button>
-  );
-}
-
-function ExperiencePopup(props: {
-  open: boolean;
-  onClose: () => void;
-  onSave: (item: ExperienceItem) => void;
-  defaultValue?: ExperienceItem;
-}) {
-const { open, onClose, onSave, defaultValue } = props;
-const [company, setCompany] = useState(defaultValue?.company ?? '');
-const [position, setPosition] = useState(defaultValue?.position ?? '');
-const [description, setDescription] = useState(defaultValue?.description ?? '');
-const [isCurrent, setIsCurrent] = useState(!!defaultValue?.isCurrent);
-
-const [startMonth, setStartMonth] = useState<number>(
-  defaultValue?.startDate ? new Date(defaultValue.startDate).getMonth() + 1 : 1
-);
-const [startYear, setStartYear] = useState<number>(
-  defaultValue?.startDate ? new Date(defaultValue.startDate).getFullYear() : new Date().getFullYear()
-);
-
-const [endMonth, setEndMonth] = useState<number>(
-  defaultValue?.endDate ? new Date(defaultValue.endDate).getMonth() + 1 : 1
-);
-const [endYear, setEndYear] = useState<number>(
-  defaultValue?.endDate ? new Date(defaultValue.endDate).getFullYear() : new Date().getFullYear()
-);
-
-
-const [noEndDate, setNoEndDate] = useState<boolean>(!!defaultValue?.isCurrent);
-
-const [employmentType, setEmploymentType] = useState(defaultValue?.employmentType ?? 'Full Time');
-
-useEffect(() => {
-  if (!open) return;
-
-  setCompany(defaultValue?.company ?? '');
-  setPosition(defaultValue?.position ?? '');
-  setDescription(defaultValue?.description ?? '');
-  setIsCurrent(!!defaultValue?.isCurrent);
-  setStartMonth(defaultValue?.startDate ? new Date(defaultValue.startDate).getMonth() + 1 : 1);
-  setStartYear(defaultValue?.startDate ? new Date(defaultValue.startDate).getFullYear() : new Date().getFullYear());
-  setEndMonth(defaultValue?.endDate ? new Date(defaultValue.endDate).getMonth() + 1 : 1);
-  setEndYear(defaultValue?.endDate ? new Date(defaultValue.endDate).getFullYear() : new Date().getFullYear());
-  setNoEndDate(!!defaultValue?.isCurrent);
-  setEmploymentType(defaultValue?.employmentType ?? 'Full Time');
-}, [open, defaultValue]);
-
-const startDate = `${startYear}-${String(startMonth).padStart(2, '0')}-01`;
-const endDate = noEndDate ? undefined : `${endYear}-${String(endMonth).padStart(2, '0')}-01`;
-
-const handleSave = () =>
-  onSave({ company, position, description, isCurrent, startDate, endDate, employmentType });
-
-  if (!open) return null;
-
-  return (
-    <div className="fixed inset-0 z-[60] grid place-items-center">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative z-10 w-[min(760px,92vw)] max-w-[760px] rounded-[24px] bg-white p-7 shadow-xl">
-        <h2 className="mb-5 text-[20px] font-[800] text-[#1f1f1f]">Add Experiences</h2>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <Input label="Company Name" placeholder="e.g. Tech Corp" value={company} onChange={setCompany}/>
-          <Input label="Position" placeholder="e.g. Software Engineer" value={position} onChange={setPosition}/>
-        </div>
-
-        <div className="mt-3">
-          <TextArea label="Description" placeholder="e.g. I led a team to develop a new mobile app feature..." value={description} onChange={setDescription}/>
-        </div>
-
-        <div className="mt-5 space-y-4">
-          <label className="flex items-center gap-2 text-[14px] text-gray-800">
-            <input
-              type="checkbox"
-              className="h-5 w-5 accent-black"
-              checked={noEndDate}
-              onChange={(e) => setNoEndDate(e.target.checked)}
-            />
-            I am currently on this career break
-          </label>
-
-          <div className="grid gap-6">
-            <div>
-              <div className="mb-2 text-[13px] font-medium text-gray-700">Start Date</div>
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                <Select
-                  value={startMonth}
-                  onChange={(v) => setStartMonth(Number(v))}
-                  className="h-12 w-full rounded-xl border border-gray-300 bg-white px-4 text-[15px] shadow-sm focus:border-gray-900 focus:ring-4 focus:ring-gray-200"
-                >
-                  <option value="" disabled>Month</option>
-                  {MONTHS.map((m, i) => (
-                    <option key={m} value={i + 1}>{m}</option>
-                  ))}
-                </Select>
-
-                <Select
-                  value={startYear}
-                  onChange={(v) => setStartYear(Number(v))}
-                  className="h-12 w-full rounded-xl border border-gray-300 bg-white px-4 text-[15px] shadow-sm focus:border-gray-900 focus:ring-4 focus:ring-gray-200"
-                >
-                  <option value="" disabled>Year</option>
-                  {YEARS.map((y) => (
-                    <option key={y} value={y}>{y}</option>
-                  ))}
-                </Select>
-              </div>
-            </div>
-
-            <div>
-              <div className="mb-2 text-[13px] font-medium text-gray-700">End Date</div>
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                <Select
-                  value={noEndDate ? '' : endMonth}
-                  onChange={(v) => setEndMonth(Number(v))}
-                  disabled={noEndDate}
-                  className="h-12 w-full rounded-xl border px-4 text-[15px] shadow-sm bg-white border-gray-300 focus:border-gray-900 focus:ring-4 focus:ring-gray-200 disabled:bg-gray-200 disabled:text-gray-500 disabled:border-gray-200 disabled:cursor-not-allowed"
-                >
-                  <option value="" disabled>Month</option>
-                  {MONTHS.map((m, i) => (
-                    <option key={m} value={i + 1}>{m}</option>
-                  ))}
-                </Select>
-
-                <Select
-                  value={noEndDate ? '' : endYear}
-                  onChange={(v) => setEndYear(Number(v))}
-                  disabled={noEndDate}
-                  className="h-12 w-full rounded-xl border px-4 text-[15px] shadow-sm bg-white border-gray-300 focus:border-gray-900 focus:ring-4 focus:ring-gray-200 disabled:bg-gray-200 disabled:text-gray-500 disabled:border-gray-200 disabled:cursor-not-allowed"
-                >
-                  <option value="" disabled>Year</option>
-                  {YEARS.map((y) => (
-                    <option key={y} value={y}>{y}</option>
-                  ))}
-                </Select>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-6">
-          <div className="mb-2 text-[13px] font-medium text-gray-700">Employment type</div>
-          <div className="relative">
-            <select
-              value={employmentType}
-              onChange={(e) => setEmploymentType(e.target.value)}
-              className="appearance-none h-12 w-full rounded-xl border border-[#e7e7e7] bg-white px-4 text-[15px] text-[#222] outline-none transition focus:border-[#c4b5fd] focus:ring-2 focus:ring-[#e9d5ff]"
-            >
-              <option value="" disabled hidden>Please Select</option>
-              <option value="Full Time">Full Time</option>
-              <option value="Part Time">Part Time</option>
-              <option value="Freelance">Freelance</option>
-              <option value="Self Employed">Self Employed</option>
-              <option value="Internship">Internship</option>
-            </select>
-            <svg
-              className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              aria-hidden="true"
-            >
-              <path d="M7 10l5 5 5-5z" />
-            </svg>
-          </div>
-        </div>
-
-        <div className="mt-7 flex items-center justify-end gap-3">
-          <button onClick={onClose} className="rounded-xl bg-gray-100 px-5 py-2 text-[13px] font-semibold text-gray-700 hover:bg-gray-200">Cancel</button>
-          <button onClick={handleSave} className="rounded-full bg-gradient-to-r from-[#9333EA] to-[#2563EB] px-6 py-2 text-[13px] font-[800] text-white shadow">
-            {defaultValue ? 'Update' : 'Add'}
-          </button>
-        </div>
-
-        <button onClick={onClose} className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200" title="Close">×</button>
-      </div>
-    </div>
-  );
-}
-
-function Select({
-  value,
-  onChange,
-  disabled,
-  children,
-  className = '',
-}:{
-  value: number | string;
-  onChange:(v:string)=>void;
-  disabled?: boolean;
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <select
-      className={`appearance-none ${className}`}
-      value={value}
-      onChange={(e)=>onChange(e.target.value)}
-      disabled={disabled}
-    >
-      {children}
-    </select>
-  );
-}
-
-function AddSkillPopup({
-  open, onClose, onAdd,
-}: { open: boolean; onClose: ()=>void; onAdd: (skill: string)=>void }) {
-  const [val, setVal] = useState('');
-
-  useEffect(()=>{ if(open) setVal(''); }, [open]);
-
-  if (!open) return null;
-
-  return (
-    <div className="fixed inset-0 z-[70] grid place-items-center">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose}/>
-      <div className="relative z-10 w-[min(480px,92vw)] rounded-[18px] bg-white p-5 shadow-xl">
-        <h3 className="mb-3 text-[16px] font-[800] text-[#1f1f1f]">Add New Skills</h3>
-
-        <div className="flex items-center gap-3">
-          <div className="w-full rounded-[14px] p-[1px] [background:linear-gradient(90deg,#7D4CFF,#0EA5E9)]">
-            <input
-              className="w-full rounded-[13px] border-0 bg-white px-4 py-2.5 text-[15px] text-[#222] outline-none"
-              placeholder=""
-              value={val}
-              onChange={(e)=>setVal(e.target.value)}
-              onKeyDown={(e)=>{ if(e.key==='Enter'){ e.preventDefault(); onAdd(val); } }}
-            />
-          </div>
-          <button
-            onClick={()=>onAdd(val)}
-            className="rounded-full bg-gradient-to-r from-[#7D4CFF] to-[#0EA5E9] px-5 py-2 text-[13px] font-[800] text-white shadow"
-          >
-            Add
-          </button>
-        </div>
-
-        <button onClick={onClose} className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200" title="Close">×</button>
-      </div>
-    </div>
-  );
+  )
 }
