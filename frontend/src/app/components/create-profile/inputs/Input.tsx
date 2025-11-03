@@ -9,7 +9,7 @@ interface InputProps {
   required?: boolean;
 }
 
-export default function Input({ label, value, onChangeAction, placeholder, required }: InputProps) {
+const Input = ({ label, value, onChangeAction, placeholder, required }: InputProps) =>{
   return (
     <label className="block">
       <div className="mb-1.5 text-[13px] font-semibold text-[#5b5b5b]">
@@ -24,3 +24,4 @@ export default function Input({ label, value, onChangeAction, placeholder, requi
     </label>
   );
 }
+ export default Input;

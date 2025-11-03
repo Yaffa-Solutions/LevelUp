@@ -15,6 +15,7 @@ import { toast } from 'react-hot-toast';
 
 import Image from "next/image";
 // import AddSkillModal from '../components/create-profile/AddSkillMoadl';
+import { useRouter } from 'next/navigation';
 
 type Role = 'talent' | 'hunter' | 'both';
 
@@ -40,7 +41,6 @@ interface ExperienceItem {
 }
 
 export default function CreateProfilePage() {
-  // const [openExp, setOpenExp] = useState(false);
    const [role, setRole] = useState<Role>('talent'); 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName]   = useState('');
@@ -67,6 +67,8 @@ export default function CreateProfilePage() {
   const [openExp, setOpenExp] = useState(false);
   const [editIdx, setEditIdx] = useState<number | undefined>(undefined);
   const [openSkill, setOpenSkill] = useState(false);
+  const [errors, setErrors] = useState<{ firstName?: string; lastName?: string; skills?: string }>({});
+  const router = useRouter();
 
   const startEditExp = (idx: number) => {
     setEditIdx(idx);
@@ -163,6 +165,57 @@ const onSaveForm = async () => {
     setParsing(false); 
   }
 };
+
+const handleSaveProfile = async () => {
+  const newErrors: { firstName?: string; lastName?: string; skills?: string } = {};
+  
+  if (!firstName.trim()) newErrors.firstName = 'First Name is required';
+  if (!lastName.trim()) newErrors.lastName = 'Last Name is required';
+  if (skills.length === 0) newErrors.skills = 'At least one skill is required';
+
+  setErrors(newErrors);
+
+  if (Object.keys(newErrors).length > 0) return;
+  try {
+    const payload = {
+      role:role.toUpperCase(),
+      firstName,
+      lastName,
+      about,
+      jobTitle,
+      company,
+      companyDesc,
+      skills,
+      experiences,
+      profilePicture: avatarUrl, 
+    };
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/save`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: 'include',
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+    if (!res.ok){
+      toast.error(`❌ Error: ${data.message || 'Failed to save profile'}`);
+      return;
+    }
+
+    toast.success("✅ Profile saved successfully!");
+
+    if (role.toUpperCase() === 'HUNTER') {
+      router.push('/home'); 
+    } else {
+      router.push('/chat'); 
+    }
+  } catch (error) {
+    console.error(error);
+    toast.error("❌ Error saving profile");
+  }
+};
+
   return(
     <div className="min-h-[100svh] bg-[#f6f7fb] py-10 relative">
       {parsing && (
@@ -247,7 +300,7 @@ const onSaveForm = async () => {
             <button
               onClick={onSaveForm}
               disabled={!cvFile || parsing}
-              className="rounded-full bg-blue-600 px-5 py-2 text-[13px] font-semibold text-white hover:bg-blue-700 disabled:bg-gray-400"
+              className="rounded-full bg-gradient-to-r from-[#9333EA] to-[#2563EB] px-5 py-2 text-[13px] font-semibold text-white hover:bg-gradient-to-r from-[#9333EA] to-[#2563EB] disabled:bg-gray-400"
             >
               {parsing ? "Parsing CV..." : "Upload & Parse"}
             </button>
@@ -258,8 +311,15 @@ const onSaveForm = async () => {
           
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div>
             <Input label="First Name" required placeholder="e.g. John" value={firstName} onChangeAction={ (value: string) =>setFirstName(value)}/>
+            {errors.firstName && <span className="text-red-500 text-sm mt-1 block">{errors.firstName}</span>}
+
+            </div>
+            <div>
             <Input label="Last Name" required placeholder="e.g. John" value={lastName} onChangeAction={(value: string) => setLastName(value)}/>
+            {errors.lastName && <span className="text-red-500 text-sm mt-1 block">{errors.lastName}</span>}
+            </div>
           </div>
 
           {(role === 'hunter' || role === 'both') && (
@@ -338,6 +398,7 @@ const onSaveForm = async () => {
                   </span>
                 ))}
               </div>
+              {errors.skills && <span className="text-red-500 text-sm mt-1">{errors.skills}</span>}
             </div>
           )}
 
@@ -349,7 +410,7 @@ const onSaveForm = async () => {
           )}
            <div className="mt-1 flex justify-end">
             <button
-              // onClick={}
+              onClick={handleSaveProfile}
               className="rounded-full bg-gradient-to-r from-[#9333EA] to-[#2563EB] px-8 py-2.5 text-[14px] font-[800] text-white shadow"
             >
               Save

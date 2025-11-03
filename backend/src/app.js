@@ -3,6 +3,7 @@ const cors = require("cors");
 
 const profileRoutes = require("./routes/profileRoute");
 const resumeRoutes = require("./routes/resumeRoute");
+const createprofileRoutes = require('./routes/createprofileRoute');
 
 const app = express()
 app.use(cors({
@@ -13,5 +14,6 @@ app.use(express.json())
 
 app.use("/profile", profileRoutes);
 app.use("/resume", resumeRoutes);
+app.use('/profile', createprofileRoutes);
 
 module.exports = app

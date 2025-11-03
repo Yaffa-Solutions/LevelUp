@@ -94,7 +94,7 @@ const AddExperienceModal: React.FC<AddExperienceModalProps> = ({
         isCurrent: noEndDate,
       }
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/experiences`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/experiences/createExperience`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
