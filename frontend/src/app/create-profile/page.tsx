@@ -67,7 +67,7 @@ export default function CreateProfilePage() {
   const [openExp, setOpenExp] = useState(false);
   const [editIdx, setEditIdx] = useState<number | undefined>(undefined);
   const [openSkill, setOpenSkill] = useState(false);
-  const [errors, setErrors] = useState<{ firstName?: string; lastName?: string; skills?: string }>({});
+  const [errors, setErrors] = useState<{ firstName?: string; lastName?: string; skills?: string; jobTitle?: string; }>({});
   const router = useRouter();
 
   const startEditExp = (idx: number) => {
@@ -167,11 +167,19 @@ const onSaveForm = async () => {
 };
 
 const handleSaveProfile = async () => {
-  const newErrors: { firstName?: string; lastName?: string; skills?: string } = {};
+  const newErrors: { firstName?: string; lastName?: string; skills?: string; jobTitle?: string; } = {};
   
   if (!firstName.trim()) newErrors.firstName = 'First Name is required';
   if (!lastName.trim()) newErrors.lastName = 'Last Name is required';
-  if (skills.length === 0) newErrors.skills = 'At least one skill is required';
+
+  if (role === 'talent') {
+    if (skills.length === 0) newErrors.skills = 'At least one skill is required';
+  } else if (role === 'hunter') {
+    if (!jobTitle.trim()) newErrors.jobTitle = 'Job Title is required';
+  } else if (role === 'both') {
+    if (!jobTitle.trim()) newErrors.jobTitle = 'Job Title is required';
+    if (skills.length === 0) newErrors.skills = 'At least one skill is required';
+  }
 
   setErrors(newErrors);
 
@@ -323,7 +331,10 @@ const handleSaveProfile = async () => {
           </div>
 
           {(role === 'hunter' || role === 'both') && (
+            <div>
             <Input label="Job Title" required placeholder="e.g. Software Engineer" value={jobTitle} onChangeAction={(value: string) =>setJobTitle(value)}/>
+            {errors.jobTitle && <span className="text-red-500 text-sm mt-1 block">{errors.jobTitle}</span>}
+           </div>
           )}
 
           <TextArea label="About" required placeholder="Tell us a bit about yourself ..." value={about} onChangeAction={(value: string) =>setAbout(value)}/>
