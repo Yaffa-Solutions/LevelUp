@@ -3,7 +3,6 @@ const {
   getUserById,
   updateUserInfo,
   updateProfilePicture,
-  updateCoverImage,
   updateAbout,
   updateCompanyDescription,
   getTalentsByLevel,
@@ -24,8 +23,6 @@ router.get('/:userId', getUserById);
 router.patch('/:userId/basic', updateUserInfo);
 
 router.patch('/:userId/profile-picture', updateProfilePicture);
-
-router.patch('/:userId/cover-image', updateCoverImage);
 
 router.patch('/:userId/about', updateAbout);
 
