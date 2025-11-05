@@ -47,8 +47,8 @@ model UserLevels {
 
 model User {
   id                 String       @id @default(uuid())
-  email              String       @unique
-  password           String
+  email              String      @unique
+  password           String?
   google_id          String?       @unique
   cv_url             String?
   first_name         String
@@ -68,12 +68,13 @@ model User {
   chats2             Chat[]       @relation("user2")
   jobs               Job[]
   jobApplications    JobApplication[]
-  posts              Post[]
+  posts              Post[]       
   postReactions      PostReaction[]
   skillTalents       SkillTalent[]
   levels             UserLevels @relation(fields: [level_id], references: [id])
   plans              Plan[]
   experiences        Experience[]
+  jobSaves         JobSave[] 
 }
 
 model Chat {
@@ -102,7 +103,7 @@ model Job {
   hunter_id  String
   meta_data Json?
 
-  hunter   User  @relation(fields: [hunter_id], references: [id])
+  hunter   User  @relation(fields: [hunter_id], references: [id], onDelete: Cascade)
   jobApplications JobApplication[]
 }
 
@@ -113,8 +114,20 @@ model JobApplication {
   status    Status
   created_at DateTime @default(now())
 
-  talent   User  @relation(fields: [talent_id], references: [id])
-  job Job @relation(fields: [job_id], references: [id])
+  talent   User  @relation(fields: [talent_id], references: [id], onDelete: Cascade)
+  job Job @relation(fields: [job_id], references: [id], onDelete: Cascade)
+}
+
+model JobSave {
+  id            String     @id @default(uuid())
+  job_id        String
+  talent_id     String
+  created_at    DateTime @default(now())
+
+  talent        User   @relation(fields: [talent_id], references: [id], onDelete: Cascade)
+  job           Job    @relation(fields: [job_id], references: [id], onDelete: Cascade)
+
+  @@unique([talent_id, job_id]) 
 }
 
 model Post {
@@ -124,7 +137,7 @@ model Post {
   created_at DateTime @default(now())
   updated_at DateTime     @updatedAt
 
-  user User @relation(fields: [user_id], references: [id])
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
   postReactions PostReaction[]
 }
 
@@ -132,9 +145,11 @@ model PostReaction {
   id      String @id @default(uuid())
   post_id String
   user_id String
+  created_at DateTime @default(now())
 
-  post Post @relation(fields: [post_id], references: [id])
-  user User @relation(fields: [user_id], references: [id])
+  post Post @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+   @@unique([user_id, post_id])
 }
 
 model Skill {
@@ -148,8 +163,8 @@ model SkillTalent {
   user_id  String   
   skill_id  String 
 
-  user User @relation(fields: [user_id], references: [id]) 
-  skill Skill @relation(fields: [skill_id], references: [id])
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade) 
+  skill Skill @relation(fields: [skill_id], references: [id], onDelete: Cascade)
 }
 
 
@@ -165,7 +180,7 @@ model Plan {
   level_id            String
   target_level        UserLevels @relation(fields: [level_id], references: [id])
 
-  user User @relation(fields: [user_id], references: [id])
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
 
 model Experience {
@@ -178,5 +193,5 @@ model Experience {
   description     String
   employment_type  EmploymentType
 
-  user User @relation(fields: [user_id], references: [id])
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
