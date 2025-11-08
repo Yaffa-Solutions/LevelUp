@@ -130,6 +130,19 @@ model JobSave {
   @@unique([talent_id, job_id]) 
 }
 
+
+model JobSave {
+  id            String     @id @default(uuid())
+  job_id        String
+  talent_id     String
+  created_at    DateTime @default(now())
+
+  talent        User   @relation(fields: [talent_id], references: [id], onDelete: Cascade)
+  job           Job    @relation(fields: [job_id], references: [id], onDelete: Cascade)
+
+  @@unique([talent_id, job_id]) 
+}
+
 model Post {
   id        String   @id @default(uuid())
   user_id   String
