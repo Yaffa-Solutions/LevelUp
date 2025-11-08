@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Input from '../components/create-profile/inputs/Input';
 import TextArea from '../components/create-profile/inputs/TextArea';
 // import Select from '../components/create-profile/inputs/Select';
@@ -31,6 +31,7 @@ interface ParsedResumeData {
   }
 }
 interface ExperienceItem {
+  id?: string;
   company: string;
   position: string;
   description?: string;
@@ -40,6 +41,15 @@ interface ExperienceItem {
   isCurrent?: boolean;
 }
 
+interface ExperienceBackendItem {
+  id: string;
+  company_name: string;
+  position: string;
+  description?: string;
+  start_date?: string;
+  end_date?: string;
+  employment_type?: string;
+}
 export default function CreateProfilePage() {
    const [role, setRole] = useState<Role>('talent'); 
   const [firstName, setFirstName] = useState('');
@@ -55,6 +65,64 @@ export default function CreateProfilePage() {
   const [parsing, setParsing] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [openExp, setOpenExp] = useState(false);
+  const [editIdx, setEditIdx] = useState<number | undefined>(undefined);
+  const [openSkill, setOpenSkill] = useState(false);
+  const [errors, setErrors] = useState<{ firstName?: string; lastName?: string; skills?: string; jobTitle?: string; }>({});
+  const [userId, setUserId] = useState<string | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`, {
+          method: "GET",
+          credentials: "include", // مهم إذا عندك cookies/session
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch user");
+        const data = await res.json();
+        setUserId(data.id); // هنا نجيب الـ id من response
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchUser();
+  }, []);
+  
+useEffect(() => {
+  if (!userId) return;
+
+  const fetchExperiences = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/experiences/talent/${userId}`, {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (!res.ok) throw new Error("Failed to fetch experiences");
+
+      const data: ExperienceBackendItem[] = await res.json();
+      setExperiences(data.map(exp => ({
+        id: exp.id,
+        company: exp.company_name,
+        position: exp.position,
+        description: exp.description ?? '',
+        startDate: exp.start_date,
+        endDate: exp.end_date,
+        employmentType: exp.employment_type,
+        isCurrent: !exp.end_date,
+      })));
+
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchExperiences();
+}, [userId]);
+
   const onPickAvatar = () => document.getElementById('avatar-input')?.click();
   const onAvatarChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const f = e.target.files?.[0];
@@ -64,69 +132,103 @@ export default function CreateProfilePage() {
     setAvatarUrl(url);
   };
 
-  const [openExp, setOpenExp] = useState(false);
-  const [editIdx, setEditIdx] = useState<number | undefined>(undefined);
-  const [openSkill, setOpenSkill] = useState(false);
-  const [errors, setErrors] = useState<{ firstName?: string; lastName?: string; skills?: string; jobTitle?: string; }>({});
-  const router = useRouter();
-
   const startEditExp = (idx: number) => {
     setEditIdx(idx);
     setOpenExp(true);
   };
-  const onSaveExp = (item: ExperienceItem, index?: number) => {
+
+  // const onSaveExp = (item: ExperienceItem, index?: number) => {
+  //   setExperiences(prev =>
+  //     typeof index === 'number' ? prev.map((x, i) => (i === index ? item : x)) : [item, ...prev]
+  //   );
+  //   setOpenExp(false);
+  //   setEditIdx(undefined);
+  // };
+
+  const onSaveExp = async (item: ExperienceItem, index?: number) => {
+  if (!userId) return;
+
+  setOpenExp(false);
+  setEditIdx(undefined);
+
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/experiences/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        user_id: userId,
+        company_name: item.company,
+        position: item.position,
+        start_date: item.startDate,
+        end_date: item.endDate,
+        description: item.description,
+        employment_type: item.employmentType.toUpperCase().replace(' ', '_'),
+      }),
+    });
+
+    if (!res.ok) throw new Error("Failed to save experience");
+    const created = await res.json();
+
+    // تحديث الـ UI فوراً بالـ ID الحقيقي
     setExperiences(prev =>
-      typeof index === 'number' ? prev.map((x, i) => (i === index ? item : x)) : [item, ...prev]
+      typeof index === 'number'
+        ? prev.map((x, i) => (i === index ? { ...item, id: created.id } : x))
+        : [{ ...item, id: created.id }, ...prev]
     );
-    setOpenExp(false);
-    setEditIdx(undefined);
-  };
+
+    toast.success("Experience saved successfully!");
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to save experience");
+  }
+};
 
   const removeSkill = (s: string) => setSkills(prev => prev.filter(x => x !== s));
 
-const onSaveForm = async () => {
-  try {
-    setParsing(true); 
+  const onSaveForm = async () => {
+     try {
+       setParsing(true); 
 
-    let uploadedAvatarUrl = null;
-    let parsedData: ParsedResumeData['data'] | null = null;
+       let uploadedAvatarUrl = null;
+       let parsedData: ParsedResumeData['data'] | null = null;
 
-    if (avatarFile) {
-      const avatarData = new FormData();
-      avatarData.append("profilePicture", avatarFile);
+       if (avatarFile) {
+         const avatarData = new FormData();
+         avatarData.append("profilePicture", avatarFile);
 
-      const avatarRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/upload-picture`, {
-        method: "POST",
-        body: avatarData,
-      });
+         const avatarRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/upload-picture`, {
+           method: "POST",
+           body: avatarData,
+         });
 
-      if (!avatarRes.ok) throw new Error("failed upload picture");
-      const avatarJson = await avatarRes.json();
-      uploadedAvatarUrl = avatarJson.imageUrl; 
-      toast.success("✅ upload picture done");
-    }
+         if (!avatarRes.ok) throw new Error("failed upload picture");
+         const avatarJson = await avatarRes.json();
+         uploadedAvatarUrl = avatarJson.imageUrl; 
+        //  toast.success("✅ upload picture done");
+       }
 
 
-    if (cvFile) {
-      const formData = new FormData();
-      formData.append("resume", cvFile);
+       if (cvFile) {
+         const formData = new FormData();
+         formData.append("resume", cvFile);
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/resume/upload-resume`, {
-        method: "POST",
-        body: formData,
-      });
+         const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/resume/upload-resume`, {
+           method: "POST",
+           body: formData,
+         });
 
-      if (!res.ok) throw new Error("falle resuming CV");
-      const responseJson: ParsedResumeData = await res.json();
-      parsedData = responseJson.data ;
+       if (!res.ok) throw new Error("falle resuming CV");
+       const responseJson: ParsedResumeData = await res.json();
+       parsedData = responseJson.data ;
 
-      setFirstName(parsedData.firstName ?? '');
-      setLastName(parsedData.lastName ?? '');
-      setJobTitle(parsedData.jobTitle ?? '');
-      setCompany(parsedData.company ?? '');
-      setAbout(parsedData.about ?? '');
-      setSkills(parsedData.skills ?? []);
-      setExperiences(
+       setFirstName(parsedData.firstName ?? '');
+       setLastName(parsedData.lastName ?? '');
+       setJobTitle(parsedData.jobTitle ?? '');
+       setCompany(parsedData.company ?? '');
+       setAbout(parsedData.about ?? '');
+       setSkills(parsedData.skills ?? []);
+       setExperiences(
        Array.isArray(parsedData.experiences)
          ? parsedData.experiences.map((exp: ExperienceItem) => ({
              company: exp.company || "",
@@ -224,6 +326,61 @@ const handleSaveProfile = async () => {
   }
 };
 
+const onDeleteExperience = async (id?: string, index?: number) => {
+  if (!id || typeof index !== 'number') return;
+
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/experiences/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+
+    if (!res.ok) throw new Error("Failed to delete experience");
+
+    setExperiences(prev => prev.filter((_, i) => i !== index));
+
+    toast.success("Experience deleted successfully!");
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to delete experience");
+  }
+};
+
+const onUpdateExp = async (item: ExperienceItem, index: number) => {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/experiences/${item.id}`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          company_name: item.company,
+          position: item.position,
+          start_date: item.startDate,
+          end_date: item.endDate,
+          description: item.description,
+          employment_type: item.employmentType.toUpperCase().replace(' ', '_'),
+        }),
+      }
+    );
+
+    if (!res.ok) throw new Error("Failed to update experience");
+    const updated = await res.json();
+
+    // تحديث الـ UI فوراً
+    setExperiences(prev =>
+      prev.map((x, i) => (i === index ? { ...x, ...updated } : x))
+    );
+
+    toast.success("Experience updated successfully!");
+    setOpenExp(false);
+    setEditIdx(undefined);
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to update experience");
+  }
+};
   return(
     <div className="min-h-[100svh] bg-[#f6f7fb] py-10 relative">
       {parsing && (
@@ -357,7 +514,7 @@ const handleSaveProfile = async () => {
                 ) : (
                   <div className="space-y-4">
                     {experiences.map((e, i) => (
-                      <div key={i}>
+                      <div key={e.id}>
                         <div className="flex items-start justify-between">
                           <div className="space-y-0.5">
                             <div className="text-[13px] font-[800] text-[#222]">{e.company}</div>
@@ -372,11 +529,19 @@ const handleSaveProfile = async () => {
                           </div>
 
                           <div className="flex gap-2">
-                            <IconBtn title="Edit" onClick={() => startEditExp(i)}>
+                            <IconBtn title="Edit" 
+                            // onClick={() => startEditExp(i)}
+                            onClick={()=>onUpdateExp(e, i)}
+                            >
                               <svg viewBox="0 -960 960 960" className="h-4 w-4 fill-current"><path d="M200-200h56l365-365-56-56-365 365v56Zm-40 80v-168l424-424q12-12 28-18t32-6q16 0 32 6t28 18l56 56q12 12 18 28t6 32q0 16-6 32t-18 28L296-120H160Z"/></svg>
                             </IconBtn>
-                            <IconBtn title="Delete" onClick={()=>setExperiences(prev=>prev.filter((_,idx)=>idx!==i))}>
-                              <svg viewBox="0 -960 960 960" className="h-4 w-4 fill-current"><path d="M280-160q-33 0-56.5-23.5T200-240v-440h-40v-80h200v-40h240v40h200v80h-40v440q0 33-23.5 56.5T680-160H280Zm80-120h80v-320h-80v320Zm240 0h80v-320h-80v320Z"/></svg>
+                            <IconBtn title="Delete" 
+                            // onClick={()=>setExperiences(prev=>prev.filter((_,idx)=>idx!==i))}
+                            onClick={() => onDeleteExperience(e.id, i)}
+                            >
+                              {/* <svg viewBox="0 -960 960 960" className="h-4 w-4 fill-current"><path d="M280-160q-33 0-56.5-23.5T200-240v-440h-40v-80h200v-40h240v40h200v80h-40v440q0 33-23.5 56.5T680-160H280Zm80-120h80v-320h-80v320Zm240 0h80v-320h-80v320Z"/></svg> */}
+                             <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#EA3323"><path d="M312-144q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480ZM384-288h72v-336h-72v336Zm120 0h72v-336h-72v336ZM312-696v480-480Z"/></svg>
+
                             </IconBtn>
                           </div>
                         </div>
@@ -427,13 +592,14 @@ const handleSaveProfile = async () => {
               Save
             </button>
           </div>
-      <AddExperienceModal
-       isOpen={openExp}
-       onClose={() => setOpenExp(false)}
-       onSave={(item) => onSaveExp(item, editIdx)}
-      //  defaultValue={typeof editIdx === 'number' ? experiences[editIdx] : undefined}
-     />
-
+            {userId && (
+              <AddExperienceModal
+                isOpen={openExp}
+                onClose={() => setOpenExp(false)}
+                onSave={(item) => onSaveExp(item, editIdx)}
+                userId={userId} 
+              />
+            )}
 
       <AddSkillPopup
         open={openSkill}

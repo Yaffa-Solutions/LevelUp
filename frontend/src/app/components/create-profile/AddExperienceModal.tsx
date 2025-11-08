@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { toast } from 'react-hot-toast'
 
 interface ExperienceItem {
+  userId :string
   company: string
   position: string
   description: string
@@ -18,6 +19,7 @@ interface AddExperienceModalProps {
   onClose: () => void
   onSave: (item: ExperienceItem) => void
   defaultValue?: ExperienceItem
+  userId: string
 }
 
 const MONTHS = [
@@ -32,6 +34,7 @@ const AddExperienceModal: React.FC<AddExperienceModalProps> = ({
   onClose,
   onSave,
   defaultValue,
+  userId,
 }) => {
   const [company, setCompany] = useState('')
   const [position, setPosition] = useState('')
@@ -82,35 +85,47 @@ const AddExperienceModal: React.FC<AddExperienceModalProps> = ({
     const startDate = `${startYear}-${String(startMonth).padStart(2, '0')}-01`
     const endDate = noEndDate ? undefined : `${endYear}-${String(endMonth).padStart(2, '0')}-01`
 
-    setLoading(true)
-    try {
-      const payload: ExperienceItem = {
-        company,
-        position,
-        description,
-        employmentType,
-        startDate,
-        endDate,
-        isCurrent: noEndDate,
-      }
+    // setLoading(true)
+    // try {
+    //   const payload: ExperienceItem = {
+    //     company,
+    //     position,
+    //     description,
+    //     employmentType,
+    //     startDate,
+    //     endDate,
+    //     isCurrent: noEndDate,
+    //   }
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/experiences/createExperience`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
+      // const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/experiences/createExperience`, {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(payload),
+      // })
 
-      if (!res.ok) throw new Error('Failed to save experience')
+      // if (!res.ok) throw new Error('Failed to save experience')
 
-      toast.success(defaultValue ? 'Experience updated!' : 'Experience added!')
-      onSave(payload)
-      onClose()
-    } catch (err) {
-      console.error(err)
-      toast.error('Error saving experience')
-    } finally {
-      setLoading(false)
-    }
+      // toast.success(defaultValue ? 'Experience updated!' : 'Experience added!')
+      // onSave(payload)
+    //   onClose()
+    // } catch (err) {
+    //   console.error(err)
+    //   toast.error('Error saving experience')
+    // } finally {
+    //   setLoading(false)
+    // }
+
+    onSave({
+      userId,
+      company,
+      position,
+      description,
+      employmentType,
+      startDate,
+      endDate,
+      isCurrent: noEndDate,
+    })
+    onClose()
   }
 
   return (
@@ -230,10 +245,10 @@ const AddExperienceModal: React.FC<AddExperienceModalProps> = ({
             <option value="" disabled hidden>
               Select employment type...
            </option>
-            <option value="Full Time">Full Time</option>
-            <option value="Part Time">Part Time</option>
-            <option value="Freelance">Freelance</option>
-            <option value="Internship">Internship</option>
+            <option value="Full_Time">Full Time</option>
+            <option value="Part_Time">Part Time</option>
+            <option value="CONTRACT">CONTRACT</option>
+            <option value="INTERN">INTERN</option>
           </select> 
         </div>
 

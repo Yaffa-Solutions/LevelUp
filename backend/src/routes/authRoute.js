@@ -1,0 +1,13 @@
+const express = require('express');
+const router = express.Router();
+const authController = require('../controllers/authController');
+const  authenticate  = require('../middleware/auth.middleware'); 
+
+router.post('/signup', authController.signUp);
+router.post('/verify-otp', authController.verifyOTP);
+router.post('/resend-otp', authController.handleResendOTP);
+router.post('/signin', authController.signIn);
+router.get('/', authController.getAll);
+router.delete('/:email', authController.deleteUserByEmail);
+
+module.exports = router;
