@@ -1,9 +1,7 @@
-const env = require('env2');
-env('.env');
-const app =  require ('./app.js');
-
-const port = process.env.PORT || 5000;
+require('dotenv').config();
+const app = require('./app');
+const { port } = require('./config/app.config');
 
 app.listen(port, () => {
-  console.log(`Backend listening on http://localhost:${port}`);
+  console.log(`Server is running on http://localhost:${port}`);
 });

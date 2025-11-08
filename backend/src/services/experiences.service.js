@@ -14,17 +14,17 @@ const addNewExperience = async (
   start_date,
   end_date,
   description,
-  employment_type
+  employment_type,
 ) => {
   return await prisma.experience.create({
     data: {
-      user_id,
       company_name,
       position,
       start_date: new Date(start_date),
       end_date: end_date ? new Date(end_date) : null,
       description: description || '',
       employment_type: employment_type || '',
+      user: { connect: { id: user_id } },
     },
   });
 };
@@ -36,20 +36,19 @@ const updateExperience = async (
   start_date,
   end_date,
   description,
-  employment_type
+  employment_type,
 ) => {
-  return await prisma.experience
-    .update({
-      where: { id },
-      data: {
-        company_name,
-        position,
-        start_date: start_date ? new Date(start_date) : null,
-        end_date: end_date ? new Date(end_date) : null,
-        description,
-        employment_type,
-      },
-    });
+  return await prisma.experience.update({
+    where: { id },
+    data: {
+      company_name,
+      position,
+      start_date: start_date ? new Date(start_date) : null,
+      end_date: end_date ? new Date(end_date) : null,
+      description,
+      employment_type,
+    },
+  });
 };
 
 const deleteExperience = async (id) => {

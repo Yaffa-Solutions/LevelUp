@@ -40,7 +40,7 @@ const handleDeleteSkill = async (skillId: string) => {
 
     console.log('Response status:', res.status);
 
-    if (res.status === 204 || res.status === 200) {
+    if (res.status === 200) {
       toast.success('Skill deleted successfully');
       setSkills((prev) => prev.filter((s) => s.id !== skillId));
     } else {

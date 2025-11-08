@@ -135,7 +135,7 @@ model Experience {
   company_name    String
   position        String
   start_date      DateTime
-  end_date        DateTime
+  end_date        DateTime?
   description     String
   employment_type EmploymentType
   user            User           @relation(fields: [user_id], references: [id])

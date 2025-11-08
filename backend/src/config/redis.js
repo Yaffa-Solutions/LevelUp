@@ -16,9 +16,9 @@ let redisReady = false;
   try {
     await redisClient.connect();
     redisReady = true;
-    console.log(':white_check_mark: Redis connected');
+    console.log('✅ Redis connected');
   } catch (err) {
-    console.warn(':warning: Redis not available, caching disabled');
+    console.warn('⚠️ Redis not available, caching disabled');
   }
 })();
 

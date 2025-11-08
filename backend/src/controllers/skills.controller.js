@@ -19,12 +19,19 @@ const addTalentSkill = async (req, res, next) => {
   try {
     const { user_id, skill_name } = req.body;
 
-    if (!user_id || !skill_name) {
-      return res.status(400).json({ error: 'user_id and skill_name required' });
+    if (!user_id || !skill_name || !skill_name.trim()) {
+      // return res.status(400).json({ error: 'user_id and skill_name required' });
+            return res
+              .status(400)
+              .json({ error: 'Please enter a skill name.' });
+
     }
     const result = await skillService.addTalentSkill(user_id, skill_name);
     res.status(201).json(result);
   } catch (err) {
+       if (err.status === 409) {
+         return res.status(409).json({ error: err.message });
+       }
     next(err);
   }
 };
@@ -37,7 +44,7 @@ const deleteTalentSkill = async (req, res, next) => {
       return res.status(400).json({ error: 'id is required' });
     }
     await skillService.deleteTalentSkill(id);
-    res.status(204).json({ message: 'Skill deleted successfully' });
+    res.status(200).json({ message: 'Skill deleted successfully' });
   } catch (err) {
     if (err.code === 'P2025') {
       return res.status(404).json({ error: 'Skill not found' });

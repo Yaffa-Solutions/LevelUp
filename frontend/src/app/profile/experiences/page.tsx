@@ -34,7 +34,15 @@ const AllExperiencesPage = () => {
       })
       .catch(() => toast.error('Error deleting experience'));
   };
-
+ const formatText = (text?: string, fallback: string = ''): string =>
+    text && text.trim() !== ''
+      ? text
+          .split(' ')
+          .map(
+            (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+          )
+          .join(' ')
+      : fallback;
   return (
     <div className="max-w-4xl mx-auto  bg-white rounded-xl shadow-sm mt-5 p-11">
       <div className="flex items-center mb-6">
@@ -59,11 +67,11 @@ const AllExperiencesPage = () => {
               key={index}
               id={exp.id}
               company_name={exp.company_name}
-              position={exp.position}
+              position={formatText(exp.position)}
               start_date={new Date(exp.start_date).getFullYear().toString()}
-              end_date={new Date(exp.end_date || '').getFullYear().toString()}
+              end_date={exp.end_date? new Date(exp.end_date).getFullYear().toString(): ''}
               description={exp.description}
-              employment_type={exp.employment_type}
+              employment_type={formatText(exp.employment_type)}
             />
             <div className="flex flex-col justify-around ">
               <button

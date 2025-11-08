@@ -62,7 +62,7 @@ const getAllTalents = async () => {
 
   if (cachedData) {
     console.log('Cache Hit, talents from redis cache');
-    return res.status(200).json(JSON.parse(cachedData));
+    return JSON.parse(cachedData);
   }
   console.log('Cache Miss, fetching talents from database');
   const talents = await prisma.user.findMany({
@@ -91,7 +91,7 @@ const getAllHunters = async () => {
 
     if (cachedData) {
       console.log('Cache Hit, fetching hunters from redis cache');
-      return res.json(JSON.parse(cachedData));
+      return JSON.parse(cachedData);
     }
     console.log('Cache Miss ,fetching  hunters from database');
     const hunters = await prisma.user.findMany({

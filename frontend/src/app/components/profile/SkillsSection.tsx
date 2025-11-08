@@ -12,9 +12,11 @@ import { useRouter } from 'next/navigation';
 const SkillsSection = ({
   skillTalents,
   isEditMode,
+  userId
 }: {
   skillTalents: SkillTalent[];
-  isEditMode?: boolean;
+    isEditMode?: boolean;
+    userId: string;
 }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [skills, setSkills] = useState(skillTalents || []);
@@ -31,7 +33,7 @@ const SkillsSection = ({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          user_id: '1',
+          user_id: userId,
           skill_name: skillName,
         }),
       });

@@ -82,6 +82,8 @@ const ProfilePage = ({ user, isEditMode = false, onUpdate }: ProfileProps) => {
             <SkillsSection
               skillTalents={user.skillTalents || []}
               isEditMode={isEditMode}
+              userId={user.id}
+
             />
           </section>
         </>

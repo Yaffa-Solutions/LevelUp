@@ -29,6 +29,16 @@ const ExperienceSection = ({
   const handleAddExperience = (newExp: Experience) => {
     onUpdate(newExp);
   };
+
+  const formatText = (text?: string, fallback: string = ''): string =>
+    text && text.trim() !== ''
+      ? text
+          .split(' ')
+          .map(
+            (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+          )
+          .join(' ')
+      : fallback;
   if (!experiences || experiences.length === 0) {
     return (
       <div className="relative p-6 mt-6">
@@ -58,10 +68,10 @@ const ExperienceSection = ({
         <h2 className="text-xl font-semibold text-gray-900">Experiences</h2>
         {isEditMode && (
           <div>
-            <AddButton onClick={() => setIsAdding(true)} className='right-14' />
+            <AddButton onClick={() => setIsAdding(true)} className="right-14" />
             <EditButton
               onClick={() => router.push('/profile/experiences')}
-              className='right-4'
+              className="right-4"
             />
           </div>
         )}
@@ -78,11 +88,15 @@ const ExperienceSection = ({
               key={index}
               id={exp.id}
               company_name={exp.company_name}
-              position={exp.position}
+              position={formatText(exp.position)}
               start_date={new Date(exp.start_date).getFullYear().toString()}
-              end_date={new Date(exp.end_date || '').getFullYear().toString()}
+              end_date={
+                exp.end_date
+                  ? new Date(exp.end_date).getFullYear().toString()
+                  : ''
+              }
               description={exp.description}
-              employment_type={exp.employment_type}
+              employment_type={formatText(exp.employment_type)}
             />
           </div>
         ))}

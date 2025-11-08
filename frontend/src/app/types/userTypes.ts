@@ -6,6 +6,7 @@ export interface Experience {
   end_date?: string;
   description: string;
   employment_type: string;
+  is_current?: boolean;
 }
 
 export interface SkillTalent {

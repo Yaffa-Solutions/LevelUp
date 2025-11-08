@@ -37,7 +37,7 @@ const addNewExperience = async (req, res, next) => {
       start_date,
       end_date,
       description,
-      employment_type
+      employment_type,
     );
     res.status(200).json(created);
   } catch (err) {
@@ -64,7 +64,7 @@ const updateExperience = async (req, res, next) => {
       start_date,
       end_date,
       description,
-      employment_type
+      employment_type,
     );
     res.status(200).json(updated);
   } catch (err) {
@@ -79,7 +79,7 @@ const deleteExperience = async (req, res, next) => {
        return res.status(400).json({ error: 'id is required' });
      }
     await experienceService.deleteExperience(id);
-    res.status(204).json({ message: 'Experience deleted successfully' });
+    res.status(200).json({ message: 'Experience deleted successfully' });
   } catch (err) {
     next(err);
   }

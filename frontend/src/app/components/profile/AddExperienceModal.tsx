@@ -26,6 +26,7 @@ const AddExperienceModal = ({
     description: '',
     employment_type: '',
   });
+  const [noEndDate, setNoEndDate] = useState(false);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -33,7 +34,9 @@ const AddExperienceModal = ({
       newErrors.company_name = 'Company name is required';
     if (!form.position.trim()) newErrors.position = 'Position is required';
     if (!form.start_date) newErrors.start_date = 'Start date is required';
-    if (!form.end_date) newErrors.end_date = 'End date is required';
+    // if (!form.end_date) newErrors.end_date = 'End date is required';
+    if (!noEndDate && !form.end_date)
+      newErrors.end_date = 'End date is required';
     if (!form.description.trim())
       newErrors.description = 'Description is required';
     if (!form.employment_type)
@@ -62,7 +65,7 @@ const AddExperienceModal = ({
     fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/experiences`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...form, user_id: userId }),
+      body: JSON.stringify({ ...form, user_id: userId, is_current: noEndDate }),
     })
       .then((res) => {
         if (!res.ok) throw new Error('Failed to create experience');
@@ -75,7 +78,7 @@ const AddExperienceModal = ({
       })
       .catch((error) => {
         console.error('Error creating experience:', error);
-        toast.error('Something went wrong while adding experience');
+        toast.error('Failed to add experience, retry later!');
       })
       .finally(() => {
         setLoading(false);
@@ -143,6 +146,23 @@ const AddExperienceModal = ({
               </div>
             </div>
 
+            <div className="mt-3">
+              <label className="flex items-center gap-2 text-sm text-gray-800">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 accent-indigo-600"
+                  checked={noEndDate}
+                  onChange={(e) => {
+                    setNoEndDate(e.target.checked);
+                    if (e.target.checked) {
+                      setForm((prev) => ({ ...prev, end_date: '' }));
+                    }
+                  }}
+                />
+                I am currently on this career break
+              </label>
+            </div>
+
             <div className="flex gap-4">
               <div className="w-1/2">
                 <label
@@ -179,8 +199,11 @@ const AddExperienceModal = ({
                   name="end_date"
                   value={form.end_date}
                   onChange={handleChange}
-                  className="w-full pl-5 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 text-gray-900 transition duration-200"
-                  required
+                  className={`w-full pl-5 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 text-gray-900 transition duration-200 ${
+                    noEndDate ? 'bg-gray-100 cursor-not-allowed' : ''
+                  }`}
+                  required={!noEndDate}
+                  disabled={noEndDate}
                 />
                 {errors.end_date && (
                   <p className="text-red-500 text-xs mt-1">{errors.end_date}</p>
