@@ -85,36 +85,6 @@ const AddExperienceModal: React.FC<AddExperienceModalProps> = ({
     const startDate = `${startYear}-${String(startMonth).padStart(2, '0')}-01`
     const endDate = noEndDate ? undefined : `${endYear}-${String(endMonth).padStart(2, '0')}-01`
 
-    // setLoading(true)
-    // try {
-    //   const payload: ExperienceItem = {
-    //     company,
-    //     position,
-    //     description,
-    //     employmentType,
-    //     startDate,
-    //     endDate,
-    //     isCurrent: noEndDate,
-    //   }
-
-      // const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/experiences/createExperience`, {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(payload),
-      // })
-
-      // if (!res.ok) throw new Error('Failed to save experience')
-
-      // toast.success(defaultValue ? 'Experience updated!' : 'Experience added!')
-      // onSave(payload)
-    //   onClose()
-    // } catch (err) {
-    //   console.error(err)
-    //   toast.error('Error saving experience')
-    // } finally {
-    //   setLoading(false)
-    // }
-
     onSave({
       userId,
       company,

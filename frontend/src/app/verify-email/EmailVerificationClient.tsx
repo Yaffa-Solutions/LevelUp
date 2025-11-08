@@ -72,7 +72,7 @@ export default function EmailVerification() {
 
   const handleResend = async () => {
     try{
-    const res = await fetch(`${process.env.BACKEND_URL}/auth/resend-otp`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/resend-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email })

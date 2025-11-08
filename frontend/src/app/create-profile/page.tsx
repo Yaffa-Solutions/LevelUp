@@ -77,12 +77,12 @@ export default function CreateProfilePage() {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`, {
           method: "GET",
-          credentials: "include", // مهم إذا عندك cookies/session
+          credentials: "include", 
         });
 
         if (!res.ok) throw new Error("Failed to fetch user");
         const data = await res.json();
-        setUserId(data.id); // هنا نجيب الـ id من response
+        setUserId(data.id); 
       } catch (err) {
         console.error(err);
       }
@@ -132,19 +132,12 @@ useEffect(() => {
     setAvatarUrl(url);
   };
 
-  const startEditExp = (idx: number) => {
+  const startEditExp = (idx?: number) => {
     setEditIdx(idx);
     setOpenExp(true);
   };
 
-  // const onSaveExp = (item: ExperienceItem, index?: number) => {
-  //   setExperiences(prev =>
-  //     typeof index === 'number' ? prev.map((x, i) => (i === index ? item : x)) : [item, ...prev]
-  //   );
-  //   setOpenExp(false);
-  //   setEditIdx(undefined);
-  // };
-
+ 
   const onSaveExp = async (item: ExperienceItem, index?: number) => {
   if (!userId) return;
 
@@ -152,32 +145,40 @@ useEffect(() => {
   setEditIdx(undefined);
 
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/experiences/`, {
-      method: "POST",
+    const isEdit = typeof index === 'number' && item.id; 
+    const url = isEdit
+      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/experiences/${item.id}`
+      : `${process.env.NEXT_PUBLIC_BACKEND_URL}/experiences/`;
+
+    const method = isEdit ? "PATCH" : "POST";
+
+    const bodyData = {
+      user_id: userId,
+      company_name: item.company,
+      position: item.position,
+      start_date: item.startDate,
+      end_date: item.endDate,
+      description: item.description,
+      employment_type: item.employmentType?.toUpperCase().replace(' ', '_'),
+    };
+
+    const res = await fetch(url, {
+      method,
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({
-        user_id: userId,
-        company_name: item.company,
-        position: item.position,
-        start_date: item.startDate,
-        end_date: item.endDate,
-        description: item.description,
-        employment_type: item.employmentType.toUpperCase().replace(' ', '_'),
-      }),
+      body: JSON.stringify(bodyData),
     });
 
     if (!res.ok) throw new Error("Failed to save experience");
     const created = await res.json();
 
-    // تحديث الـ UI فوراً بالـ ID الحقيقي
     setExperiences(prev =>
       typeof index === 'number'
         ? prev.map((x, i) => (i === index ? { ...item, id: created.id } : x))
         : [{ ...item, id: created.id }, ...prev]
     );
 
-    toast.success("Experience saved successfully!");
+    toast.success(isEdit ? "Experience updated!" : "Experience added!");
   } catch (err) {
     console.error(err);
     toast.error("Failed to save experience");
@@ -205,9 +206,8 @@ useEffect(() => {
          if (!avatarRes.ok) throw new Error("failed upload picture");
          const avatarJson = await avatarRes.json();
          uploadedAvatarUrl = avatarJson.imageUrl; 
-        //  toast.success("✅ upload picture done");
-       }
 
+       }
 
        if (cvFile) {
          const formData = new FormData();
@@ -346,41 +346,19 @@ const onDeleteExperience = async (id?: string, index?: number) => {
   }
 };
 
-const onUpdateExp = async (item: ExperienceItem, index: number) => {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/experiences/${item.id}`,
-      {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          company_name: item.company,
-          position: item.position,
-          start_date: item.startDate,
-          end_date: item.endDate,
-          description: item.description,
-          employment_type: item.employmentType.toUpperCase().replace(' ', '_'),
-        }),
-      }
-    );
+const defaultExp = typeof editIdx === 'number'
+  ? {
+      ...experiences[editIdx],
+      userId: userId || '',
+      description: experiences[editIdx].description || '', 
+      startDate: experiences[editIdx].startDate || '',
+      endDate: experiences[editIdx].endDate || '',
+      position: experiences[editIdx].position || '',
+      company: experiences[editIdx].company || '',
+      employmentType: experiences[editIdx].employmentType || '',
+    }
+  : undefined;
 
-    if (!res.ok) throw new Error("Failed to update experience");
-    const updated = await res.json();
-
-    // تحديث الـ UI فوراً
-    setExperiences(prev =>
-      prev.map((x, i) => (i === index ? { ...x, ...updated } : x))
-    );
-
-    toast.success("Experience updated successfully!");
-    setOpenExp(false);
-    setEditIdx(undefined);
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to update experience");
-  }
-};
   return(
     <div className="min-h-[100svh] bg-[#f6f7fb] py-10 relative">
       {parsing && (
@@ -530,16 +508,13 @@ const onUpdateExp = async (item: ExperienceItem, index: number) => {
 
                           <div className="flex gap-2">
                             <IconBtn title="Edit" 
-                            // onClick={() => startEditExp(i)}
-                            onClick={()=>onUpdateExp(e, i)}
+                            onClick={()=> startEditExp(i)}
                             >
                               <svg viewBox="0 -960 960 960" className="h-4 w-4 fill-current"><path d="M200-200h56l365-365-56-56-365 365v56Zm-40 80v-168l424-424q12-12 28-18t32-6q16 0 32 6t28 18l56 56q12 12 18 28t6 32q0 16-6 32t-18 28L296-120H160Z"/></svg>
                             </IconBtn>
                             <IconBtn title="Delete" 
-                            // onClick={()=>setExperiences(prev=>prev.filter((_,idx)=>idx!==i))}
                             onClick={() => onDeleteExperience(e.id, i)}
                             >
-                              {/* <svg viewBox="0 -960 960 960" className="h-4 w-4 fill-current"><path d="M280-160q-33 0-56.5-23.5T200-240v-440h-40v-80h200v-40h240v40h200v80h-40v440q0 33-23.5 56.5T680-160H280Zm80-120h80v-320h-80v320Zm240 0h80v-320h-80v320Z"/></svg> */}
                              <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#EA3323"><path d="M312-144q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480ZM384-288h72v-336h-72v336Zm120 0h72v-336h-72v336ZM312-696v480-480Z"/></svg>
 
                             </IconBtn>
@@ -592,25 +567,28 @@ const onUpdateExp = async (item: ExperienceItem, index: number) => {
               Save
             </button>
           </div>
-            {userId && (
+            {openExp && (
               <AddExperienceModal
                 isOpen={openExp}
-                onClose={() => setOpenExp(false)}
+                onClose={() => {
+                  setOpenExp(false);
+                  setEditIdx(undefined);
+                }}
                 onSave={(item) => onSaveExp(item, editIdx)}
-                userId={userId} 
+                userId={userId || ''}
+               defaultValue={defaultExp}    
               />
             )}
 
-      <AddSkillPopup
-        open={openSkill}
-        onClose={() => setOpenSkill(false)}
-        onAdd={(val) => {
-          const v = val.trim();
-          if (v && !skills.includes(v)) setSkills(prev => [...prev, v]);
-          setOpenSkill(false);
-        }}
-        
-      />
+           <AddSkillPopup
+             open={openSkill}
+             onClose={() => setOpenSkill(false)}
+             onAdd={(val) => {
+               const v = val.trim();
+               if (v && !skills.includes(v)) setSkills(prev => [...prev, v]);
+               setOpenSkill(false);
+             }}        
+           />
     </div>
     </div>
    

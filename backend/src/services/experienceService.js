@@ -1,23 +1,3 @@
-// const prisma = require('../config/db');
-
-// const addExperience = async(userId, data) =>{
-// const { company_name, position, start_date, end_date, description, employment_type } = data;
-// const experience = await prisma.experience. create({
-//    data: {
-//       user_id: userId,
-//       company_name,
-//       position,
-//       start_date: new Date(start_date),
-//       end_date: new Date(end_date),
-//       description,
-//       employment_type
-//    }
-// });
-// return experience;
-// }
-
-// module.exports = { addExperience };\
-
 const  prisma  = require("../config/db");
 
 const getTalentExperiences = async (userId) => {
@@ -37,7 +17,7 @@ const addNewExperience = async (
   employment_type
 ) => {
   return await prisma.experience.create({
-    data: {
+    data: { 
       company_name,
       position,
       start_date: new Date(start_date),
@@ -45,7 +25,7 @@ const addNewExperience = async (
       description: description || '',
       employment_type,
       user: {
-        connect: { id: user_id } 
+        connect: { id: user_id} 
       }
     },
   });

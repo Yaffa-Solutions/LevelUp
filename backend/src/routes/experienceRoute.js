@@ -1,9 +1,8 @@
 // const express = require('express');
 // const router = express. Router();
 // const { createExperience } = require('../controllers/addexperienceController');
-// // للتحتق من المستخدم middleware مثال //
 // // router.use((req, res, next) => {
-// // req.userId = 'uuid-of-user'; // لاحقاُ استبداله بالـ JWT
+// // req.userId = 'uuid-of-user'; 
 // // next();
 // // })
 // router.post('/', createExperience);
