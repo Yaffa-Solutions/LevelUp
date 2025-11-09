@@ -9,6 +9,7 @@ const {
   getAllTalents,
   getAllHunters,
 } = require('../controllers/user.controller.js');
+const authenticate = require('../middleware/auth.middleware');
 
 const router = express.Router();
 
@@ -20,13 +21,13 @@ router.get('/level/:levelId', getTalentsByLevel);
 
 router.get('/:userId', getUserById);
 
-router.patch('/:userId/basic', updateUserInfo);
+router.patch('/:userId/basic',authenticate, updateUserInfo);
 
-router.patch('/:userId/profile-picture', updateProfilePicture);
+router.patch('/:userId/profile-picture',authenticate, updateProfilePicture);
 
-router.patch('/:userId/about', updateAbout);
+router.patch('/:userId/about',authenticate, updateAbout);
 
-router.patch('/:userId/company-description', updateCompanyDescription);
+router.patch('/:userId/company-description',authenticate, updateCompanyDescription);
 
 
 

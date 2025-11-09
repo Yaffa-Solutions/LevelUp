@@ -3,14 +3,15 @@ const {
   getTalentSkills,
   addTalentSkill,
   deleteTalentSkill,
-} = require ('../controllers/skills.controller.js');
+} = require('../controllers/skills.controller.js');
+const authenticate = require('../middleware/auth.middleware');
 
 const router = express.Router();
 
-router.get('/talent/:userId', getTalentSkills);
+router.get('/talent/:userId',authenticate, getTalentSkills);
 
-router.post('/',addTalentSkill);
+router.post('/',authenticate, addTalentSkill);
 
-router.delete('/:id',deleteTalentSkill);
+router.delete('/:id',authenticate, deleteTalentSkill);
 
 module.exports = router;

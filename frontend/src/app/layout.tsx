@@ -30,20 +30,18 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <LayoutWrapper>
-          <Navbar />
-          {children}
-          <Toaster
-            position="top-center"
-            toastOptions={{
-              duration: 5000,
-              style: {
-                fontSize: '10px',
-                borderRadius: '50px',
-              },
-            }}
-          />
-        </LayoutWrapper>
+        <LayoutWrapper>{children}</LayoutWrapper>
+        <Navbar />
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            duration: 5000,
+            style: {
+              fontSize: '10px',
+              borderRadius: '50px',
+            },
+          }}
+        />
       </body>
     </html>
   );

@@ -5,16 +5,17 @@ const {
   updateExperience,
   deleteExperience,
 } = require('../controllers/experiences.controller.js');
+const authenticate = require('../middleware/auth.middleware');
 
 const router = express.Router();
 
-router.get('/talent/:id', getTalentExperiences);
+router.get('/talent/:id',authenticate, getTalentExperiences);
 
-router.post('/', addNewExperience);
+router.post('/',authenticate, addNewExperience);
 
-router.patch('/:id', updateExperience);
+router.patch('/:id',authenticate, updateExperience);
 
-router.delete('/:id', deleteExperience);
+router.delete('/:id',authenticate, deleteExperience);
 
 module.exports = router;
 

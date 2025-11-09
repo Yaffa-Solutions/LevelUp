@@ -13,9 +13,28 @@ const CommunityPage = () => {
   const [sameLevelTalents, setSameLevelTalents] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [hunters, setHunters] = useState<User[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
 
-  const userId = '1';
+  // const userId = '11111111-1111-1111-1111-111111111111';
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`, {
+          method: "GET",
+          credentials: "include", // مهم إذا عندك cookies/session
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch user");
+        const data = await res.json();
+        setUserId(data.id); // هنا نجيب الـ id من response
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   useEffect(() => {
 

@@ -8,50 +8,71 @@ import { SkillTalent } from '@/app/types/userTypes';
 
 export default function AllSkillsPage() {
   const [skills, setSkills] = useState<SkillTalent[]>([]);
-  const userId = '1';
+  const [userId, setUserId] = useState<string | null>(null);
+  // const userId = '11111111-1111-1111-1111-111111111111';
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`,
+          {
+            method: 'GET',
+            credentials: 'include', // مهم إذا عندك cookies/session
+          }
+        );
 
-useEffect(() => {
-  const fetchSkills = async () => {
+        if (!res.ok) throw new Error('Failed to fetch user');
+        const data = await res.json();
+        setUserId(data.id); // هنا نجيب الـ id من response
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  useEffect(() => {
+    const fetchSkills = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/skills/talent/${userId}`
+        );
+        if (!res.ok) throw new Error('Failed to fetch skills');
+        const data = await res.json();
+        setSkills(data);
+      } catch (error) {
+        toast.error('Failed to fetch skills');
+        console.error('Error fetching skills:', error);
+      }
+    };
+
+    if (userId) fetchSkills();
+  }, [userId]);
+
+  const handleDeleteSkill = async (skillId: string) => {
+    console.log('Deleting skill:', skillId);
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/skills/talent/${userId}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/skills/${skillId}`,
+        {
+          method: 'DELETE',
+        }
       );
-      if (!res.ok) throw new Error('Failed to fetch skills');
-      const data = await res.json();
-      setSkills(data);
+
+      console.log('Response status:', res.status);
+
+      if (res.status === 200) {
+        toast.success('Skill deleted successfully');
+        setSkills((prev) => prev.filter((s) => s.id !== skillId));
+      } else {
+        throw new Error(`Failed to delete skill (status: ${res.status})`);
+      }
     } catch (error) {
-      toast.error('Failed to fetch skills');
-      console.error('Error fetching skills:', error);
+      console.error('Error deleting skill:', error);
+      toast.error('Error deleting skill');
     }
   };
-
-  if (userId) fetchSkills();
-}, [userId]);
-
-const handleDeleteSkill = async (skillId: string) => {
-  console.log('Deleting skill:', skillId);
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/skills/${skillId}`,
-      {
-        method: 'DELETE',
-      }
-    );
-
-    console.log('Response status:', res.status);
-
-    if (res.status === 200) {
-      toast.success('Skill deleted successfully');
-      setSkills((prev) => prev.filter((s) => s.id !== skillId));
-    } else {
-      throw new Error(`Failed to delete skill (status: ${res.status})`);
-    }
-  } catch (error) {
-    console.error('Error deleting skill:', error);
-    toast.error('Error deleting skill');
-  }
-};
-
 
   return (
     <div className="max-w-4xl mx-auto  bg-white rounded-xl shadow-sm mt-5 p-11">
