@@ -1,64 +1,52 @@
-const { prisma } = require("../config/db");
+const prisma = require('../config/prismaClient.js');
 
-const getTalentExperiences = async (userId) => {
-  return await prisma.experience.findMany({
+const getTalentSkills = async (userId) => {
+  return await prisma.skillTalent.findMany({
     where: { user_id: userId },
-    orderBy: { start_date: 'desc' },
+    include: { skill: true },
   });
 };
 
-const addNewExperience = async (
-  user_id,
-  company_name,
-  position,
-  start_date,
-  end_date,
-  description,
-  employment_type
-) => {
-  return await prisma.experience.create({
-    data: {
-      user_id,
-      company_name,
-      position,
-      start_date: new Date(start_date),
-      end_date: end_date ? new Date(end_date) : null,
-      description: description || '',
-      employment_type: employment_type || '',
+const addTalentSkill = async (user_id, skill_name) => {
+  const normalizedSkillName = skill_name.trim().toUpperCase();
+
+  let skill = await prisma.skill.findFirst({
+    where: {
+      skill_name: { equals: normalizedSkillName, mode: 'insensitive' },
     },
   });
-};
 
-const updateExperience = async (
-  id,
-  company_name,
-  position,
-  start_date,
-  end_date,
-  description,
-  employment_type
-) => {
-  return await prisma.experience
-    .update({
-      where: { id },
-      data: {
-        company_name,
-        position,
-        start_date: start_date ? new Date(start_date) : null,
-        end_date: end_date ? new Date(end_date) : null,
-        description,
-        employment_type,
-      },
+  if (!skill) {
+    skill = await prisma.skill.create({
+      data: { skill_name: normalizedSkillName },
     });
+  }
+  const existing = await prisma.skillTalent.findFirst({
+    where: { user_id, skill_id: skill.id },
+  });
+
+  if (existing) {
+    const error = new Error('You already have this skill.');
+    error.status = 409;
+    throw error;
+  }
+  const newRelation = await prisma.skillTalent.create({
+    data: { user_id, skill_id: skill.id },
+  });
+  const result = await prisma.skillTalent.findUnique({
+    where: { id: newRelation.id },
+    include: { skill: true },
+  });
+
+  return result;
 };
 
-const deleteExperience = async (id) => {
-  return await prisma.experience.delete({ where: { id } });
+const deleteTalentSkill = async (id) => {
+  return await prisma.skillTalent.delete({ where: { id } });
 };
 
 module.exports = {
-  getTalentExperiences,
-  addNewExperience,
-  updateExperience,
-  deleteExperience,
+  getTalentSkills,
+  addTalentSkill,
+  deleteTalentSkill,
 };

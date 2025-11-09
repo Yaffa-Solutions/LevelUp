@@ -11,6 +11,9 @@ import LabelRequired from '../components/create-profile/common/LabelRequired';
 // import CloseButton from '../components/create-profile/CloseButton';
 // import SaveButton from '../components/create-profile/AddButton'
 // import AddButton from '../components/create-profile/AddButton';
+import CVInfoModal from '../components/create-profile/newFeatureModal'
+
+
 import { toast } from 'react-hot-toast';
 
 import Image from "next/image";
@@ -359,8 +362,11 @@ const defaultExp = typeof editIdx === 'number'
     }
   : undefined;
 
+
+
   return(
     <div className="min-h-[100svh] bg-[#f6f7fb] py-10 relative">
+        <CVInfoModal />
       {parsing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
           <div className="flex flex-col items-center gap-2">

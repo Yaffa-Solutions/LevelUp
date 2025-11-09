@@ -2,8 +2,8 @@ const skillService = require('../services/skillsService.js');
 
 const getTalentSkills = async (req, res, next) => {
   try {
-    const { userId } = req.params;
-
+    // const { userId } = req.params;
+    const userId = req.userId;
     if (!userId) {
       return res.status(400).json({ error: 'userId is required' });
     }
