@@ -9,7 +9,7 @@ const authenticate = require('../middleware/auth.middleware');
 
 const router = express.Router();
 
-router.get('/talent/:id',authenticate, getTalentExperiences);
+router.get('/talent',authenticate, getTalentExperiences);
 
 router.post('/',authenticate, addNewExperience);
 

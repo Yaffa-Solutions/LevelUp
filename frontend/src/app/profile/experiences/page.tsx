@@ -7,44 +7,69 @@ import toast from 'react-hot-toast';
 import { Experience } from '@/app/types/userTypes';
 import ExperienceCard from '../../components/profile/ExperienceCard';
 import EditExperienceModal from '../../components/profile/EditExperienceModal';
+import { useRouter } from 'next/navigation';
 
 const AllExperiencesPage = () => {
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [editingExperience, setEditingExperience] = useState<Experience | null>(
     null
   );
-const [userId, setUserId] = useState<string | null>(null);
-  // const userId = '11111111-1111-1111-1111-111111111111';
+  const [userId, setUserId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`, {
-          method: "GET",
-          credentials: "include", // مهم إذا عندك cookies/session
-        });
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`,
+          {
+            method: 'GET',
+            credentials: 'include',
+          }
+        );
+        if (!res.ok) {
+          if (res.status === 401) {
+            router.push('/signin');
+            return;
+          }
+          throw new Error(
+            `Failed to fetch user: ${res.status} ${res.statusText}`
+          );
+        }
 
-        if (!res.ok) throw new Error("Failed to fetch user");
         const data = await res.json();
-        setUserId(data.id); // هنا نجيب الـ id من response
+        setUserId(data.id);
       } catch (err) {
-        console.error(err);
+        console.error('Error fetching user ID:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch user');
+        setLoading(false);
+        router.push('/signin');
+
       }
     };
 
     fetchUser();
-  }, []);
+  }, [router]);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/experiences/talent/${userId}`)
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/experiences/talent/`, {
+      credentials: 'include',
+    })
       .then((res) => res.json())
       .then((data) => setExperiences(data))
       .catch(() => toast.error('Failed to fetch experiences'));
   });
 
   const handleDeleteExperience = (experienceId: string) => {
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/experiences/${experienceId}`, {
-      method: 'DELETE',
-    })
+    fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/experiences/${experienceId}`,
+      {
+        method: 'DELETE',
+        credentials: 'include',
+      }
+    )
       .then((res) => {
         if (!res.ok) throw new Error('Failed to delete experience');
         toast.success('experience deleted successfully');
@@ -52,7 +77,7 @@ const [userId, setUserId] = useState<string | null>(null);
       })
       .catch(() => toast.error('Error deleting experience'));
   };
- const formatText = (text?: string, fallback: string = ''): string =>
+  const formatText = (text?: string, fallback: string = ''): string =>
     text && text.trim() !== ''
       ? text
           .split(' ')
@@ -62,7 +87,7 @@ const [userId, setUserId] = useState<string | null>(null);
           .join(' ')
       : fallback;
   return (
-    <div className="max-w-4xl mx-auto  bg-white rounded-xl shadow-sm mt-5 p-11">
+    <div className="max-w-4xl mx-auto  bg-white rounded-xl shadow-sm mt-20 p-11">
       <div className="flex items-center mb-6">
         <Link
           href="/profile"
@@ -87,7 +112,11 @@ const [userId, setUserId] = useState<string | null>(null);
               company_name={exp.company_name}
               position={formatText(exp.position)}
               start_date={new Date(exp.start_date).getFullYear().toString()}
-              end_date={exp.end_date? new Date(exp.end_date).getFullYear().toString(): ''}
+              end_date={
+                exp.end_date
+                  ? new Date(exp.end_date).getFullYear().toString()
+                  : ''
+              }
               description={exp.description}
               employment_type={formatText(exp.employment_type)}
             />

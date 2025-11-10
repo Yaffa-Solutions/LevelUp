@@ -48,8 +48,17 @@ app.use('/jobs', jobRoutes);
 app.use('/levels', levelRoutes);
 
 app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({ error: 'Internal server error' });
-});
+  console.error('Server Error:', err);
 
+  const status = err.status || 500;
+  const message =
+    status === 500
+      ? 'Something went wrong on our side. Please try again later.'
+      : err.message;
+
+  res.status(status).json({
+    success: false,
+    message,
+  });
+});
 module.exports = app;

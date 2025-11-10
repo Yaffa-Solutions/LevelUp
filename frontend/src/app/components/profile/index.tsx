@@ -19,7 +19,7 @@ const ProfilePage = ({ user, isEditMode = false, onUpdate }: ProfileProps) => {
   const isTalent = user.role === 'TALENT' || user.role === 'BOTH';
   const isHunter = user.role === 'HUNTER' || user.role === 'BOTH';
   return (
-    <div className="mt-5">
+    <div className="mt-20">
       <section className="max-w-4xl mx-auto  bg-white rounded-xl shadow-sm">
         <ProfileCover />
         <ProfileAvatar

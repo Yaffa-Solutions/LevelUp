@@ -64,8 +64,12 @@ const EditExperienceModal = ({
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/experiences/${experience.id}`,
       {
         method: 'PATCH',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, end_date: noEndDate ? null : form.end_date, }),
+        body: JSON.stringify({
+          ...form,
+          end_date: noEndDate ? null : form.end_date,
+        }),
       }
     )
       .then((res) => {

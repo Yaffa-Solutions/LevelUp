@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { User } from '@/app/types/userTypes';
-import UserCard from '../components/community/UserCard';
 import UsersCard from '../components/community/UsersCard';
 import Spinner from '../components/profile/Spinner';
 import { useRouter } from 'next/navigation';
 import { Search } from 'lucide-react';
+import UserCard from "../components/userCard";
+
 
 const CommunityPage = () => {
   const [talent, setTalent] = useState<User | null>(null);
@@ -16,34 +17,23 @@ const CommunityPage = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
 
-  // const userId = '11111111-1111-1111-1111-111111111111';
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`, {
-          method: "GET",
-          credentials: "include", // مهم إذا عندك cookies/session
-        });
-
-        if (!res.ok) throw new Error("Failed to fetch user");
-        const data = await res.json();
-        setUserId(data.id); // هنا نجيب الـ id من response
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    fetchUser();
-  }, []);
-
   useEffect(() => {
 
     const fetchTalents = async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/${userId}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/`,
+        { credentials: 'include' }
       );
+
+         if (res.status === 401) {
+           router.push('/signin');
+           return;
+      }
+      
       const userData = await res.json();
+      console.log(userData);
       setTalent(userData);
+      setUserId(userData.id)
 
        const isTalent = userData.role === 'TALENT' || userData.role === 'BOTH';
        const isHunter = userData.role === 'HUNTER' || userData.role === 'BOTH';
@@ -53,7 +43,7 @@ const CommunityPage = () => {
            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/level/${userData.level_id}`
          );
          const talentsData = await res2.json();
-         setSameLevelTalents(talentsData.filter((u: User) => u.id !== userId));
+         setSameLevelTalents(talentsData.filter((u: User) => u.id !== userData.id));
        } else if (isHunter) {
          const res3 = await fetch(
            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/talents`
@@ -74,7 +64,7 @@ const CommunityPage = () => {
     };
     fetchTalents();
     fetchHunters();
-  }, [userId]);
+  }, []);
 
 
   const filterTalents = sameLevelTalents.filter((u) =>
@@ -95,48 +85,54 @@ if (!talent ||  hunters.length === 0) {
 }
 
   return (
-    <div className="flex justify-center gap-20 mt-10 ">
-      <div>
-        {talent && (
-          <UserCard user={talent} onClick={() => router.push(`/profile/`)} />
-        )}
-      </div>
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-8">
+      <div className="flex gap-[40px] mt-20 mb-7">
+        <div>
+            <UserCard onClick={() => router.push(`/profile/`)} />
+        </div>
 
-      <div className="max-w-6xl p-7 bg-white rounded-2xl shadow-lg border border-gray-100">
-        <section className="mb-8">
-          <div className="flex items-center justify-between gap-5">
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900">Community</h2>
-              <p className="text-base font-normal text-gray-700 mb-4">
-                Explore profiles across the LevelUp community
-              </p>
-            </div>
+        <div className="w-3/5 p-5 bg-white rounded-2xl shadow-lg border border-gray-100">
+          <section className="mb-8">
+            <div className="flex items-center justify-between gap-5">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Community
+                </h2>
+                <p className="text-base font-normal text-gray-700 mb-4">
+                  Explore profiles across the LevelUp community
+                </p>
+              </div>
 
-            <div className="relative max-w-lg text-stone-950">
-              <Search
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                size={18}
-              />
-              <input
-                type="text"
-                placeholder="Search members by name..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-60 pl-9 pr-3 py-1.5 text-sm border border-gray-300 rounded-full 
+              <div className="relative max-w-lg text-stone-950">
+                <Search
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  size={18}
+                />
+                <input
+                  type="text"
+                  placeholder="Search members by name..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-60 pl-9 pr-3 py-1.5 text-sm border border-gray-300 rounded-full 
                        focus:outline-none focus:ring-1 focus:ring-indigo-500 transition"
-              />
+                />
+              </div>
             </div>
-          </div>
-        </section>
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Talents</h2>
-          <UsersCard users={filterTalents} />
-        </section>
+          </section>
+          <section className="mb-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              Talents
+            </h2>
+            <UsersCard users={filterTalents} />
+          </section>
 
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Hunters</h2>
-          <UsersCard users={filterHunters} />
-        </section>
+          <section className="mb-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              Hunters
+            </h2>
+            <UsersCard users={filterHunters} />
+          </section>
+        </div>
       </div>
     </div>
   );

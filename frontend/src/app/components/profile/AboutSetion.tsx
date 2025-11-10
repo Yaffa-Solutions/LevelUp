@@ -22,9 +22,10 @@ const AboutSection = ({
 
   const handleSave = (newAbout: string): Promise<void> => {
     return fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/${userId}/about`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/about`,
       {
         method: 'PATCH',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ about: newAbout }),
       }

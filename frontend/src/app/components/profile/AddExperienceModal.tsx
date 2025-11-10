@@ -64,6 +64,7 @@ const AddExperienceModal = ({
     setLoading(true);
     fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/experiences`, {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...form, user_id: userId, is_current: noEndDate }),
     })

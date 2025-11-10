@@ -35,9 +35,10 @@ const ProfileInfo = ({
     job_title?: string;
   }): Promise<void> => {
     return fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/${userId}/basic`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/basic`,
       {
         method: 'PATCH',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       }

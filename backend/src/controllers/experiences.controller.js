@@ -2,7 +2,8 @@ const experienceService = require('../services/experiences.service.js');
 
 const getTalentExperiences = async (req, res, next) => {
   try {
-    const { userId } = req.params;
+    const userId = req.user.userId;
+
     const talentExperiences = await experienceService.getTalentExperiences(
       userId
     );
@@ -14,8 +15,8 @@ const getTalentExperiences = async (req, res, next) => {
 
 const addNewExperience = async (req, res, next) => {
   try {
+    const userId = req.user.userId; 
     const {
-      user_id,
       company_name,
       position,
       start_date,
@@ -24,20 +25,20 @@ const addNewExperience = async (req, res, next) => {
       employment_type,
     } = req.body;
 
-    if (!user_id || !company_name || !position || !start_date) {
+    if (!company_name || !position || !start_date) {
       return res.status(400).json({
-        error: 'user_id, company_name, position and start_date are required',
+        error: 'company_name, position and start_date are required',
       });
     }
 
     const created = await experienceService.addNewExperience(
-      user_id,
+      userId,
       company_name,
       position,
       start_date,
       end_date,
       description,
-      employment_type,
+      employment_type
     );
     res.status(200).json(created);
   } catch (err) {
@@ -64,7 +65,7 @@ const updateExperience = async (req, res, next) => {
       start_date,
       end_date,
       description,
-      employment_type,
+      employment_type
     );
     res.status(200).json(updated);
   } catch (err) {
@@ -75,9 +76,9 @@ const updateExperience = async (req, res, next) => {
 const deleteExperience = async (req, res, next) => {
   try {
     const { id } = req.params;
-     if (!id) {
-       return res.status(400).json({ error: 'id is required' });
-     }
+    if (!id) {
+      return res.status(400).json({ error: 'id is required' });
+    }
     await experienceService.deleteExperience(id);
     res.status(200).json({ message: 'Experience deleted successfully' });
   } catch (err) {

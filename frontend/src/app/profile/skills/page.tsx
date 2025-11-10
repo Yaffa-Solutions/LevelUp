@@ -5,38 +5,57 @@ import { Trash2, ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { SkillTalent } from '@/app/types/userTypes';
+import { useRouter } from 'next/navigation';
 
 export default function AllSkillsPage() {
   const [skills, setSkills] = useState<SkillTalent[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
-  // const userId = '11111111-1111-1111-1111-111111111111';
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`,
-          {
-            method: 'GET',
-            credentials: 'include', // مهم إذا عندك cookies/session
-          }
-        );
+   const [error, setError] = useState<string | null>(null);
+   const [loading, setLoading] = useState(true);
+   const router = useRouter();
 
-        if (!res.ok) throw new Error('Failed to fetch user');
-        const data = await res.json();
-        setUserId(data.id); // هنا نجيب الـ id من response
-      } catch (err) {
-        console.error(err);
-      }
-    };
+ useEffect(() => {
+   const fetchUser = async () => {
+     try {
+       setLoading(true);
+       setError(null);
+       const res = await fetch(
+         `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`,
+         {
+           method: 'GET',
+           credentials: 'include',
+         }
+       );
 
-    fetchUser();
-  }, []);
+       if (!res.ok) {
+         if (res.status === 401) {
+           router.push('/signin');
+           return;
+         }
+         throw new Error(
+           `Failed to fetch user: ${res.status} ${res.statusText}`
+         );
+       }
 
+       const data = await res.json();
+       setUserId(data.id);
+     } catch (err) {
+       console.error('Error fetching user ID:', err);
+       setError(err instanceof Error ? err.message : 'Failed to fetch user');
+       setLoading(false);
+       router.push('/signin');
+
+     }
+   };
+
+   fetchUser();
+ }, [router]);
   useEffect(() => {
     const fetchSkills = async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/skills/talent/${userId}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/skills/talent`,
+          { credentials: 'include' }
         );
         if (!res.ok) throw new Error('Failed to fetch skills');
         const data = await res.json();
@@ -57,6 +76,7 @@ export default function AllSkillsPage() {
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/skills/${skillId}`,
         {
           method: 'DELETE',
+          credentials: 'include' 
         }
       );
 
@@ -75,7 +95,7 @@ export default function AllSkillsPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto  bg-white rounded-xl shadow-sm mt-5 p-11">
+    <div className="max-w-4xl mx-auto  bg-white rounded-xl shadow-sm mt-10 p-11">
       <div className="flex items-center mb-6">
         <Link
           href="/profile"

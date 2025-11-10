@@ -2,9 +2,19 @@ const userService = require('../services/user.service.js');
 
 const getUserById = async (req, res, next) => {
   try {
-    const { userId } = req.params;
+    const userId = req.user.userId;
     const user = await userService.findUserById(userId);
     if (!user) return res.status(404).json({ error: 'User not found' });
+    res.status(200).json(user);
+  } catch (err) {
+    next(err);
+  }
+};
+const getUserByIdPublic = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const user = await userService.findUserById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
     res.status(200).json(user);
   } catch (err) {
     next(err);
@@ -13,7 +23,7 @@ const getUserById = async (req, res, next) => {
 
 const updateProfilePicture = async (req, res, next) => {
   try {
-    const { userId } = req.params;
+    const userId = req.user.userId;
     const { profil_picture } = req.body;
     const updateUser = await userService.updateProfilePicture(
       userId,
@@ -27,7 +37,7 @@ const updateProfilePicture = async (req, res, next) => {
 
 const updateUserInfo = async (req, res, next) => {
   try {
-    const { userId } = req.params;
+    const userId = req.user.userId;
     const { first_name, last_name, job_title, company_name } = req.body;
     const updateUser = await userService.updateProfileInfo(
       userId,
@@ -44,7 +54,7 @@ const updateUserInfo = async (req, res, next) => {
 
 const updateAbout = async (req, res, next) => {
   try {
-    const { userId } = req.params;
+    const userId = req.user.userId;
     const { about } = req.body;
     const updateUser = await userService.updateAbout(userId, about);
     res.status(200).json(updateUser);
@@ -82,7 +92,7 @@ const getAllHunters = async (req, res, next) => {
 
 const updateCompanyDescription = async (req, res, next) => {
   try {
-    const { userId } = req.params;
+    const userId = req.user.userId;
     const { company_description } = req.body;
     const updateUser = await userService.updateCompanyDescription(
       userId,
@@ -96,6 +106,7 @@ const updateCompanyDescription = async (req, res, next) => {
 
 module.exports = {
   getUserById,
+  getUserByIdPublic,
   updateProfilePicture,
   updateUserInfo,
   updateAbout,

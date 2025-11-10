@@ -1,6 +1,7 @@
 const express = require('express');
 const {
   getUserById,
+  getUserByIdPublic,
   updateUserInfo,
   updateProfilePicture,
   updateAbout,
@@ -19,15 +20,17 @@ router.get('/hunters', getAllHunters);
 
 router.get('/level/:levelId', getTalentsByLevel);
 
-router.get('/:userId', getUserById);
+router.get('/',authenticate, getUserById);
 
-router.patch('/:userId/basic',authenticate, updateUserInfo);
+router.get('/:userId', getUserByIdPublic);
 
-router.patch('/:userId/profile-picture',authenticate, updateProfilePicture);
+router.patch('/basic',authenticate, updateUserInfo);
 
-router.patch('/:userId/about',authenticate, updateAbout);
+router.patch('/profile-picture',authenticate, updateProfilePicture);
 
-router.patch('/:userId/company-description',authenticate, updateCompanyDescription);
+router.patch('/about',authenticate, updateAbout);
+
+router.patch('/company-description',authenticate, updateCompanyDescription);
 
 
 

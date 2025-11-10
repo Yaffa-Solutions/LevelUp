@@ -8,7 +8,7 @@ const authenticate = require('../middleware/auth.middleware');
 
 const router = express.Router();
 
-router.get('/talent/:userId',authenticate, getTalentSkills);
+router.get('/talent',authenticate, getTalentSkills);
 
 router.post('/',authenticate, addTalentSkill);
 
