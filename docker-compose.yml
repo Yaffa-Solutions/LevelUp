@@ -8,45 +8,31 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: levelup
     ports:
-      - '5432:5432'
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres -d levelup']
-      interval: 3s
-      timeout: 3s
-      retries: 10
 
-  redis:
-    image: redis:latest
-    container_name: levelup-redis
-    ports:
-      - '6379:6379'
-    healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
-      interval: 3s
-      timeout: 3s
-      retries: 10
 
-  backend:
-    build: ./backend
-    container_name: levelup-backend
+  prisma:
+    image: node:20
+    container_name: levelup-prisma
     working_dir: /app
     volumes:
       - ./backend:/app
-      - /app/node_modules
-    environment:
-      DATABASE_URL: 'postgresql://postgres:postgres@postgres:5432/levelup?schema=public'
-      REDIS_URL: 'redis://redis:6379'
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    ports:
-      - '5000:5000'
-    command: >
-      bash -c "npx prisma generate && node src/index.js"
+      - postgres
+    command: tail -f /dev/null    
+
+
+  # backend:
+  #     build: ./backend
+  #     container_name: levelup-backend
+  #     working_dir: /app
+  #     volumes:
+  #       - ./backend:/app
+  #     depends_on:
+  #       - postgres
+  #     command: tail -f /dev/null
 
 volumes:
-  postgres_data:
+  postgres_data:   
