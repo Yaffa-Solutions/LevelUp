@@ -352,7 +352,7 @@ const handleSaveProfile = async () => {
   if (!lastName.trim()) newErrors.lastName = 'Last Name is required';
 
   if (role === 'talent') {
-    if (skills.length === 0) newErrors.skills = 'At least one skill is required';
+    if (skillss.length === 0) newErrors.skills = 'At least one skill is required';
   } else if (role === 'hunter') {
     if (!jobTitle.trim()) newErrors.jobTitle = 'Job Title is required';
   } else if (role === 'both') {
@@ -395,7 +395,7 @@ const handleSaveProfile = async () => {
     if (role.toUpperCase() === 'HUNTER') {
       router.push('/home'); 
     } else {
-      router.push('/chat'); 
+      router.push('/home'); 
     }
   } catch (error) {
     console.error(error);
@@ -474,7 +474,7 @@ const onSaveSkill = async (skillName: string, userId: string, onSuccessClose?: (
       )
     );
 
-    console.log(skills)
+    console.log(skillss)
     toast.success("Skill added successfully!");
     if (onSuccessClose) onSuccessClose();
   } catch (err) {

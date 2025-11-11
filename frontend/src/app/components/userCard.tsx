@@ -12,19 +12,61 @@ interface User {
 const UserCard = () =>{
   const [user, setUser] = useState<User | null>(null)
  
-  useEffect(() => {
+//   useEffect(() => {
+//   const fetchUser = async () => {
+//     try {
+//       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`, {
+//         credentials: "include"
+//       });
+//       if (!res.ok) throw new Error("Not authenticated");
+//       const userData = await res.json();
+//       console.log(userData)
+//       setUser(userData);
+//     } catch (err) {
+//       console.error(err);
+//     }
+//   }
+//   fetchUser();
+// }, []);
+useEffect(() => {
   const fetchUser = async () => {
     try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`, {
-        credentials: "include"
+        method: "GET",
+        credentials: 'include',
+        headers: { "Authorization": `Bearer ${token}` },
       });
-      if (!res.ok) throw new Error("Not authenticated");
-      const userData = await res.json();
-      setUser(userData);
+
+      const data = await res.json();
+
+      if (data.token) {
+        document.cookie = `token=${data.token}; path=/; max-age=${60*60*24}`;
+        localStorage.setItem('token', data.token);
+      }
+
+      // const userData = await res.json();
+      console.log(data)
+      setUser(data);
+      // console.log("Response from /user/me:", data);
+
+      // if (data.status === 'PROFILE_INCOMPLETE') {
+      //   if (data.userId) setUserId(data.userId);
+      //   return;
+      // }
+
+      // if (data.status === 'PROFILE_COMPLETE' && data.user) {
+      //   setUser(data.user);
+      //   // setUserId(data.user.id);
+      // }
+
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching user:', err);
     }
-  }
+  };
+
   fetchUser();
 }, []);
 

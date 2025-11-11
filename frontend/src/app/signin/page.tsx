@@ -43,7 +43,7 @@ const SignInContent = () =>{
   setErrors(newErrors)
 
   if (!newErrors.email && !newErrors.password) {
-    console.log(process.env.BACKEND_URL);
+    // console.log(process.env.BACKEND_URL);
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/signin`, {
         method: 'POST',
