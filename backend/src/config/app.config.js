@@ -1,6 +1,5 @@
 require('env2')('.env');
 
-
 module.exports = {
   appName: 'LevelUp',
   port: process.env.PORT || 5000,

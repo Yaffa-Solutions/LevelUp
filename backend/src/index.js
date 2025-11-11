@@ -1,6 +1,6 @@
-const app = require("./app");
-const port = app.get("port");
-
+require('dotenv').config();
+const app = require('./app');
+const { port } = require('./config/app.config');
 const http = require("http");
 const { Server } = require("socket.io");
 
