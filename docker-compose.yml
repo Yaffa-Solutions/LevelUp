@@ -17,6 +17,16 @@ services:
       timeout: 3s
       retries: 10
 
+  prisma:
+    image: node:20
+    container_name: levelup-prisma
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - postgres
+    command: tail -f /dev/null    
+
   redis:
     image: redis:latest
     container_name: levelup-redis

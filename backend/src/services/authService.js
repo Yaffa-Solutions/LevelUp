@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const { jwtSecret } = require('../config/app.config');
 const { sendOTP } = require('./emailService'); 
 const generateOTP = require('../utils/generateOTP');
+// const { PrismaClient } = require('../generated/prisma');
+// const prisma = new PrismaClient();
 
 const otpStore = new Map(); 
 const generateToken = (userId) => {
@@ -24,7 +26,7 @@ const signUp = async (email, password) => {
       last_name: 'Unknown',
       role: 'TALENT',
       is_verified: false,
-      level_id: 'c937bf29-6171-4637-9050-8408200f246a'
+      // level_id: 'c937bf29-6171-4637-9050-8408200f246a'
     }
   });
   const otp = generateOTP();
