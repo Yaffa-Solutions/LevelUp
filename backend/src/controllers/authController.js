@@ -38,9 +38,6 @@ const verifyOTP = async (req, res) => {
 
     const { user, token }   = await authService.verifyOTP(email, otp);
 
-    // res.clearCookie('token');
-    // const token = jwt.sign({ userId: user.id }, jwtSecret, { expiresIn: '1h' });
-
     res.cookie('token', token, {
       httpOnly: true,
       secure: false,

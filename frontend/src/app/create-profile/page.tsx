@@ -106,7 +106,7 @@ useEffect(() => {
         localStorage.setItem('token', data.token);
       }
 
-      // console.log("Response from /user/me:", data);
+      console.log("Response from /user/me:", data);
 
       if (data.status === 'PROFILE_INCOMPLETE') {
         if (data.userId) setUserId(data.userId);
@@ -357,7 +357,7 @@ const handleSaveProfile = async () => {
     if (!jobTitle.trim()) newErrors.jobTitle = 'Job Title is required';
   } else if (role === 'both') {
     if (!jobTitle.trim()) newErrors.jobTitle = 'Job Title is required';
-    if (skills.length === 0) newErrors.skills = 'At least one skill is required';
+    if (skillss.length === 0) newErrors.skills = 'At least one skill is required';
   }
 
   setErrors(newErrors);
@@ -386,7 +386,7 @@ const handleSaveProfile = async () => {
 
     const data = await res.json();
     if (!res.ok){
-      toast.error(`❌ Error: ${data.message || 'Failed to save profile'}`);
+      toast.error(` Error: ${data.message || 'Failed to save profile'}`);
       return;
     }
 

@@ -77,11 +77,9 @@ const toggleSaveJob = async (req, res) => {
     if (!userId) return res.status(401).json({ message: 'Unauthorized' });
     if (!jobId) return res.status(400).json({ message: 'Job ID missing' });
 
-    // تحقق إذا الوظيفة محفوظة بالفعل
     const saved = await jobService.getJobSave(userId, jobId);
 
     if (saved) {
-      // لو محفوظة، نحذفها
       await jobService.unsaveJob(userId, jobId);
       return res.json({ action: 'unsaved', message: 'Job removed from saved list.' });
     } else {
@@ -114,15 +112,6 @@ const getHunterJobs = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-
-// const createJob = async (req, res) => {
-//   try {
-//     const data = await jobService.createJob(req.user.id, req.body);
-//     res.json(data);
-//   } catch (err) {
-//     res.status(400).json({ message: err.message });
-//   }
-// };
 
 
 const createJob = async (req, res) => {

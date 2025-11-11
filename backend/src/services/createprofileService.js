@@ -63,7 +63,10 @@ const createUserProfile = async (data) =>{
         description: exp.description,
         start_date: new Date(exp.startDate),
         end_date: exp.isCurrent ? new Date() : new Date(exp.endDate),
-        employment_type: exp.employmentType,
+        // employment_type: exp.employmentType,
+        employment_type: exp.employment_type
+        ? exp.employment_type.toUpperCase().replace(/\s+/g, '_')
+        : 'FULL_TIME',
       },
     });
   }

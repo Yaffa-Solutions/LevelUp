@@ -388,10 +388,12 @@ export default function JobsPage() {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`, 
           { credentials: 'include' });
-        const userData: User = await res.json();
-        setUser(userData);
+        // const userData: User = await res.json();
+        const userData = await res.json()
+        console.log(userData)
+        setUser(userData.user);
 
-        if (userData.role === 'HUNTER') setActiveView('HUNTER');
+        if (userData.user.role === 'HUNTER') setActiveView('HUNTER');
         else setActiveView('TALENT');
       } catch (err) {
         console.error(err);

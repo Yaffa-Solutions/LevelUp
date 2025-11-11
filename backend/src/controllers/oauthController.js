@@ -22,11 +22,10 @@ const googleCallback = async (req, res) =>{
       maxAge: 60 * 60 * 1000    
     });
 
-    if (!user.first_name || !user.last_name) {
-      res.redirect(`${process.env.FRONTEND_URL}/create-profile`);
-    } else {
-      res.redirect(`${process.env.FRONTEND_URL}/home`);
+    if (!user.is_profile_complete) {
+      return res.redirect(`${process.env.FRONTEND_URL}/create-profile`);
     }
+    res.redirect(`${process.env.FRONTEND_URL}/home`);
   } catch (err) {
     console.error(err);
     res.redirect('/signin');
@@ -49,11 +48,15 @@ const googleSignupCallback = async (req, res) => {
       maxAge: 60 * 60 * 1000
     });
 
-    if (!user.first_name || !user.last_name) {
-      res.redirect(`${process.env.FRONTEND_URL}/create-profile`);
-    } else {
-      res.redirect(`${process.env.FRONTEND_URL}/home`);
+    // if (!user.first_name || !user.last_name) {
+    //   res.redirect(`${process.env.FRONTEND_URL}/create-profile`);
+    // } else {
+    //   res.redirect(`${process.env.FRONTEND_URL}/home`);
+    // }
+     if (!user.is_profile_complete) {
+      return res.redirect(`${process.env.FRONTEND_URL}/create-profile`);
     }
+    res.redirect(`${process.env.FRONTEND_URL}/home`);
   } catch (err) {
     console.error(err);
     res.redirect(`${process.env.FRONTEND_URL}/signup`);

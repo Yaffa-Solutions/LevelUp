@@ -152,24 +152,43 @@ const Home = () =>{
           credentials: "include"
         })
         if (!resUser.ok) throw new Error("User not authenticated")
-        const userData: User = await resUser.json()
-        setUser(userData)
+        // const userData: User = await resUser.json()
+      const data = await resUser.json()
+        setUser(data.user)
 
         const resPosts = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/withlikes`, {
           // headers: { Authorization: `Bearer ${token}` },
           credentials: "include"
         })
+        console.log("Fetched user:", data);
         const postsData = await resPosts.json()
+        // const mappedPosts: Post[] = postsData.map((p: RawPost) => {
+        //   const reactions : PostReaction[] = p.postReactions || []
+        //   const userLiked = reactions.some((r: PostReaction) => r.user_id === userData.id)
+        //   return {
+        //     ...p,
+        //     postReactions: reactions,
+        //     likes: reactions.length,
+        //     userLiked
+        //   }
+        // })
         const mappedPosts: Post[] = postsData.map((p: RawPost) => {
-          const reactions : PostReaction[] = p.postReactions || []
-          const userLiked = reactions.some((r: PostReaction) => r.user_id === userData.id)
-          return {
-            ...p,
-            postReactions: reactions,
-            likes: reactions.length,
-            userLiked
-          }
-        })
+  const reactions: PostReaction[] = p.postReactions || []
+  const userLiked = reactions.some(r => r.user_id === data.user.id) // <- هنا استخدم data.user.id مباشرة
+  return {
+    ...p,
+    postReactions: reactions,
+    likes: reactions.length,
+    userLiked,
+    user: {
+      id: p.user.userId || '',  // تأكد أن الـ user object كامل
+      first_name: p.user.first_name,
+      last_name: p.user.last_name,
+      profil_picture: p.user.profil_picture || null
+    }
+  }
+})
+
 
         setPosts(mappedPosts)
       } catch (err) {
@@ -182,8 +201,11 @@ const Home = () =>{
   }, [])
 
   const handleCreatePost = async () => {
-    if (!newPost.trim() || !user) return alert("Enter something to post")
+    // if (!newPost.trim() || !user) return alert("Enter something to post")
     // if (!token) return alert("You must be logged in")
+
+     if (!newPost.trim()) return alert("Enter something to post");
+   if (!user || !user.id) return alert("User data not loaded yet");
 
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/`, {
