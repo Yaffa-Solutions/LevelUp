@@ -1,7 +1,7 @@
 const developmentDatabaseConfig = {
   databaseUrl:
     process.env.DEV_DATABASE_URL ||
-    'postgres://user:password@localhost:5432/mydatabase',
+    'postgresql://postgres:postgres@levelup-db:5432/levelup?schema=public',
 };
 
 const productionDatabaseConfig = {
