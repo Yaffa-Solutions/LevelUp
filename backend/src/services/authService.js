@@ -24,7 +24,8 @@ const signUp = async (email, password) => {
       last_name: 'Unknown',
       role: 'TALENT',
       is_verified: false,
-      level_id: 'c937bf29-6171-4637-9050-8408200f246a'
+      level_id: 'c937bf29-6171-4637-9050-8408200f246a',
+      is_profile_complete: false,
     }
   });
   const otp = generateOTP();
@@ -66,17 +67,30 @@ const verifyOTP = async (email, otp) => {
     data: { is_verified: true }
   });
 
-  return generateToken(user.id);
+  const token =  generateToken(user.id);
+  return { user, token };
 }
+
 
 const signIn = async (email, password) => {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) throw new Error('User not found');
 
+  if (!user.is_verified) {
+    throw new Error('Email not verified');
+  }
+
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) throw new Error('Invalid credentials');
 
-  return generateToken(user.id);
+  const token = generateToken(user.id);
+  return {
+    token,
+    is_profile_complete: user.is_profile_complete,
+    is_verified: user.is_verified,
+    email: user.email,
+    id: user.id
+  };
 }
 
 const getAllUsers = async () => {

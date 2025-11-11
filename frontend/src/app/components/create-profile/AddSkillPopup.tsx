@@ -9,7 +9,7 @@ function AddSkillPopup({
   useEffect(()=>{ if(open) setVal(''); }, [open]);
 
   if (!open) return null;
-
+ 
   return (
     <div className="fixed inset-0 z-[70] grid place-items-center">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose}/>

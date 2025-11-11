@@ -24,7 +24,7 @@ const getUserById = async (userId) => {
   });
 
   if (!user) throw new Error('User not found');
-  await safeRedisSetEx(cacheKey, 600, JSON.stringify(user));
+  await safeRedisSetEx(cacheKey, 30, JSON.stringify(user));
   return user;
 };
 
@@ -55,8 +55,30 @@ const getUserByEmail = async (email) => {
   return user; 
 };
 
+const updateUserProfile = async (userId, data) => {
+  const updatedUser = await prisma.user.update({
+    where: { id: userId },
+    data,
+    select: {
+      id: true,
+      email: true,
+      first_name: true,
+      last_name: true,
+      profil_picture: true,
+      role: true,
+      levels: { select: { name: true } },
+    },
+  });
+
+
+  await safeRedisSetEx(`user:id:${userId}`, 0, '');
+  await safeRedisSetEx(`user:email:${updatedUser.email}`, 0, '');
+
+  return updatedUser;
+};
 
 module.exports = { 
   getUserById,
   getUserByEmail,
+  updateUserProfile
  };

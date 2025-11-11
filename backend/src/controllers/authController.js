@@ -13,10 +13,9 @@ const signUp = async (req, res) => {
     res.clearCookie('token');
     const token = jwt.sign({ userId: user.id }, jwtSecret, { expiresIn: '1h' });
 
-    // حفظ التوكن في الكوكي
     res.cookie('token', token, {
       httpOnly: true,
-      secure: false, // في production حطي true
+      secure: false, 
       sameSite: 'lax',
       maxAge: 60 * 60 * 1000
     });
@@ -37,10 +36,10 @@ const verifyOTP = async (req, res) => {
     if (!email || !otp)
       return res.status(400).json({ message: 'Email and OTP required' });
 
-    const user  = await authService.verifyOTP(email, otp);
+    const { user, token }   = await authService.verifyOTP(email, otp);
 
-    res.clearCookie('token');
-    const token = await authService.verifyOTP(email, otp);
+    // res.clearCookie('token');
+    // const token = jwt.sign({ userId: user.id }, jwtSecret, { expiresIn: '1h' });
 
     res.cookie('token', token, {
       httpOnly: true,
@@ -52,7 +51,8 @@ const verifyOTP = async (req, res) => {
     
     res.status(200).json({
       message: 'OTP verified successfully',
-      token
+      token,
+      is_profile_complete: user.is_profile_complete
     });
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -77,20 +77,41 @@ const signIn = async (req, res) => {
     if (!email || !password)
       return res.status(400).json({ message: 'Email and password required' });
 
-    const token = await authService.signIn(email, password);
+    const { token, is_profile_complete, id, email: userEmail } = await authService.signIn(email, password);
+
+
+     res.clearCookie('connect.sid', {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+    });
 
     res.cookie('token', token, {
       httpOnly: true,
-      // secure: process.env.NODE_ENV === 'production', 
-      secure: false,  
+      secure: false,
       sameSite: 'lax',
-      maxAge: 60 * 60 * 1000 
+      maxAge: 60 * 60 * 1000, 
     });
 
-    res.status(200).json({
+    if (!is_profile_complete) {
+      return res.status(200).json({
+        status: 'PROFILE_INCOMPLETE',
+        message: 'Profile not complete',
+        redirect: '/create-profile',
+        token,  
+        email: userEmail,
+        id
+      });
+    }
+   res.status(200).json({
       message: 'Login successful',
-      token
+      redirect: '/home',
+      token,
+      is_profile_complete,
+      email: userEmail,
+      id,
     });
+
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -106,11 +127,19 @@ const getAll = async (req, res) => {
 };
 
 const deleteUserByEmail = async (req, res) => {
+  const token = req.cookies?.token || req.header('Authorization')?.replace('Bearer ', '');
   try {
     const { email } = req.params;
     if (!email) return res.status(400).json({ message: 'Email required' });
 
     await authService.deleteUserByEmail(email);
+    if (token) {
+      const decoded = jwt.decode(token);
+      if (decoded?.exp) {
+        await addTokenToBlacklist(token, decoded.exp);
+      }
+    } 
+    res.clearCookie('token');
     res.status(200).json({ message: `User ${email} deleted successfully` });
   } catch (err) {
     res.status(400).json({ message: err.message });

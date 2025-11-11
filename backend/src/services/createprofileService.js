@@ -31,6 +31,7 @@ const createUserProfile = async (data) =>{
       company_description: companyDesc,
       profil_picture: profilePicture,
       updated_at: new Date(),
+      is_profile_complete: true,
     },
   });
 

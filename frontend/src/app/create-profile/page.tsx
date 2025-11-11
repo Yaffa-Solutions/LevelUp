@@ -5,14 +5,12 @@ import TextArea from '../components/create-profile/inputs/TextArea';
 // import Select from '../components/create-profile/inputs/Select';
 import AddExperienceModal from '../components/create-profile/AddExperienceModal';
 import AddSkillPopup from '../components/create-profile/AddSkillPopup';
-// import AddSkillMoadl from '../components/create-profile/AddSkillMoadl';
 import IconBtn from '../components/create-profile/common/IconBtn';
 import LabelRequired from '../components/create-profile/common/LabelRequired';
 // import CloseButton from '../components/create-profile/CloseButton';
 // import SaveButton from '../components/create-profile/AddButton'
 // import AddButton from '../components/create-profile/AddButton';
 import CVInfoModal from '../components/create-profile/newFeatureModal'
-
 
 import { toast } from 'react-hot-toast';
 
@@ -53,15 +51,27 @@ interface ExperienceBackendItem {
   end_date?: string;
   employment_type?: string;
 }
+
+interface Skill {
+  id: string; 
+  skill_name: string; 
+}
+
+interface TalentSkill {
+  id: string;          
+  user_id: string;
+  skill_id: string;
+  skill: Skill;        
+}
 export default function CreateProfilePage() {
-   const [role, setRole] = useState<Role>('talent'); 
+  const [role, setRole] = useState<Role>('talent'); 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName]   = useState('');
   const [about, setAbout]         = useState('');
   const [jobTitle, setJobTitle]   = useState('');
   const [company, setCompany]     = useState('');
   const [companyDesc, setCompanyDesc] = useState('');
-  const [skills, setSkills]       = useState<string[]>([]);
+  const [skills, setSkills]  = useState<Skill[]>([]);
   const [experiences, setExperiences] = useState<ExperienceItem[]>([
   ]);
   const [cvFile, setCvFile] = useState<File | null>(null);
@@ -72,34 +82,58 @@ export default function CreateProfilePage() {
   const [editIdx, setEditIdx] = useState<number | undefined>(undefined);
   const [openSkill, setOpenSkill] = useState(false);
   const [errors, setErrors] = useState<{ firstName?: string; lastName?: string; skills?: string; jobTitle?: string; }>({});
-  const [userId, setUserId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string >();
+  const [user, setUser] = useState<string | null>(null);
+  const [skillss, setSkillss] = useState<TalentSkill[]>([]);
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`, {
-          method: "GET",
-          credentials: "include", 
-        });
+useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
 
-        if (!res.ok) throw new Error("Failed to fetch user");
-        const data = await res.json();
-        setUserId(data.id); 
-      } catch (err) {
-        console.error(err);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`, {
+        method: "GET",
+        credentials: 'include',
+        headers: { "Authorization": `Bearer ${token}` },
+      });
+
+      const data = await res.json();
+
+      if (data.token) {
+        document.cookie = `token=${data.token}; path=/; max-age=${60*60*24}`;
+        localStorage.setItem('token', data.token);
       }
-    };
 
-    fetchUser();
-  }, []);
+      // console.log("Response from /user/me:", data);
+
+      if (data.status === 'PROFILE_INCOMPLETE') {
+        if (data.userId) setUserId(data.userId);
+        return;
+      }
+
+      if (data.status === 'PROFILE_COMPLETE' && data.user) {
+        setUser(data.user);
+        setUserId(data.user.id);
+      }
+
+    } catch (err) {
+      console.error('Error fetching user:', err);
+    }
+  };
+
+  fetchUser();
+}, []);
+
+
   
 useEffect(() => {
   if (!userId) return;
 
   const fetchExperiences = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/experiences/talent/${userId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/experiences/talent/`, {
         method: "GET",
         credentials: "include",
       });
@@ -124,6 +158,20 @@ useEffect(() => {
   };
 
   fetchExperiences();
+   const fetchSkills = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/skills/talent/`, {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to fetch skills");
+      const data: TalentSkill[] = await res.json();
+      setSkillss(data); 
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  fetchSkills();
 }, [userId]);
 
   const onPickAvatar = () => document.getElementById('avatar-input')?.click();
@@ -188,7 +236,28 @@ useEffect(() => {
   }
 };
 
-  const removeSkill = (s: string) => setSkills(prev => prev.filter(x => x !== s));
+
+  const removeSkill = async (talentSkillId: string) => {
+  if (!userId) return;
+
+  try {
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/skills/${talentSkillId}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ user_id: userId }), 
+    });
+
+    if (!res.ok) throw new Error("Failed to delete skill");
+
+    setSkillss(prev => prev.filter(s => s.id !== talentSkillId));
+    toast.success("Skill deleted successfully!");
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to delete skill");
+  }
+};
 
   const onSaveForm = async () => {
      try {
@@ -230,7 +299,12 @@ useEffect(() => {
        setJobTitle(parsedData.jobTitle ?? '');
        setCompany(parsedData.company ?? '');
        setAbout(parsedData.about ?? '');
-       setSkills(parsedData.skills ?? []);
+       setSkills(
+        Array.isArray(parsedData?.skills)
+          ? parsedData.skills.map((s, idx) => ({ id: `cv-${idx}`, skill_name: s }))
+          : []
+       );
+
        setExperiences(
        Array.isArray(parsedData.experiences)
          ? parsedData.experiences.map((exp: ExperienceItem) => ({
@@ -363,6 +437,62 @@ const defaultExp = typeof editIdx === 'number'
   : undefined;
 
 
+const onSaveSkill = async (skillName: string, userId: string, onSuccessClose?: () => void) => {
+  if (!userId) {
+    toast.error("User ID not available yet!");
+    return;
+  }
+
+  const tempId = `temp-${Date.now()}`;
+  setSkillss(prev => [...prev, { id: tempId, user_id: userId, skill_id: '', skill: { id: tempId, skill_name: skillName } }]);
+
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/skills/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ skill_name: skillName, user_id: userId }),
+    });
+
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData.message || 'Failed to add skill');
+    }
+
+    const newSkillFromBackend = await res.json();
+
+    setSkillss(prev =>
+      prev.map(s =>
+        s.id === tempId
+          ? {
+              id: newSkillFromBackend.id,
+              user_id: newSkillFromBackend.user_id,
+              skill_id: newSkillFromBackend.skill.id,
+              skill: { id: newSkillFromBackend.skill.id, skill_name: newSkillFromBackend.skill.skill_name }
+            }
+          : s
+      )
+    );
+
+    console.log(skills)
+    toast.success("Skill added successfully!");
+    if (onSuccessClose) onSuccessClose();
+  } catch (err) {
+    console.error(err);
+    setSkillss(prev => prev.filter(s => s.id !== tempId));
+    toast.error("Failed to add skill");
+  }
+};
+
+
+const handleAddSkillClick = () => {
+  if (!userId) {
+    console.log(userId)
+    toast.error("Please wait, your profile is still loading...");
+    return;
+  }
+  setOpenSkill(true);
+};
 
   return(
     <div className="min-h-[100svh] bg-[#f6f7fb] py-10 relative">
@@ -541,21 +671,30 @@ const defaultExp = typeof editIdx === 'number'
                 <LabelRequired>Skills</LabelRequired>
                 <button
                   className="flex items-center gap-2 rounded-full px-2 py-[2px] text-[13px] font-semibold text-[#7c3aed] hover:bg-purple-50"
-                  onClick={() => setOpenSkill(true)}
+                  onClick={()=>handleAddSkillClick()}
+
                 >
                   <span className="text-[18px] leading-none">+</span> Add Skills
                 </button>
               </div>
 
+             <div className="rounded-2xl border border-[#e7e7e7] p-4">
+              <span className="text-[12px] leading-none">+ Add Skills</span> 
               <div className="flex flex-wrap gap-2">
-                {skills.map((s) => (
-                  <span key={s} className="inline-flex items-center gap-1 rounded-full bg-[#f3e8ff] px-3 py-[6px] text-[12px] font-semibold text-[#7c3aed]">
-                    {s}
-                    <button onClick={() => removeSkill(s)} title="Remove" className="ml-1 rounded-full bg-[#e9d5ff] px-1 text-[12px] leading-none">x</button>
+                {skillss.map((s: TalentSkill) => (
+                  <span key={s.id} className="inline-flex items-center gap-1 rounded-full bg-[#f3e8ff] px-3 py-[6px] text-[12px] font-semibold text-[#7c3aed]">
+                    {s.skill.skill_name}
+                    <button 
+                    onClick={() => removeSkill(s.id)} 
+                    title="Remove" 
+                    className="ml-1 rounded-full bg-[#e9d5ff] px-1 text-[12px] leading-none">
+                      x
+                      </button>
                   </span>
                 ))}
               </div>
               {errors.skills && <span className="text-red-500 text-sm mt-1">{errors.skills}</span>}
+            </div>
             </div>
           )}
 
@@ -586,15 +725,19 @@ const defaultExp = typeof editIdx === 'number'
               />
             )}
 
-           <AddSkillPopup
-             open={openSkill}
-             onClose={() => setOpenSkill(false)}
-             onAdd={(val) => {
-               const v = val.trim();
-               if (v && !skills.includes(v)) setSkills(prev => [...prev, v]);
-               setOpenSkill(false);
-             }}        
-           />
+          
+          <AddSkillPopup
+            open={openSkill}
+            onClose={() => setOpenSkill(false)}
+            onAdd={(skillName) => {
+              if (!userId) {
+                toast.error("User ID not available yet!");
+                return;
+              }
+              onSaveSkill(skillName, userId, () => setOpenSkill(false));
+            }}
+          />
+
     </div>
     </div>
    

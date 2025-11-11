@@ -1,12 +1,3 @@
-// const express = require('express');
-// const router = express. Router();
-// const { createExperience } = require('../controllers/addexperienceController');
-// // router.use((req, res, next) => {
-// // req.userId = 'uuid-of-user'; 
-// // next();
-// // })
-// router.post('/', createExperience);
-// module.exports = router;
 const express = require('express');
 const {
   getTalentExperiences,
@@ -18,7 +9,7 @@ const  authenticate  = require('../middleware/auth.middleware');
 
 const router = express.Router();
 
-router.get('/talent/:id', authenticate, getTalentExperiences);
+router.get('/talent/', authenticate, getTalentExperiences);
 
 router.post('/', authenticate, addNewExperience);
 

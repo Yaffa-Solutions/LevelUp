@@ -2,7 +2,8 @@ const experienceService = require('../services/experienceService.js');
 
 const getTalentExperiences = async (req, res, next) => {
   try {
-    const { userId } = req.params;
+    // const { userId } = req.params;
+    const userId = req.user?.userId;
     const talentExperiences = await experienceService.getTalentExperiences(
       userId
     );
@@ -14,8 +15,8 @@ const getTalentExperiences = async (req, res, next) => {
 
 const addNewExperience = async (req, res, next) => {
   try {
+    const userId = req.user?.userId;
     const {
-      user_id,
       company_name,
       position,
       start_date,
@@ -24,14 +25,14 @@ const addNewExperience = async (req, res, next) => {
       employment_type,
     } = req.body;
 
-    if (!user_id || !company_name || !position || !start_date) {
+    if (!userId || !company_name || !position || !start_date) {
       return res.status(400).json({
         error: 'user_id, company_name, position and start_date are required',
       });
     }
 
     const created = await experienceService.addNewExperience(
-      user_id,
+      userId,
       company_name,
       position,
       start_date,

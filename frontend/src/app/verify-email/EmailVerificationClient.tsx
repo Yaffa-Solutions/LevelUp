@@ -6,7 +6,6 @@ import { toast } from 'react-hot-toast';
 export default function EmailVerification() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  // const email = searchParams.get('email') || '' 
   const [email, setEmail] = useState('') 
   const [otp, setOtp] = useState<string[]>(['', '', '', '', ''])
   const [timeLeft, setTimeLeft] = useState<number>(60)
@@ -58,12 +57,20 @@ export default function EmailVerification() {
       const data = await res.json()
 
       if (res.ok) {
-        router.push('/create-profile')
-      } else {
-        alert(data.message)
-        setOtp(['', '', '', '', ''])
-        inputRefs.current[0]?.focus()
+      if (data.token) {
+        localStorage.setItem('token', data.token)
       }
+      if (data.is_profile_complete) {
+       router.push('/chat') 
+      } else {
+        router.push('/create-profile')
+      }
+
+    } else {
+      alert(data.message)
+      setOtp(['', '', '', '', ''])
+      inputRefs.current[0]?.focus()
+    }
     } catch (err) {
       console.error(err)
       alert('Server error')

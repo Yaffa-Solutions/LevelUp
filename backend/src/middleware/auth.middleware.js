@@ -5,9 +5,7 @@ const { jwtSecret } = require('../config/app.config');
 
 const authenticate = async (req, res, next) => {
   const token = req.cookies?.token || req.header('Authorization')?.replace('Bearer ', '');
-  // if (!authHeader) return res.status(401).json({ message: 'Token is required' });
-
-  // const token = authHeader.split(' ')[1]; 
+ 
   if (!token) return res.status(401).json({ message: 'Token is required' });
 
   try {
@@ -24,7 +22,10 @@ const authenticate = async (req, res, next) => {
     if (!user) return res.status(401).json({ message: 'User no longer exists' });
 
     // req.user = decoded;
-    req.user = { userId: decoded.userId };
+    req.user = { 
+      userId: user.id, 
+      is_profile_complete: user.is_profile_complete 
+    };
     next();
   } catch (err) {
     res.status(401).json({ message: 'Invalid or expired token' });
