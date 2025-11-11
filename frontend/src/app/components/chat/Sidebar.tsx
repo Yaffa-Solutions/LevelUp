@@ -3,9 +3,9 @@ import { ActiveUserChat } from "@/app/chat/page";
 import { Chat, UserInfo } from "@/app/types/chat";
 import { useContext, useEffect, useState } from "react";
 
-const userId: string = "24aa37c7-1f98-4926-83f2-d3a121e39d4d";
+// const userId: string = "24aa37c7-1f98-4926-83f2-d3a121e39d4d";
 
-const Sidebar = () => {
+const Sidebar = ({ userId }: { userId: string }) => {
   const [chats, setChats] = useState<Chat[]>([]);
   const [user, setUser] = useState<UserInfo | null>(null);
   const { activeChat, setActiveChat } = useContext(ActiveUserChat)!;
