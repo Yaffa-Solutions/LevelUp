@@ -6,7 +6,7 @@ import ActiveChatWindow from "../components/chat/ActiveChatWindow";
 
 export const ActiveUserChat = createContext<ActiveChat|null>(null);
 
-export default function ChatPage() {
+export default function ChatPage(userId:string) {
   const [activeChat, setActiveChatState] = useState<{
     otherUser: UserInfo | null;
     activeChat: Chat | null;
@@ -20,7 +20,7 @@ export default function ChatPage() {
     <ActiveUserChat.Provider value={{...activeChat,setActiveChat}}>
       <div className="flex justify-between w-full overflow-hidden">
         <div className="w-[320px] shrink-0 border-r border-gray-200 bg-white">
-          <Sidebar />
+          <Sidebar userId={userId} />
         </div>
 
         <div className="flex-1 ">
