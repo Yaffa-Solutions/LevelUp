@@ -1,5 +1,10 @@
-const express = require('express');
+const express = require ('express');
 const cors = require('cors');
+
+const userRouter = require ('./routes/user.routes.js');
+const expRouter = require ('./routes/experiences.routes.js');
+const skillsRouter = require ('./routes/skills.routes.js');
+const uploadRouter = require('./routes/upload.route.js');
 const session = require('express-session');
 const oauthRoutes = require('./routes/oauthRoute');
 const passport = require('./config/passport');
@@ -20,16 +25,23 @@ const skillsRouteres = require ('./routes/skillsRoute');
 const cookieParser = require('cookie-parser');
 
 const app = express();
-
-app.use(cors({
-  origin:`${process.env.FRONTEND_URL}`, 
-  credentials: true 
-}));
+app.use(
+  cors({
+    origin: `${process.env.FRONTEND_URL}`,
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 app.use(sessionConfig);
 app.use(passport.initialize());
 app.use(passport.session());
+
+
+app.use('/api/user', userRouter);
+app.use('/api/experiences', expRouter);
+app.use('/api/skills', skillsRouter);
+app.use('/api', uploadRouter);
 
 app.use('/auth', authRoutes);
 app.use('/auth', oauthRoutes);
@@ -46,7 +58,17 @@ app.use('/experiences', experienceRoutes);
 app.use('/skills', skillsRouteres);
 
 app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({ error: 'Internal server error' });
+  console.error('Server Error:', err);
+
+  const status = err.status || 500;
+  const message =
+    status === 500
+      ? 'Something went wrong on our side. Please try again later.'
+      : err.message;
+
+  res.status(status).json({
+    success: false,
+    message,
+  });
 });
-module.exports = app
+module.exports = app;

@@ -145,7 +145,7 @@ const JobCard: React.FC<JobCardProps> = ({
             </button>
             <button 
               onClick={handleActionClick(onDetails, job.id)}
-               className="px-3 py-1 text-xs rounded-full border bg-gradient-to-r from-[#9333EA] to-[#2563EB] text-white rounded"
+               className="px-3 py-1 text-xs rounded-full border bg-gradient-to-r from-[#9333EA] to-[#2563EB] text-white"
             >
               Details
             </button>

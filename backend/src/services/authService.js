@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const { jwtSecret } = require('../config/app.config');
 const { sendOTP } = require('./emailService'); 
 const generateOTP = require('../utils/generateOTP');
+// const { PrismaClient } = require('../generated/prisma');
+// const prisma = new PrismaClient();
 
 const otpStore = new Map(); 
 const generateToken = (userId) => {
