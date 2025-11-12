@@ -6,7 +6,7 @@ interface User {
   first_name: string;
   last_name: string;
   profil_picture?: string | null;
-  levels?: { name: string }[];
+  levels?: { name: string }| null;
 }
 
 interface UserCardProps {
@@ -68,9 +68,7 @@ const UserCard: React.FC<UserCardProps> = () => {
           {user.first_name} {user.last_name}
         </h2>
         <p className="text-sm text-gray-500 mt-1">
-          {/* {user.levels?.length ? user.levels[0].name : "No Level Defined"} */}
-          {/* {user.levels?.name || "No Level Defined"} */}
-          {user.levels?.[0]?.name || "No Level Defined"}
+          {user.levels?.name || "No Level Defined"}
         </p>
       </div>
     </div>
