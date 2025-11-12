@@ -14,11 +14,8 @@ const AllExperiencesPage = () => {
   const [editingExperience, setEditingExperience] = useState<Experience | null>(
     null
   );
-  const [userId, setUserId] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
-  
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -39,14 +36,10 @@ const AllExperiencesPage = () => {
           );
         }
 
-        const data = await res.json();
-        setUserId(data.id);
+        await res.json();
       } catch (err) {
         console.error('Error fetching user ID:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch user');
-        setLoading(false);
         router.push('/signin');
-
       }
     };
 

@@ -7,14 +7,12 @@ import { toast } from 'react-hot-toast';
 
 type AboutProps = {
   about?: string;
-  userId: string;
   onUpdate: (newAbout: string) => void;
   isEditMode?: boolean;
 };
 
 const AboutSection = ({
   about,
-  userId,
   onUpdate,
   isEditMode = false,
 }: AboutProps) => {

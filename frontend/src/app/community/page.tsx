@@ -6,8 +6,7 @@ import UsersCard from '../components/community/UsersCard';
 import Spinner from '../components/profile/Spinner';
 import { useRouter } from 'next/navigation';
 import { Search } from 'lucide-react';
-import UserCard from "../components/userCard";
-
+import UserCard from '../components/userCard';
 
 const CommunityPage = () => {
   const [talent, setTalent] = useState<User | null>(null);
@@ -18,41 +17,46 @@ const CommunityPage = () => {
   const router = useRouter();
 
   useEffect(() => {
-
     const fetchTalents = async () => {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/`,
         { credentials: 'include' }
       );
 
-         if (res.status === 401) {
-           router.push('/signin');
-           return;
+      if (res.status === 401) {
+        router.push('/signin');
+        return;
       }
-      
+
       const userData = await res.json();
       console.log(userData);
       setTalent(userData);
-      setUserId(userData.id)
+      setUserId(userData.id);
 
-       const isTalent = userData.role === 'TALENT' || userData.role === 'BOTH';
-       const isHunter = userData.role === 'HUNTER' || userData.role === 'BOTH';
+      const isTalent = userData.role === 'TALENT' || userData.role === 'BOTH';
+      const isHunter = userData.role === 'HUNTER' || userData.role === 'BOTH';
 
-       if (isTalent && userData.level_id) {
-         const res2 = await fetch(
-           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/level/${userData.level_id}`
-         );
-         const talentsData = await res2.json();
-         setSameLevelTalents(talentsData.filter((u: User) => u.id !== userData.id));
-       } else if (isHunter) {
-         const res3 = await fetch(
-           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/talents`
-         );
-         const allTalents = await res3.json();
-         setSameLevelTalents(allTalents);
-       }
+      if (isTalent && userData.level_id) {
+        const res2 = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/level/${userData.level_id}`
+        );
+        const talentsData = await res2.json();
+        setSameLevelTalents(
+          talentsData.filter((u: User) => u.id !== userData.id)
+        );
+      } else if (isHunter) {
+        const res3 = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/talents`
+        );
+        const allTalents = await res3.json();
+        setSameLevelTalents(allTalents);
+      }
     };
 
+    fetchTalents();
+  }, [router]);
+
+  useEffect(() => {
     const fetchHunters = async () => {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/hunters`
@@ -60,12 +64,10 @@ const CommunityPage = () => {
       const huntersData = await res.json();
       console.log(huntersData);
 
-      setHunters(huntersData.filter((u: User) => u.id !== userId)); 
+      setHunters(huntersData.filter((u: User) => u.id !== userId));
     };
-    fetchTalents();
     fetchHunters();
-  }, []);
-
+  },[userId]);
 
   const filterTalents = sameLevelTalents.filter((u) =>
     `${u.first_name} ${u.last_name}`
@@ -80,15 +82,15 @@ const CommunityPage = () => {
       .includes(searchTerm.toLowerCase())
   );
 
-if (!talent ||  hunters.length === 0) {
-  return <Spinner />;
-}
+  if (!talent || hunters.length === 0) {
+    return <Spinner />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-8">
       <div className="flex gap-[40px] mt-20 mb-7">
         <div>
-            <UserCard onClick={() => router.push(`/profile/`)} />
+          <UserCard onClick={() => router.push(`/profile/`)} />
         </div>
 
         <div className="w-3/5 p-5 bg-white rounded-2xl shadow-lg border border-gray-100">
