@@ -8,10 +8,10 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [isLogged, setIsLogged] = useState(false);
 
-  useEffect(()=>{
+  useEffect(() => {
     const hasToken = document.cookie.includes("token");
-    if(hasToken) setIsLogged(true)
-  },[])
+    if (hasToken) setIsLogged(true);
+  }, []);
 
   const navLinks = [
     {
@@ -89,6 +89,77 @@ export default function Navbar() {
           >
             {navLinks.map((link) => {
               const active = pathname === link.href;
+
+              if (link.name === "AIBot") {
+                return (
+                  <div key="AIBot" className="relative group">
+                    <div
+                      className={`flex flex-row justify-start py-3 gap-2 mx-3 md:gap-0 md:py-0 md:flex-col items-center px-3 
+                        cursor-pointer rounded-lg transition-all duration-300 
+                        ${
+                          active
+                            ? "bg-gradient-to-r from-[#9333EA]/10 to-[#2563EB]/10"
+                            : ""
+                        }
+                      `}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="24"
+                        viewBox={link.viewBox || "0 0 16 16"}
+                      >
+                        <defs>
+                          <linearGradient
+                            id="grad-AIBot"
+                            x1="0%"
+                            y1="0%"
+                            x2="100%"
+                            y2="0%"
+                          >
+                            <stop offset="0%" stopColor="#9333EA" />
+                            <stop offset="100%" stopColor="#2563EB" />
+                          </linearGradient>
+                        </defs>
+                        <path fill="url(#grad-AIBot)" d={link.d}></path>
+                      </svg>
+
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs font-medium tracking-wider bg-gradient-to-r from-[#9333EA] to-[#2563EB] bg-clip-text text-transparent">
+                          AIBot
+                        </span>
+
+                        {/* arrow */}
+                        <svg
+                          className="fill-[#9333EA] group-hover:rotate-180 transition-all duration-200"
+                          width="12"
+                          height="12"
+                          viewBox="0 0 16 16"
+                        >
+                          <path d="M4 6l4 4 4-4z" />
+                        </svg>
+                      </div>
+                    </div>
+
+                    {/* dropdown */}
+                    <div className="absolute hidden group-hover:block top-12 bg-white shadow-lg rounded-lg py-2 w-32">
+                      <Link
+                        href="/chat_ai"
+                        className="block px-4 py-2 text-sm hover:bg-gray-100"
+                      >
+                        AI Bot
+                      </Link>
+                      <Link
+                        href="/chat"
+                        className="block px-4 py-2 text-sm hover:bg-gray-100"
+                      >
+                        Chats
+                      </Link>
+                    </div>
+                  </div>
+                );
+              }
+
+              // كل الروابط الثانية تبقى كما هي
               return (
                 <Link
                   key={link.name}

@@ -1,4 +1,8 @@
-const express = require ('express');
+const express = require("express");
+const { join } = require("path");
+const  config  = require("./config");
+const routes = require("./routes");
+const { errorHandler } = require("./middleware/error.middleware");
 const cors = require('cors');
 
 const userRouter = require ('./routes/user.routes.js');
@@ -20,13 +24,15 @@ const levelRoutes = require('./routes/levelRoute');
 const cookieParser = require('cookie-parser');
 
 const app = express();
-app.use(
-  cors({
-    origin: `${process.env.FRONTEND_URL}`,
-    credentials: true,
-  })
-);
+
+app.use(cors({
+  origin:`${process.env.FRONTEND_URL}`, 
+  credentials: true 
+}));
+
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(join(__dirname, './public')));
 app.use(cookieParser());
 app.use(sessionConfig);
 app.use(passport.initialize());
@@ -47,6 +53,9 @@ app.use('/plans', planRoutes)
 app.use('/jobs', jobRoutes);
 app.use('/levels', levelRoutes);
 
+app.use(routes);
+app.use(errorHandler);
+
 app.use((err, req, res, next) => {
   console.error('Server Error:', err);
 
@@ -61,4 +70,7 @@ app.use((err, req, res, next) => {
     message,
   });
 });
+
+app.set('port', config.app.port || 5000);
+
 module.exports = app;
