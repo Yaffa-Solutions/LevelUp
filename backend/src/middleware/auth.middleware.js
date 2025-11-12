@@ -6,10 +6,10 @@ const { jwtSecret } = require('../config/app.config');
 const authenticate = async (req, res, next) => {
   const token = req.cookies?.token || req.header('Authorization')?.replace('Bearer ', '');
  
+  console.log('Cookies:', req.cookies);
   if (!token) return res.status(401).json({ message: 'Token is required' });
 
   try {
-
     const blacklisted = await isTokenBlacklisted(token);
     if (blacklisted) {
       return res.status(401).json({ message: 'Token has been revoked' });

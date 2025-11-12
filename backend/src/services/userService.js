@@ -1,10 +1,6 @@
 const prisma = require('../config/db');
-// const { safeRedisGet, safeRedisSetEx } = require('./redisSafe');
 
 const getUserById = async (userId) => {
-  // const cacheKey = `user:id:${userId}`;
-  // const cached = await safeRedisGet(cacheKey);
-  // if (cached) return JSON.parse(cached);
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -15,24 +11,42 @@ const getUserById = async (userId) => {
       last_name: true,
       profil_picture: true,
       role: true,
+      about: true,
+      company_name: true,
+      job_title: true,
+      company_description: true,
       levels: {
         select: {
           name: true 
+        }
+      },
+      experiences: {
+        select: {
+          id: true,
+          company_name: true,
+          position: true,
+          start_date: true,
+          end_date: true,
+          description: true,
+          employment_type: true
+        }
+      },
+      skillTalents: {
+        select: {
+          id: true,
+          skill: {
+            select: { skill_name: true }
+          }
         }
       }
     }
   });
 
   if (!user) throw new Error('User not found');
-  // await safeRedisSetEx(cacheKey, 30, JSON.stringify(user));
   return user;
 };
 
 const getUserByEmail = async (email) => {
-  // const cacheKey = `user:email:${email}`;
-  // const cachedUser = await safeRedisGet(cacheKey);
-
-  // if (cachedUser) return JSON.parse(cachedUser);
   const user = await prisma.user.findUnique({
     where: { email: email },
     select: {
@@ -42,6 +56,8 @@ const getUserByEmail = async (email) => {
       last_name: true,
       profil_picture: true,
       role: true,
+      is_verified: true,          
+      is_profile_complete: true,
       levels: {
         select: {
           name: true
@@ -49,9 +65,6 @@ const getUserByEmail = async (email) => {
       }
     }
   });
-  // if (user) {
-  //   await safeRedisSetEx(cacheKey, 600, JSON.stringify(user));
-  // }
   return user; 
 };
 
@@ -69,10 +82,6 @@ const updateUserProfile = async (userId, data) => {
       levels: { select: { name: true } },
     },
   });
-
-
-  // await safeRedisSetEx(`user:id:${userId}`, 0, '');
-  // await safeRedisSetEx(`user:email:${updatedUser.email}`, 0, '');
 
   return updatedUser;
 };

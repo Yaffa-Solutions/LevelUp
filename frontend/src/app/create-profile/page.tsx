@@ -2,20 +2,16 @@
 import React, { useEffect, useState } from 'react';
 import Input from '../components/create-profile/inputs/Input';
 import TextArea from '../components/create-profile/inputs/TextArea';
-// import Select from '../components/create-profile/inputs/Select';
 import AddExperienceModal from '../components/create-profile/AddExperienceModal';
 import AddSkillPopup from '../components/create-profile/AddSkillPopup';
 import IconBtn from '../components/create-profile/common/IconBtn';
 import LabelRequired from '../components/create-profile/common/LabelRequired';
-// import CloseButton from '../components/create-profile/CloseButton';
-// import SaveButton from '../components/create-profile/AddButton'
-// import AddButton from '../components/create-profile/AddButton';
 import CVInfoModal from '../components/create-profile/newFeatureModal'
 
 import { toast } from 'react-hot-toast';
 
 import Image from "next/image";
-// import AddSkillModal from '../components/create-profile/AddSkillMoadl';
+
 import { useRouter } from 'next/navigation';
 
 type Role = 'talent' | 'hunter' | 'both';
@@ -372,8 +368,16 @@ const handleSaveProfile = async () => {
       jobTitle,
       company,
       companyDesc,
-      skills,
-      experiences,
+       skills: skillss.map(s => s.skill.skill_name), 
+       experiences: experiences.map(exp => ({
+         company: exp.company,
+         position: exp.position,
+         startDate: exp.startDate,
+         endDate: exp.endDate,
+         description: exp.description,
+         employmentType: exp.employmentType,
+         isCurrent: exp.isCurrent,
+       })), 
       profilePicture: avatarUrl, 
     };
 
@@ -395,7 +399,7 @@ const handleSaveProfile = async () => {
     if (role.toUpperCase() === 'HUNTER') {
       router.push('/home'); 
     } else {
-      router.push('/home'); 
+      router.push('/chat'); 
     }
   } catch (error) {
     console.error(error);

@@ -45,7 +45,6 @@ model UserLevels {
 }
 
 model User {
-<<<<<<< HEAD
   id                 String       @id @default(uuid())
   email              String      @unique
   password           String?
@@ -64,25 +63,6 @@ model User {
   company_name       String?
   job_title          String?
   company_description String?
-=======
-  id                   String        @id @default(uuid())
-  email                String        @unique
-  password             String?
-  google_id            String?       @unique
-  cv_url               String?
-  first_name           String
-  last_name            String
-  profil_picture       String?
-  is_verified          Boolean
-  created_at           DateTime      @default(now())
-  updated_at           DateTime      @updatedAt
-  role                 Role
-  about                String?
-  level_id             String?
-  company_name         String?
-  job_title            String?
-  company_description  String?
->>>>>>> origin/develop
 
   // Relations
   levels               UserLevels?   @relation(fields: [level_id], references: [id])

@@ -14,79 +14,41 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-
-  useEffect(() => {
+   useEffect(() => {
     const fetchUser = async () => {
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`,
-          {
-            method: 'GET',
-            credentials: 'include',
-          }
-        );
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`, {
+          method: 'GET',
+          credentials: 'include',
+        });
 
         if (!res.ok) {
           if (res.status === 401) {
             router.push('/signin');
             return;
           }
-          throw new Error(
-            `Failed to fetch user: ${res.status} ${res.statusText}`
-          );
+          throw new Error(`Failed to fetch user: ${res.status} ${res.statusText}`);
         }
 
         const data = await res.json();
-        setUserId(data.id);
+        console.log('Fetched user:', data);
+        setUser(data.user);
       } catch (err) {
-        console.error('Error fetching user ID:', err);
+        console.error('Error fetching user:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch user');
-        setLoading(false);
         router.push('/signin');
-
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchUser();
   }, [router]);
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (!userId) return;
-      try {
-        setLoading(true);
-        setError(null);
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/`,
-          {
-            credentials: 'include',
-          }
-        );
-
-        if (!res.ok) {
-          throw new Error(
-            `Failed to fetch user data: ${res.status} ${res.statusText}`
-          );
-        }
-
-        const data = await res.json();
-        setUser(data);
-      } catch (err) {
-        console.error('Error fetching user data:', err);
-        setError(
-          err instanceof Error ? err.message : 'Failed to fetch user data'
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserData();
-  }, [userId]);
-
   if (loading) return <Spinner />;
+  if (error) return <p className="text-red-500">{error}</p>;
   if (!user) return <Spinner />;
 
   return (
