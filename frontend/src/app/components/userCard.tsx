@@ -9,7 +9,11 @@ interface User {
   levels?: { name: string }[];
 }
 
-const UserCard = () => {
+interface UserCardProps {
+  onClick?: () => void;
+}
+
+const UserCard: React.FC<UserCardProps> = () => {
   const [user, setUser] = useState<User | null>(null);
 
   const fetchUser = async () => {
@@ -65,7 +69,8 @@ const UserCard = () => {
         </h2>
         <p className="text-sm text-gray-500 mt-1">
           {/* {user.levels?.length ? user.levels[0].name : "No Level Defined"} */}
-          {user.levels?.name || "No Level Defined"}
+          {/* {user.levels?.name || "No Level Defined"} */}
+          {user.levels?.[0]?.name || "No Level Defined"}
         </p>
       </div>
     </div>
