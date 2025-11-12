@@ -7,14 +7,12 @@ import toast from 'react-hot-toast';
 import Image from 'next/image';
 
 type ProfileAvatarProps = {
-  userId: string;
   avatarUrl: string;
   isEditMode: boolean;
   onUpdate?: (partial: { profil_picture?: string | null }) => void;
 };
 
 const ProfileAvatar = ({
-  userId,
   avatarUrl,
   isEditMode,
   onUpdate,

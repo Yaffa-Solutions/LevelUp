@@ -23,7 +23,6 @@ const ProfilePage = ({ user, isEditMode = false, onUpdate }: ProfileProps) => {
       <section className="max-w-4xl mx-auto  bg-white rounded-xl shadow-sm">
         <ProfileCover />
         <ProfileAvatar
-          userId={user.id}
           avatarUrl={user.profil_picture}
           isEditMode={isEditMode}
         />
@@ -34,7 +33,6 @@ const ProfilePage = ({ user, isEditMode = false, onUpdate }: ProfileProps) => {
           levelName={user.levels?.name}
           companyName={user.company_name}
           role={user.role}
-          userId={user.id}
           isEditMode={isEditMode}
           onUpdate={onUpdate}
         />
@@ -43,7 +41,6 @@ const ProfilePage = ({ user, isEditMode = false, onUpdate }: ProfileProps) => {
       <section className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm mb-3">
         <AboutSection
           about={user.about}
-          userId={user.id}
           isEditMode={isEditMode}
           onUpdate={(newAbout) => onUpdate && onUpdate({ about: newAbout })}
         />
@@ -53,7 +50,6 @@ const ProfilePage = ({ user, isEditMode = false, onUpdate }: ProfileProps) => {
         <section className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm mb-3">
           <CompanyDescriptionSection
             companyDescription={user.company_description}
-            userId={user.id}
             isEditMode={isEditMode}
             onUpdate={(newDescription) =>
               onUpdate && onUpdate({ company_description: newDescription })

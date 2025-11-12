@@ -5,7 +5,6 @@ import toast from 'react-hot-toast';
 import { User } from '@/app/types/userTypes';
 
 type ProfileInfoProps = {
-  userId: string;
   firstName: string;
   lastName: string;
   jobTitle?: string;
@@ -23,7 +22,6 @@ const ProfileInfo = ({
   levelName,
   companyName,
   role,
-  userId,
   onUpdate,
   isEditMode = false,
 }: ProfileInfoProps) => {

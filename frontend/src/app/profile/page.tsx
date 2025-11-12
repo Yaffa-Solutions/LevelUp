@@ -10,7 +10,6 @@ import { useRouter } from 'next/navigation';
 const ProfilePage = () => {
   const [user, setUser] = useState<User | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -19,7 +18,6 @@ const ProfilePage = () => {
     const fetchUser = async () => {
       try {
         setLoading(true);
-        setError(null);
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`,
           {
@@ -42,7 +40,6 @@ const ProfilePage = () => {
         setUserId(data.id);
       } catch (err) {
         console.error('Error fetching user ID:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch user');
         setLoading(false);
         router.push('/signin');
 
@@ -57,7 +54,6 @@ const ProfilePage = () => {
       if (!userId) return;
       try {
         setLoading(true);
-        setError(null);
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/`,
           {
@@ -75,9 +71,6 @@ const ProfilePage = () => {
         setUser(data);
       } catch (err) {
         console.error('Error fetching user data:', err);
-        setError(
-          err instanceof Error ? err.message : 'Failed to fetch user data'
-        );
       } finally {
         setLoading(false);
       }

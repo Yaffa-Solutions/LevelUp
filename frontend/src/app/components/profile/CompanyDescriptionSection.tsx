@@ -7,14 +7,12 @@ import { toast } from 'react-hot-toast';
 
 type CompanyDescriptionProps = {
   companyDescription?: string;
-  userId: string;
   onUpdate: (newDescription: string) => void;
   isEditMode?: boolean;
 };
 
 const CompanyDescriptionSection = ({
   companyDescription,
-  userId,
   onUpdate,
   isEditMode = false,
 }: CompanyDescriptionProps) => {

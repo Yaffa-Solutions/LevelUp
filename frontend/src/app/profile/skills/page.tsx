@@ -10,15 +10,12 @@ import { useRouter } from 'next/navigation';
 export default function AllSkillsPage() {
   const [skills, setSkills] = useState<SkillTalent[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
-   const [error, setError] = useState<string | null>(null);
-   const [loading, setLoading] = useState(true);
-   const router = useRouter();
+  const router = useRouter();
 
  useEffect(() => {
    const fetchUser = async () => {
      try {
-       setLoading(true);
-       setError(null);
+  
        const res = await fetch(
          `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`,
          {
@@ -41,8 +38,6 @@ export default function AllSkillsPage() {
        setUserId(data.id);
      } catch (err) {
        console.error('Error fetching user ID:', err);
-       setError(err instanceof Error ? err.message : 'Failed to fetch user');
-       setLoading(false);
        router.push('/signin');
 
      }
