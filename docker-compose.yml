@@ -43,7 +43,7 @@ services:
     container_name: levelup-backend
     working_dir: /app
     volumes:
-      - ./backend:/app
+      - ./backend:/app:cached
       - /app/node_modules
     environment:
       DATABASE_URL: 'postgresql://postgres:postgres@postgres:5432/levelup?schema=public'
@@ -56,7 +56,9 @@ services:
     ports:
       - '5000:5000'
     command: >
-      bash -c "npx prisma generate && node src/index.js"
+      bash -c "./wait-for-it.sh postgres:5432 -- nodemon -L --watch src --delay 100ms src/index.js"
+    
+
 
 volumes:
   postgres_data:

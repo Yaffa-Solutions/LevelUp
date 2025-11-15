@@ -4,8 +4,7 @@ const jwt = require('jsonwebtoken');
 const { jwtSecret } = require('../config/app.config');
 const { sendOTP } = require('./emailService'); 
 const generateOTP = require('../utils/generateOTP');
-// const { PrismaClient } = require('../generated/prisma');
-// const prisma = new PrismaClient();
+
 
 const otpStore = new Map(); 
 const generateToken = (userId) => {
@@ -26,7 +25,7 @@ const signUp = async (email, password) => {
       last_name: 'Unknown',
       role: 'TALENT',
       is_verified: false,
-      level_id,
+      // level_id,
       is_profile_complete: false,
     }
   });
@@ -74,13 +73,22 @@ const verifyOTP = async (email, otp) => {
 }
 
 
+
+
 const signIn = async (email, password) => {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) throw new Error('User not found');
 
   if (!user.is_verified) {
-    throw new Error('Email not verified');
+    const otp = generateOTP();
+    const expiresAt = Date.now() + 5 * 60 * 1000; 
+    otpStore.set(email, { otp, expiresAt });
+    await sendOTP(email, otp);
+
+    return { status: 'VERIFY_EMAIL', email };
   }
+
+  if (!user.password) throw new Error('User password is missing');
 
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) throw new Error('Invalid credentials');
@@ -94,7 +102,6 @@ const signIn = async (email, password) => {
     id: user.id
   };
 }
-
 const getAllUsers = async () => {
   return await prisma.user.findMany();
 }

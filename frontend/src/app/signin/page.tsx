@@ -54,28 +54,113 @@ const SignInContent = () =>{
 
       const data = await res.json()
 
-      if (res.ok) {
-        if (data.token) saveToken(data.token) 
-         if (data.status === 'PROFILE_INCOMPLETE') {
+      // if (res.ok) {
+      //   if (data.token) saveToken(data.token) 
+      //    if (data.status === 'PROFILE_INCOMPLETE') {
 
-           toast('Please complete your profile details to proceed.', { icon: '⚠️' });
-           router.push(`/create-profile`);
-           return; 
-        }
-         router.push("/home");
-       } else {
-         if (data.message === 'Invalid credentials') {
-           setErrors(prev => ({ ...prev, password: 'Wrong email or password' }));
-         } else if (data.message === 'Email not verified') {
-           toast.error('Please verify your email before signing in.');
-           router.push(`/verify-email?email=${encodeURIComponent(email)}`);
-         } else {
-           toast.error(data.message || 'Sign in failed');
-         }
-       }
+      //      toast('Please complete your profile details to proceed.', { icon: '⚠️' });
+      //      router.push(`/create-profile`);
+      //      return; 
+      //   }
+      //   //  router.push("/home");
+      //  } else {
+      //    if (data.message === 'Invalid credentials') {
+      //      setErrors(prev => ({ ...prev, password: 'Wrong email or password' }));
+      //    } else if (data.status === 'VERIFY_EMAIL') {
+      //      toast.error('Please verify your email before signing in.');
+      //      router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+      //    } else {
+      //      toast.error(data.message || 'Sign in failed');
+      //    }
+      //  }
+
+//       if (res.ok) {
+//   if (data.status === 'VERIFY_EMAIL') {
+//     toast.error('Please verify your email before signing in.');
+//     router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+//     return;
+//   }
+
+//   if (data.status === 'PROFILE_INCOMPLETE' || !data.is_profile_complete) {
+//     toast('Please complete your profile details to proceed.', { icon: '⚠️' });
+//     router.push(`/create-profile`);
+//     return;
+//   }
+
+//   // كل شيء تمام → الهوم
+//   if (data.token) saveToken(data.token)
+//   router.push("/home");
+
+// } else {
+//   if (data.message === 'Invalid credentials') {
+//     setErrors(prev => ({ ...prev, password: 'Wrong email or password' }));
+//   } else {
+//     toast.error(data.message || 'Sign in failed');
+//   }
+// }
+
+
+ if (!res.ok) {
+      if (data.message === 'Invalid credentials') {
+        setErrors(prev => ({ ...prev, password: 'Wrong email or password' }));
+      } else if (data.status === 'VERIFY_EMAIL') {
+        toast.error('Please verify your email before signing in.');
+        router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+      } else {
+        toast.error(data.message || 'Sign in failed');
+      }
+      return;
+    }
+
+    // 🔹 التعامل مع حالات الريدايركت أولًا
+    if (data.status === 'VERIFY_EMAIL') {
+      toast.error('Please verify your email before signing in.');
+      router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+      return;
+    }
+
+    if (data.status === 'PROFILE_INCOMPLETE') {
+      toast('Please complete your profile details to proceed.', { icon: '⚠️' });
+      saveToken(data.token);
+      router.push(`/create-profile`);
+      return;
+    }
+
+    // 🔹 لو كل شيء تمام → الهوم
+    if (data.token) saveToken(data.token);
+    router.push('/home');
+
+      //  if (!res.ok) {
+      //     // ⚠ التعامل مع المستخدم غير مفعل
+      //     if ( data.status === 'VERIFY_EMAIL') {
+      //       toast.error('Please verify your email before signing in.')
+      //       router.push(`/verify-email?email=${encodeURIComponent(email)}`)
+      //       return
+      //     }
+      //     if (data.message === 'Invalid credentials') {
+      //       setErrors(prev => ({ ...prev, password: 'Wrong email or password' }))
+      //       return
+      //     }
+      //     toast.error(data.message || 'Sign in failed')
+      //     return
+      //   }
+
+      //   // حفظ التوكن
+      //   if (data.token) saveToken(data.token)
+
+      //   // تحقق حالة البروفايل
+      //   if (data.status === 'PROFILE_INCOMPLETE' || !data.is_profile_complete) {
+      //     toast('Please complete your profile details.', { icon: '⚠️' })
+      //     router.push(`/create-profile`)
+      //     return
+      //   }
+
+      //   // كل شيء تمام → الهوم
+      //   router.push('/home')
 
     } catch (error) {
-     console.error(error)
+     console.error(error);
+     toast.error('Sign in failed, try again.');
    }
   }
 }

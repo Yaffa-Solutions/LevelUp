@@ -9,6 +9,6 @@ RUN npm install
 
 COPY wait-for-it.sh ./
 RUN chmod +x wait-for-it.sh
-
+COPY . .
 # CMD ["sh","./wait-for-it.sh", "levelup-db:5432", "--","nodemon", "src/index.js"]
-CMD ["bash","./wait-for-it.sh", "levelup-db:5432", "--","nodemon", "src/index.js"]
+# CMD ["bash","./wait-for-it.sh", "levelup-db:5432", "--","nodemon", "src/index.js"]

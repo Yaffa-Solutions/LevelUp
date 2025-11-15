@@ -68,7 +68,7 @@ const UserCard: React.FC<UserCardProps> = () => {
           {user.first_name} {user.last_name}
         </h2>
         <p className="text-sm text-gray-500 mt-1">
-          {user.levels?.name || "No Level Defined"}
+          {user.levels?.name }
         </p>
       </div>
     </div>

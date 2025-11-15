@@ -42,9 +42,7 @@ passport.use('google-signup', new GoogleStrategy({
           last_name: profile.name?.familyName || 'Unknown',
           role: 'TALENT',
           is_verified: true,
-          levels: {
-              connect: { id: 'e5c819d7-eb51-4595-aba2-e3475ce5a0eb' }  
-          }
+         is_profile_complete: false,
         }
       });
     }

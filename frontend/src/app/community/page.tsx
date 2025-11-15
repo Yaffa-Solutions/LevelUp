@@ -14,57 +14,39 @@ const CommunityPage = () => {
   const [sameLevelTalents, setSameLevelTalents] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [hunters, setHunters] = useState<User[]>([]);
-  const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
 
-    const fetchTalents = async () => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/`,
-        { credentials: 'include' }
-      );
+    const fetchData = async () => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/`, { credentials: 'include' });
+    if (res.status === 401) {
+      router.push('/signin');
+      return;
+    }
+    const userData = await res.json();
+    setTalent(userData);
+    const currentUserId = userData.id;
 
-         if (res.status === 401) {
-           router.push('/signin');
-           return;
-      }
-      
-      const userData = await res.json();
-      console.log(userData);
-      setTalent(userData);
-      setUserId(userData.id)
+    // Talents
+    if ((userData.role === 'TALENT' || userData.role === 'BOTH') && userData.level_id) {
+      const resTalents = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/level/${userData.level_id}`);
+      const talentsData = await resTalents.json();
+      setSameLevelTalents(talentsData.filter((u: User) => u.id !== currentUserId));
+    } else if (userData.role === 'HUNTER' || userData.role === 'BOTH') {
+      const resTalents = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/talents`);
+      const talentsData = await resTalents.json();
+      setSameLevelTalents(talentsData.filter((u: User) => u.id !== currentUserId));
+    }
 
-       const isTalent = userData.role === 'TALENT' || userData.role === 'BOTH';
-       const isHunter = userData.role === 'HUNTER' || userData.role === 'BOTH';
+    // Hunters
+    const resHunters = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/hunters`);
+    const huntersData = await resHunters.json();
+    setHunters(huntersData.filter((u: User) => u.id !== currentUserId));
+  };
 
-       if (isTalent && userData.level_id) {
-         const res2 = await fetch(
-           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/level/${userData.level_id}`
-         );
-         const talentsData = await res2.json();
-         setSameLevelTalents(talentsData.filter((u: User) => u.id !== userData.id));
-       } else if (isHunter) {
-         const res3 = await fetch(
-           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/talents`
-         );
-         const allTalents = await res3.json();
-         setSameLevelTalents(allTalents);
-       }
-    };
-
-    const fetchHunters = async () => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/hunters`
-      );
-      const huntersData = await res.json();
-      console.log(huntersData);
-
-      setHunters(huntersData.filter((u: User) => u.id !== userId)); 
-    };
-    fetchTalents();
-    fetchHunters();
-  }, []);
+  fetchData();
+  });
 
 
   const filterTalents = sameLevelTalents.filter((u) =>

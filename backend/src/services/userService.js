@@ -10,7 +10,7 @@ const getUserById = async (userId) => {
       first_name: true,
       last_name: true,
       profil_picture: true,
-      role: true,
+      role: true, 
       about: true,
       company_name: true,
       job_title: true,
@@ -55,12 +55,33 @@ const getUserByEmail = async (email) => {
       first_name: true,
       last_name: true,
       profil_picture: true,
-      role: true,
-      is_verified: true,          
-      is_profile_complete: true,
+      role: true, 
+      about: true,
+      company_name: true,
+      job_title: true,
+      company_description: true,
       levels: {
         select: {
-          name: true
+          name: true 
+        }
+      },
+      experiences: {
+        select: {
+          id: true,
+          company_name: true,
+          position: true,
+          start_date: true,
+          end_date: true,
+          description: true,
+          employment_type: true
+        }
+      },
+      skillTalents: {
+        select: {
+          id: true,
+          skill: {
+            select: { skill_name: true }
+          }
         }
       }
     }

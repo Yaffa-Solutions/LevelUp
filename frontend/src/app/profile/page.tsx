@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Profile from '../components/profile';
 import { User } from '@/app/types/userTypes';
 import Spinner from '../components/profile/Spinner';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 
 
 const ProfilePage = () => {
@@ -13,12 +13,15 @@ const ProfilePage = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const params = useParams(); 
+  const slug = params?.slug; 
 
    useEffect(() => {
     const fetchUser = async () => {
       try {
         setLoading(true);
         setError(null);
+        
         const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`, {
           method: 'GET',
           credentials: 'include',
@@ -46,6 +49,48 @@ const ProfilePage = () => {
 
     fetchUser();
   }, [router]);
+
+  //  useEffect(() => {
+  //   const fetchUser = async () => {
+  //     try {
+  //       setLoading(true);
+  //       setError(null);
+
+  //       // 👇 هنا الطريقة تعتمد على تخزين الـID مؤقتًا في localStorage
+  //       const userId = localStorage.getItem('profileUserId');
+  //       if (!userId) {
+  //         // إذا ما في ID، رجع للصفحة الرئيسية أو صفحة تسجيل دخول
+  //         router.push('/signin');
+  //         return;
+  //       }
+
+  //       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/${userId}`, {
+  //         method: 'GET',
+  //         credentials: 'include',
+  //       });
+
+  //       if (!res.ok) {
+  //         if (res.status === 401) {
+  //           router.push('/signin');
+  //           return;
+  //         }
+  //         throw new Error(`Failed to fetch user: ${res.status} ${res.statusText}`);
+  //       }
+
+  //       const data = await res.json();
+  //       console.log('Fetched user:', data);
+  //       setUser(data.user);
+  //     } catch (err) {
+  //       console.error('Error fetching user:', err);
+  //       setError(err instanceof Error ? err.message : 'Failed to fetch user');
+  //       router.push('/signin');
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   if (slug) fetchUser();
+  // }, [router, slug]);
 
   if (loading) return <Spinner />;
   if (error) return <p className="text-red-500">{error}</p>;

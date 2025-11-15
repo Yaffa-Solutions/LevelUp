@@ -2,6 +2,10 @@ const authService = require('../services/authService');
 const jwt = require('jsonwebtoken');
 const { addTokenToBlacklist } = require('../middleware/tokenBlackList');
 const { jwtSecret } = require('../config/app.config');
+const bcrypt = require('bcryptjs');
+const userService = require('../services/userService');
+const { sendOTP } = require('../services/emailService'); 
+
 
 const signUp = async (req, res) => {
   try {
@@ -42,7 +46,6 @@ const verifyOTP = async (req, res) => {
       httpOnly: true,
       secure: false,
       sameSite: 'lax',
-      // domain: 'localhost', 
       maxAge: 60 * 60 * 1000
     });
     
@@ -74,46 +77,48 @@ const signIn = async (req, res) => {
     if (!email || !password)
       return res.status(400).json({ message: 'Email and password required' });
 
-    const { token, is_profile_complete, id, email: userEmail } = await authService.signIn(email, password);
+    const result = await authService.signIn(email, password);
 
+    if (result.status === 'VERIFY_EMAIL') {
+      return res.status(200).json({
+        status: 'VERIFY_EMAIL',
+        message: 'OTP sent to your email',
+        email: result.email
+      });
+    }
 
-     res.clearCookie('connect.sid', {
+    res.cookie('token', result.token, {
       httpOnly: true,
       secure: false,
       sameSite: 'lax',
+      maxAge: 60 * 60 * 1000,
     });
 
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 1000, 
-    });
-
-    if (!is_profile_complete) {
+    if (!result.is_profile_complete) {
       return res.status(200).json({
         status: 'PROFILE_INCOMPLETE',
         message: 'Profile not complete',
         redirect: '/create-profile',
-        token,  
-        email: userEmail,
-        id
+        token: result.token,
+        email: result.email,
+        id: result.id
       });
     }
-   res.status(200).json({
+
+    // كل شيء تمام → الهوم
+    res.status(200).json({
       message: 'Login successful',
       redirect: '/home',
-      token,
-      is_profile_complete,
-      email: userEmail,
-      id,
+      token: result.token,
+      is_profile_complete: result.is_profile_complete,
+      email: result.email,
+      id: result.id,
     });
 
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 };
-
 const getAll = async (req, res) => {
   try {
     const users = await authService.getAllUsers();
