@@ -2,7 +2,7 @@ const experienceService = require('../services/experiences.service.js');
 
 const getTalentExperiences = async (req, res, next) => {
   try {
-    const userId = req.user.userId;
+    const userId = req.user?.userId;
 
     const talentExperiences = await experienceService.getTalentExperiences(
       userId

@@ -38,7 +38,7 @@ export default function AllSkillsPage() {
        }
 
        const data = await res.json();
-       setUserId(data.id);
+       setUserId(data.user.id);
      } catch (err) {
        console.error('Error fetching user ID:', err);
        setError(err instanceof Error ? err.message : 'Failed to fetch user');

@@ -1,11 +1,11 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
+import { toast } from 'react-hot-toast';
 
 export default function EmailVerification() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  // const email = searchParams.get('email') || '' 
   const [email, setEmail] = useState('') 
   const [otp, setOtp] = useState<string[]>(['', '', '', '', ''])
   const [timeLeft, setTimeLeft] = useState<number>(60)
@@ -57,12 +57,20 @@ export default function EmailVerification() {
       const data = await res.json()
 
       if (res.ok) {
-        router.push('/create-profile')
-      } else {
-        alert(data.message)
-        setOtp(['', '', '', '', ''])
-        inputRefs.current[0]?.focus()
+      if (data.token) {
+        localStorage.setItem('token', data.token)
       }
+      if (data.is_profile_complete) {
+       router.push('/chat') 
+      } else {
+        router.push('/create-profile')
+      }
+
+    } else {
+      alert(data.message)
+      setOtp(['', '', '', '', ''])
+      inputRefs.current[0]?.focus()
+    }
     } catch (err) {
       console.error(err)
       alert('Server error')
@@ -70,14 +78,28 @@ export default function EmailVerification() {
   }
 
   const handleResend = async () => {
-    await fetch(`${process.env.BACKEND_URL}/auth/resend-otp`, {
+    try{
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/resend-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email })
     })
+
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.message);
     setTimeLeft(60)
     setOtp(['', '', '', '', ''])
     inputRefs.current[0]?.focus()
+    toast.success('OTP has been sent again');
+  }catch (err: unknown) {
+     console.error(err);
+     if (err instanceof Error) {
+       toast.error(err.message);
+     } else {
+       toast.error('Server error');
+     }
+   }
   }
 
   return (

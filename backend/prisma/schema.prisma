@@ -8,9 +8,156 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-//
-// ENUMS
-//
+model UserLevels {
+  id    String @id @default(uuid())
+  name  String
+  plans Plan[]
+  user  User[]
+}
+
+model User {
+  id                  String           @id @default(uuid())
+  email               String           @unique
+  password            String?
+  google_id           String?          @unique
+  first_name          String
+  last_name           String
+  profil_picture      String?
+  is_verified         Boolean
+  created_at          DateTime         @default(now())
+  updated_at          DateTime         @updatedAt
+  role                Role
+  about               String?
+  level_id            String?
+  company_name        String?
+  job_title           String?
+  company_description String?
+  is_profile_complete Boolean          @default(false)
+  chats1              Chat[]           @relation("user1")
+  chats2              Chat[]           @relation("user2")
+  experiences         Experience[]
+  jobs                Job[]
+  jobApplications     JobApplication[]
+  jobSaves            JobSave[]
+  plans               Plan[]
+  posts               Post[]
+  postReactions       PostReaction[]
+  skillTalents        SkillTalent[]
+  levels              UserLevels?       @relation(fields: [level_id], references: [id])
+}
+
+model Chat {
+  id       String      @id @default(uuid())
+  type     TypeOfChats
+  user1_id String
+  user2_id String
+  user1    User        @relation("user1", fields: [user1_id], references: [id])
+  user2    User        @relation("user2", fields: [user2_id], references: [id])
+  messages Message[]
+}
+
+model Message {
+  id           String   @id @default(uuid())
+  sender_id    String?
+  chat_id      String
+  content      String
+  created_at   DateTime @default(now())
+  content_type String?
+  chat         Chat     @relation(fields: [chat_id], references: [id])
+}
+
+model Job {
+  id              String           @id @default(uuid())
+  hunter_id       String
+  meta_data       Json?
+  created_at      DateTime         @default(now())
+  hunter          User             @relation(fields: [hunter_id], references: [id], onDelete: Cascade)
+  jobApplications JobApplication[]
+  jobSaves        JobSave[]
+}
+
+model JobApplication {
+  id         String   @id @default(uuid())
+  job_id     String
+  talent_id  String
+  status     Status
+  created_at DateTime @default(now())
+  job        Job      @relation(fields: [job_id], references: [id], onDelete: Cascade)
+  talent     User     @relation(fields: [talent_id], references: [id], onDelete: Cascade)
+}
+
+model JobSave {
+  id         String   @id @default(uuid())
+  job_id     String
+  talent_id  String
+  created_at DateTime @default(now())
+  job        Job      @relation(fields: [job_id], references: [id], onDelete: Cascade)
+  talent     User     @relation(fields: [talent_id], references: [id], onDelete: Cascade)
+
+  @@unique([talent_id, job_id])
+}
+
+model Post {
+  id            String         @id @default(uuid())
+  user_id       String
+  content       String
+  created_at    DateTime       @default(now())
+  updated_at    DateTime       @updatedAt
+  user          User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  postReactions PostReaction[]
+}
+
+model PostReaction {
+  id         String   @id @default(uuid())
+  post_id    String
+  user_id    String
+  created_at DateTime @default(now())
+  post       Post     @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, post_id])
+}
+
+model Skill {
+  id           String        @id @default(uuid())
+  skill_name   String
+  skillTalents SkillTalent[]
+}
+
+model SkillTalent {
+  id       String @id @default(uuid())
+  user_id  String
+  skill_id String
+  skill    Skill  @relation(fields: [skill_id], references: [id], onDelete: Cascade)
+  user     User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model Plan {
+  id                   String     @id @default(uuid())
+  user_id              String
+  active               Boolean    @default(false)
+  plan_name            String
+  started_time         DateTime
+  end_time             DateTime
+  recommended_resource Json?
+  content              String
+  level_id             String
+  target_level         UserLevels @relation(fields: [level_id], references: [id])
+  user                 User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model Experience {
+  id              String         @id @default(uuid())
+  user_id         String
+  company_name    String
+  position        String
+  start_date      DateTime
+  end_date        DateTime?
+  description     String
+  employment_type EmploymentType
+  user            User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
 enum Role {
   TALENT
   HUNTER
@@ -32,158 +179,4 @@ enum EmploymentType {
 enum Status {
   ACCEPTED
   REJECTED
-}
-
-//
-// MODELS
-//
-model UserLevels {
-  id    String  @id @default(uuid())
-  name  String
-  user  User[]
-  plans Plan[]
-}
-
-model User {
-  id                   String        @id @default(uuid())
-  email                String        @unique
-  password             String?
-  google_id            String?       @unique
-  cv_url               String?
-  first_name           String
-  last_name            String
-  profil_picture       String?
-  is_verified          Boolean
-  created_at           DateTime      @default(now())
-  updated_at           DateTime      @updatedAt
-  role                 Role
-  about                String?
-  level_id             String?
-  company_name         String?
-  job_title            String?
-  company_description  String?
-
-  // Relations
-  levels               UserLevels?   @relation(fields: [level_id], references: [id])
-  chats1               Chat[]        @relation("user1")
-  chats2               Chat[]        @relation("user2")
-  jobs                 Job[]
-  jobApplications      JobApplication[]
-  jobSaves             JobSave[]
-  posts                Post[]
-  postReactions        PostReaction[]
-  skillTalents         SkillTalent[]
-  plans                Plan[]
-  experiences          Experience[]
-}
-
-model Chat {
-  id        String      @id @default(uuid())
-  type      TypeOfChats
-  user1_id  String
-  user2_id  String
-  user1     User        @relation("user1", fields: [user1_id], references: [id], onDelete: Cascade)
-  user2     User        @relation("user2", fields: [user2_id], references: [id], onDelete: Cascade)
-  messages  Message[]
-}
-
-model Message {
-  id           String   @id @default(uuid())
-  sender_id    String?
-  chat_id      String
-  content      String
-  created_at   DateTime @default(now())
-  content_type String?
-  chat         Chat     @relation(fields: [chat_id], references: [id], onDelete: Cascade)
-}
-
-model Job {
-  id              String           @id @default(uuid())
-  hunter_id       String
-  meta_data       Json?
-  hunter          User             @relation(fields: [hunter_id], references: [id], onDelete: Cascade)
-  jobApplications JobApplication[]
-  jobSaves        JobSave[]
-}
-
-model JobApplication {
-  id          String   @id @default(uuid())
-  job_id      String
-  talent_id   String
-  status      Status
-  created_at  DateTime @default(now())
-  talent      User     @relation(fields: [talent_id], references: [id], onDelete: Cascade)
-  job         Job      @relation(fields: [job_id], references: [id], onDelete: Cascade)
-}
-
-model JobSave {
-  id          String   @id @default(uuid())
-  job_id      String
-  talent_id   String
-  created_at  DateTime @default(now())
-  talent      User     @relation(fields: [talent_id], references: [id], onDelete: Cascade)
-  job         Job      @relation(fields: [job_id], references: [id], onDelete: Cascade)
-
-  @@unique([talent_id, job_id])
-}
-
-model Post {
-  id            String         @id @default(uuid())
-  user_id       String
-  content       String
-  created_at    DateTime       @default(now())
-  updated_at    DateTime       @updatedAt
-  user          User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  postReactions PostReaction[]
-}
-
-model PostReaction {
-  id          String   @id @default(uuid())
-  post_id     String
-  user_id     String
-  created_at  DateTime @default(now())
-  post        Post     @relation(fields: [post_id], references: [id], onDelete: Cascade)
-  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@unique([user_id, post_id])
-}
-
-model Skill {
-  id           String        @id @default(uuid())
-  skill_name   String        @unique
-  skillTalents SkillTalent[]
-}
-
-model SkillTalent {
-  id        String @id @default(uuid())
-  user_id   String
-  skill_id  String
-  user      User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  skill     Skill  @relation(fields: [skill_id], references: [id], onDelete: Cascade)
-}
-
-model Plan {
-  id                   String      @id @default(uuid())
-  user_id              String
-  active               Boolean     @default(false)
-  plan_name            String
-  started_time         DateTime
-  end_time             DateTime
-  recommended_resource Json?
-  content              String
-  level_id             String
-  target_level         UserLevels  @relation(fields: [level_id], references: [id])
-  user                 User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
-}
-
-model Experience {
-  id              String         @id @default(uuid())
-  user_id         String
-  company_name    String
-  position        String
-  start_date      DateTime
-  end_date        DateTime?
-  description     String
-  employment_type EmploymentType
-  user            User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }

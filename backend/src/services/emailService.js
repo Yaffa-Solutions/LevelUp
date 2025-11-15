@@ -20,7 +20,7 @@ transporter.verify((error, success) => {
 
 const sendOTP = async (email, otp) =>{
   await transporter.sendMail({
-    from: process.env.GMAIL_USER,
+    from: `"LevelUp Platform" <no-reply@levelup.com>`,
     to: email,
     subject: 'Your verification code',
     text: `Your OTP code is ${otp}`,

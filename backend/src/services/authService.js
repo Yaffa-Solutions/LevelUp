@@ -4,8 +4,7 @@ const jwt = require('jsonwebtoken');
 const { jwtSecret } = require('../config/app.config');
 const { sendOTP } = require('./emailService'); 
 const generateOTP = require('../utils/generateOTP');
-// const { PrismaClient } = require('../generated/prisma');
-// const prisma = new PrismaClient();
+
 
 const otpStore = new Map(); 
 const generateToken = (userId) => {
@@ -26,7 +25,8 @@ const signUp = async (email, password) => {
       last_name: 'Unknown',
       role: 'TALENT',
       is_verified: false,
-      // level_id: 'c937bf29-6171-4637-9050-8408200f246a'
+      // level_id,
+      is_profile_complete: false,
     }
   });
   const otp = generateOTP();
@@ -35,6 +35,18 @@ const signUp = async (email, password) => {
   await sendOTP(email, otp);
 
   return user;
+}
+
+const resendOTP = async (email) => {
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) throw new Error('User not found');
+
+  const otp = generateOTP();
+  const expiresAt = Date.now() + 5 * 60 * 1000; 
+  otpStore.set(email, { otp, expiresAt });
+
+  await sendOTP(email, otp);
+  return true;
 }
 
 const verifyOTP = async (email, otp) => {
@@ -56,19 +68,40 @@ const verifyOTP = async (email, otp) => {
     data: { is_verified: true }
   });
 
-  return generateToken(user.id);
+  const token =  generateToken(user.id);
+  return { user, token };
 }
+
+
+
 
 const signIn = async (email, password) => {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) throw new Error('User not found');
 
+  if (!user.is_verified) {
+    const otp = generateOTP();
+    const expiresAt = Date.now() + 5 * 60 * 1000; 
+    otpStore.set(email, { otp, expiresAt });
+    await sendOTP(email, otp);
+
+    return { status: 'VERIFY_EMAIL', email };
+  }
+
+  if (!user.password) throw new Error('User password is missing');
+
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) throw new Error('Invalid credentials');
 
-  return generateToken(user.id);
+  const token = generateToken(user.id);
+  return {
+    token,
+    is_profile_complete: user.is_profile_complete,
+    is_verified: user.is_verified,
+    email: user.email,
+    id: user.id
+  };
 }
-
 const getAllUsers = async () => {
   return await prisma.user.findMany();
 }
@@ -81,4 +114,4 @@ const deleteUserByEmail = async (email) => {
   return user;
 }
 
-module.exports = { signUp, verifyOTP, signIn, getAllUsers, deleteUserByEmail  };
+module.exports = { signUp, verifyOTP, resendOTP, signIn, getAllUsers, deleteUserByEmail  };

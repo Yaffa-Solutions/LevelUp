@@ -6,7 +6,7 @@ import RoleSwitcher from '../components/jobs/RoleSwitcher';
 import UserCard from "../components/userCard";
 import Image from "next/image";
 import { toast } from 'react-hot-toast';
-
+import { useRouter } from 'next/navigation';
 type UserRole = 'TALENT' | 'HUNTER' | 'BOTH';
 type ActiveView = 'TALENT' | 'HUNTER';
 
@@ -371,6 +371,7 @@ export default function JobsPage() {
   const [appliedJobs, setAppliedJobs] = useState<Job[]>([]);
   const [isAppliedJobsModalOpen, setIsAppliedJobsModalOpen] = useState(false);
  
+  const router = useRouter();
    useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/levels/`, { credentials: 'include' })
       .then(res => res.json())
@@ -388,10 +389,12 @@ export default function JobsPage() {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`, 
           { credentials: 'include' });
-        const userData: User = await res.json();
-        setUser(userData);
+        // const userData: User = await res.json();
+        const userData = await res.json()
+        console.log(userData)
+        setUser(userData.user);
 
-        if (userData.role === 'HUNTER') setActiveView('HUNTER');
+        if (userData.user.role === 'HUNTER') setActiveView('HUNTER');
         else setActiveView('TALENT');
       } catch (err) {
         console.error(err);
@@ -791,10 +794,22 @@ const filteredAvailable = availableJobs.filter(
 );
 
 
+// const goToProfile = (applicantId) => {
+//     router.push(`/profile/${applicantId}`);
+// }
+const goToProfile = (talent: { id: string; first_name: string; last_name: string }) => {
+
+  //  localStorage.setItem('profileUserId', talent.id);
+  // const randomNum = Math.floor(Math.random() * 10000); // رقم عشوائي من 0 إلى 9999
+  // const slug = `${talent.first_name.toLowerCase()}-${talent.last_name.toLowerCase()}-${randomNum}`;
+  router.push(`/profile/${talent.id}`);
+};
+
+
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-8">
       {isSwitchable && <RoleSwitcher activeView={activeView} onSwitch={handleSwitchView} />}
-      <div className="flex flex-col sm:flex-row gap-6 sm:gap-[40px] mt-7 mb-7">
+      <div className="flex flex-col sm:flex-row gap-6 sm:gap-[40px] mt-20 mb-7">
         <div className="w-1/4 min-w-[250px] space-y-4 "> 
           <UserCard />
 
@@ -965,6 +980,11 @@ const filteredAvailable = availableJobs.filter(
             </div>
             <ul className="space-y-2 max-h-64 overflow-y-auto">
               {selectedApplicants.map(app => (
+                 <div
+                   key={app.talent.id}
+                   className="applicant-item cursor-pointer"
+                   onClick={() => goToProfile(app.talent)}
+                 >
                 <li key={app.talent.id} className="ml-3 flex items-center space-x-3">
                   {app.talent.profil_picture && (
                     <Image 
@@ -977,6 +997,7 @@ const filteredAvailable = availableJobs.filter(
                     )}
                   <span>{app.talent.first_name} {app.talent.last_name}</span>
                 </li>
+                </div>
               ))}
             </ul>
           </div>
